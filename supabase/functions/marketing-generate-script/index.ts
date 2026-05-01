@@ -548,12 +548,16 @@ Deno.serve(async (req) => {
       ? `USER_DIRECTION (treat as the creative core — build the scene around this; format rules govern camera/structure only): ${direction}\n`
       : `USER_DIRECTION: (none — invent a product-specific creative angle from the visible product details)\n`;
 
-    // System prompt = firewall + Creatify strategy + format prompt + Creatify skill.
-    // The runtime directive makes the skill operational instead of passive reference.
-    const skillBlock = CREATIFY_SKILL
-      ? `\n\n---\nCREATIFY SKILL SOURCE (use the hook formulas, body structures, and testing mindset below to shape the ad idea; format rules still control camera/output syntax):\n${CREATIFY_SKILL}`
-      : '';
-    const sys = `${HUMAN_UGC_FIREWALL}\n\n${CREATIFY_RUNTIME_DIRECTIVE}\n\n${FORMAT_SYSTEM_PROMPTS[format] || FORMAT_SYSTEM_PROMPTS.UGC}${skillBlock}`;
+    // Only inject a random creative angle when the user gave no direction — otherwise
+    // the random roll fights the user's intent and produces off-brief scripts.
+    const creativeAngleBlock = direction
+      ? ''
+      : `CREATIVE_ANGLE_HINT (use only if it fits the product; ignore if it doesn't): ${rollCreativeAngle()}\n`;
+
+    // System prompt = firewall + format prompt + distilled Creatify reference.
+    // Order: hardest rules first (firewall), format-specific structure second,
+    // light Creatify hints last so they stay reference, not checklist.
+    const sys = `${HUMAN_UGC_FIREWALL}\n\n${FORMAT_SYSTEM_PROMPTS[format] || FORMAT_SYSTEM_PROMPTS.UGC}\n\n${CREATIFY_DISTILLED}`;
 
     // ---------- Build hard duration spec ----------
     const durSec = Math.max(1, Math.min(60, Number(duration) || 8));
