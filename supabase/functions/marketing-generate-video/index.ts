@@ -181,9 +181,14 @@ async function submitAtlas(opts: {
   const atlasImageUrls = hasRefs
     ? await Promise.all(opts.image_urls.slice(0, 9).map((url, index) => uploadAtlasMedia(url, index, 'image')))
     : [];
-  const atlasAudioUrls = hasRefs && opts.audio_urls.length > 0
-    ? await Promise.all(opts.audio_urls.slice(0, 3).map((url, index) => uploadAtlasMedia(url, index, 'audio')))
-    : [];
+  let atlasAudioUrls: string[] = [];
+  if (hasRefs && opts.audio_urls.length > 0) {
+    try {
+      atlasAudioUrls = await Promise.all(opts.audio_urls.slice(0, 3).map((url, index) => uploadAtlasMedia(url, index, 'audio')));
+    } catch (e) {
+      log('WARN', 'submit: atlas audio upload failed, continuing with image refs', { err: e instanceof Error ? e.message : String(e) });
+    }
+  }
   const body: Record<string, unknown> = {
     model,
     prompt: opts.prompt,
