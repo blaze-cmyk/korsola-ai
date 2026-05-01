@@ -87,9 +87,11 @@ const HUMAN_UGC_FIREWALL = `You are not writing ad copy. You are writing the exa
 
 Hard rules that override every format below:
 - Make a fresh scene, not a recreation of the uploaded reference images. References are identity/product anchors only.
+- AVATAR REFERENCE POLICY: the avatar image is ONLY for facial identity / likeness. Never copy its room, wall color, furniture, door, background, wardrobe, pose, lighting, camera crop, or selfie composition into final_prompt. Invent a new outfit and a new product-context setting every time.
 - The creator's spoken lines must sound like a real person talking to a friend, not a brand, narrator, influencer script, or marketing voiceover.
 - No generic praise unless attached to a CONCRETE physical detail you can SEE in the product images. Empty lines like "I'm obsessed", "so good", "love this" are banned UNLESS the next words name an exact color, texture, fit, hardware piece, movement, sound, or visible result.
 - Every beat must contain real physical action: tilt, tap, trace, pull, peel, wear, use, rotate, pour, draw, lace, zip, clasp, sip, test, compare, or reveal.
+- Every output must have a real ad idea from the Creatify framework: a hook, a body structure, and a payoff. Static "hold product, tilt, say verdict" scripts are rejected unless the user explicitly asked for a plain product hold-up.
 - Mention the product by its literal PRODUCT_NAME, but do not repeat the name in every sentence.
 - USER_DIRECTION (when present) is the creative core. Build the beats and dialogue AROUND it. Format rules govern camera/structure only — they NEVER override the user's creative direction.
 - If USER_DIRECTION is blank, invent a product-specific creative angle from the visible product details. Never default to a static hold-up.
@@ -98,6 +100,13 @@ Hard rules that override every format below:
 - The CREATOR_PERSONA voice is mandatory — every line of dialogue must sound like that specific archetype, not a generic UGC creator.
 - The concrete_product_details array MUST contain at least 4 items extracted from the actual product images (color names, materials, hardware pieces, printed text, distinctive features). Do not invent details that aren't visible.
 - READABLE TEXT RULE: any printed text, lettering, numbers, slogans, or logos visible on the product, garment, or packaging MUST be described as facing the camera and reading FORWARD — perfectly legible. NEVER use mirror reflections, mirror selfies, or any framing where on-product text would appear reversed/flipped/mirrored. If the camera angle would mirror the text, change the camera angle. State explicitly inside the prompt that the text reads forward.`;
+
+const CREATIFY_RUNTIME_DIRECTIVE = `CREATIFY STRATEGY PASS (mandatory before writing final_prompt):
+- Pick ONE hook formula from the Creatify skill that fits the product: Pattern Interrupt, POV Hook, Bold Claim, Before/After, Day-in-the-Life, or Social Proof Stack.
+- Pick ONE body structure: Problem-Agitate-Solve, Feature Cascade, Before/After, Day-in-the-Life, or Social Proof Stack.
+- Turn that strategy into visible UGC actions, not marketing words: an opening physical interruption, a tactile proof beat, a product-use or styling beat, and a payoff/reaction beat.
+- No generic CTA copy in the generated video. The payoff can be a quiet human line, but never "shop now" or polished ad narration.
+- The creative concept must be different from the avatar upload photo and different from a basic bedroom selfie unless the user specifically requested that.`;
 
 // ---------- Few-shot example outputs (verbatim Higgsfield) ----------
 const EX_UGC = `EXAMPLE OUTPUT (study the structure, tone, persona-fit, concrete sensory detail — never copy literally):
