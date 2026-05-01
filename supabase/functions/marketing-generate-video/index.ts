@@ -206,7 +206,9 @@ async function pollFal(requestId: string): Promise<{
     return { status: 'failed', error: 'No video returned' };
   }
   if (status.status === 'FAILED' || status.status === 'ERROR') {
-    return { status: 'failed', error: 'fal reported failure' };
+    const detail = Array.isArray(status?.detail) ? status.detail[0] : status?.detail;
+    const msg = detail?.msg || status?.error || status?.message || 'fal reported failure';
+    return { status: 'failed', error: `fal: ${msg}` };
   }
   return { status: 'running' };
 }
