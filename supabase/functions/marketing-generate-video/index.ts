@@ -18,6 +18,7 @@ const ATLAS_KEY = Deno.env.get('ATLASCLOUD_API_KEY') ?? '';
 const FAL_KEY = Deno.env.get('FAL_KEY') ?? '';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const PROVIDER_TIMEOUT_MS = 10 * 60 * 1000;
 
 type Provider = 'atlascloud' | 'fal';
 
@@ -163,6 +164,17 @@ function normalizeRes(r: string) {
   return '720p';
 }
 
+function providerEndpoint(provider: Provider, hasRefs: boolean) {
+  if (provider === 'atlascloud') {
+    return hasRefs
+      ? 'bytedance/seedance-2.0/reference-to-video'
+      : 'bytedance/seedance-2.0/text-to-video';
+  }
+  return hasRefs
+    ? 'bytedance/seedance-2.0/reference-to-video'
+    : 'bytedance/seedance-2.0/text-to-video';
+}
+
 // ---------------- AtlasCloud (primary) ----------------
 // Docs: POST https://api.atlascloud.ai/api/v1/model/generateVideo
 // model: bytedance/seedance-2.0/reference-to-video (supports up to 9 reference images)
@@ -278,19 +290,19 @@ async function submitFal(opts: {
   return { ok: res.ok && !!json?.request_id, requestId: json?.request_id, raw: json };
 }
 
-async function pollFal(requestId: string): Promise<{
+async function pollFal(requestId: string, endpoint = 'bytedance/seedance-2.0/reference-to-video'): Promise<{
   status: 'running' | 'done' | 'failed';
   videoUrl?: string | null;
   error?: string;
 }> {
   const statusRes = await fetch(
-    `https://queue.fal.run/bytedance/seedance-2.0/requests/${requestId}/status`,
+    `https://queue.fal.run/${endpoint}/requests/${requestId}/status`,
     { headers: { Authorization: `Key ${FAL_KEY}` } },
   );
   const status = await statusRes.json().catch(() => ({}));
   if (status.status === 'COMPLETED') {
     const respRes = await fetch(
-      `https://queue.fal.run/bytedance/seedance-2.0/requests/${requestId}`,
+      `https://queue.fal.run/${endpoint}/requests/${requestId}`,
       { headers: { Authorization: `Key ${FAL_KEY}` } },
     );
     const resp = await respRes.json().catch(() => ({}));
@@ -416,10 +428,24 @@ Deno.serve(async (req) => {
         });
       }
 
+      const startedAt = Date.parse(row.updated_at || row.created_at || '') || Date.now();
+      if (Date.now() - startedAt > PROVIDER_TIMEOUT_MS) {
+        const timeoutMessage = `Timed out after ${Math.round(PROVIDER_TIMEOUT_MS / 60000)} minutes at provider ${row.provider} (${row.fal_request_id}). Submit a retry to create a fresh job.`;
+        const { data: updated } = await admin
+          .from('ms_generations')
+          .update({ status: 'failed', stage: 'failed', error: timeoutMessage })
+          .eq('id', row.id)
+          .select()
+          .single();
+        return new Response(JSON.stringify(updated), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
       const result =
         row.provider === 'atlascloud'
           ? await pollAtlas(row.fal_request_id)
-          : await pollFal(row.fal_request_id);
+          : await pollFal(row.fal_request_id, providerEndpoint('fal', (row.reference_paths || []).length > 0));
 
       if (result.status === 'done') {
         const { data: updated } = await admin
@@ -511,6 +537,11 @@ Deno.serve(async (req) => {
         .eq('id', row.id)
         .select()
         .single();
+      log('INFO', 'retry: submitted', {
+        jobId: row.id,
+        provider: result.provider,
+        endpoint: providerEndpoint(result.provider, refs.length > 0),
+      });
       return new Response(JSON.stringify(updated), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -673,7 +704,11 @@ Deno.serve(async (req) => {
       .select()
       .single();
 
-    log('INFO', 'submit: done', { jobId: row.id, provider: result.provider });
+    log('INFO', 'submit: done', {
+      jobId: row.id,
+      provider: result.provider,
+      endpoint: providerEndpoint(result.provider, finalImageUrls.length > 0),
+    });
 
     return new Response(
       JSON.stringify({
