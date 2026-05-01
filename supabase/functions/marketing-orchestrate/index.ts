@@ -164,7 +164,7 @@ function buildFallbackPrompt(args: {
     header = `Vertical 9:16 satisfying ASMR unboxing, overhead top-down camera looking straight down at a light wooden desk, only hands visible — natural female hands with short nails, cozy oversized sweater sleeves, warm soft natural daylight from a window on the left, slow deliberate ASMR-style movements, no music, only crisp natural sounds (cardboard tap, sticker peel, tissue rustle), real skin tones, no filters.`;
     beats = productName
       ? `Hands tap the box lid three times — soft hollow cardboard thuds. Both hands lift the lid straight up slowly, revealing tissue paper inside. Fingers peel the seal with a crisp peel sound, pull the tissue apart, and lift out the ${productName}${productDesc ? ` — ${productDesc}` : ''}. Hands rotate it slowly at center frame, catching the warm light on every surface and detail. Final beat: the ${productName} placed upright on the desk beside the open box, hands pull away, hold the beauty shot for one and a half seconds.`
-      : `Hands slowly open the box, peel the tissue, and lift out the product. Rotate it gently at center frame in warm light, then place it upright on the desk for a final beauty shot.`;
+        : `Hands slowly open the box, peel the tissue, and lift out the product. Rotate it gently at center frame in warm light, then place it upright on the desk for a final beauty shot.`;
   } else if (fmtLower.includes('try on') || fmtLower.includes('try-on')) {
     header = `Vertical 9:16 UGC try-on, shot on iPhone front camera in mirror-selfie style, soft natural daylight in an aesthetic bedroom, handheld slight micro-shake, real skin tones, no color grading, no filters, confident playful "watch this" energy.`;
     beats = `${avatarName ? avatarName : avatarSubject} stands in front of the mirror holding the phone${productName ? `, holds up the ${productName}${productDesc ? ` (${productDesc})` : ''} on a hanger to camera with a small raised-eyebrow smile` : ''}. Quick natural cut: ${avatarPronoun} is now wearing the outfit, smooths the fabric down, turns side to side checking the fit, does one slow confident spin so the fabric catches the light. Final beat: ${avatarPronoun} faces the mirror straight on, strikes a relaxed editorial pose, holds it for a beat, then breaks into a small satisfied smile.`;
@@ -196,7 +196,7 @@ function buildFallbackPrompt(args: {
   return [
     header,
     beats,
-    'Style rules: one continuous take, no jump cuts that imply editing, no split-screens, no text overlays, no logos baked in, no music, only natural ambient sound. Avoid words like introducing, game-changer, elevate, must-have. Keep dialogue short, casual, real.',
+    'Action and dialogue sequence must create a new scene using the references only as anchors. Do not recreate the exact uploaded product/avatar image. No split-screens, no text overlays, no logos baked in, no music, only natural ambient sound. Avoid words like introducing, game-changer, elevate, must-have. Keep dialogue short, casual, real, and tied to visible physical details.',
   ].join('\n') + userLine;
 }
 
