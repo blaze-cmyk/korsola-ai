@@ -653,7 +653,9 @@ Deno.serve(async (req) => {
       maxProductImages: 1,
     });
 
-    // Pull the avatar's pre-generated reference voice clip.
+    // Pull the avatar's pre-generated reference voice clip. For Podcast Mode A
+    // we ALSO append a smooth-warm Jessica clip as the second-speaker reference
+    // so Seedance doesn't invent a default high-pitched voice for speaker B.
     const audio_urls: string[] = [];
     if (avatarId) {
       const { data: av } = await admin
@@ -662,6 +664,10 @@ Deno.serve(async (req) => {
         .eq('id', avatarId)
         .maybeSingle();
       if (isValidHttpUrl(av?.voice_sample_url)) audio_urls.push(String(av?.voice_sample_url).trim());
+    }
+    if (String(format).toLowerCase() === 'podcast') {
+      const secondVoice = await ensurePodcastSecondVoiceUrl(admin);
+      if (secondVoice && !audio_urls.includes(secondVoice)) audio_urls.push(secondVoice);
     }
 
     // 1) Persist row immediately (so client polling has a real id) — or reuse one created by the orchestrator
