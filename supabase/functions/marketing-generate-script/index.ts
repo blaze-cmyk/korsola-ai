@@ -285,14 +285,34 @@ POSTURE-AS-PROOF: for comfort, wellness, loungewear, or sleepwear products, the 
 
 BEATS: scale to DURATION using the STRICT DURATION SPEC windows above. Every script MUST include at least one TACTILE PROOF BEAT — a physical action (pinch fabric, pull hood, grip strap, throw matching piece) that lands inside the same beat as the claim it validates. If the script needs a wardrobe or state change, mask the cut with an ACTION-CUT TRANSITION (throw mask / lean mask / hand-swipe mask) — describe the action and write 'Hard cut masked by motion blur of …' verbatim. All other Mode A multi-cam cuts are normal hard cuts between the three locked angles, motivated by speech.
 
-DIALOGUE RULES:
-- Two distinct speakers, all lines in double quotes, ≤14 words per line.
-- Attribute every spoken line to the correct speaker by name immediately before the quote.
-- At least three disfluencies spread across the script: like, cause, bro, dude, girl, wait, okay, oh, right?, I mean.
-- Conversational overlap is encouraged: write two consecutive quoted lines for the same beat to signal speakers stepping on each other.
+DIALOGUE — write like a real TikTok/YouTube podcast clip, NOT like an ad read. The cinematography is already perfect; the script is what makes or breaks this. Study the EX_PODCAST example for the energy level.
+
+PACING IS THE #1 LEVER. A real podcast clip is NEVER monotone. You MUST vary pacing across the runtime:
+- FAST BURSTS: short, overlapping, excited lines stacked back-to-back ("wait — bro — I have to say it"). Use fast bursts for hooks, reactions, hype moments.
+- SLOW PUNCHLINES: one beat, deliberate delivery, a pause before or after the key word. Use slow for the meme-able line, the dry comeback, the realization.
+- BREATHS & FILLER: write at least one mid-sentence em-dash break or self-correction ("it's like — it's actually insane"), and at least one audible reaction without words (a laugh, a slow blink, "pfff", "huh", an exhale into the mic written in the action description).
+- The runtime should physically feel like a wave: fast → slow → fast → punchline.
+
+HUMOR & EXPRESSION — this is a PODCAST not a commercial. Required in every script:
+- At least one moment of GENUINE LAUGHTER (someone laughs mid-line, head tips back, snorts, breaks character for half a second). Describe it physically in the action, not just "laughs".
+- At least one DRY/DEADPAN line from the second speaker (one-word reaction, raised eyebrow, "continue", "no", "is that legal", "that's disgusting").
+- At least one moment of SLIGHT EXAGGERATION or playful chaos ("I literally have not taken these off in four days", "this is genuinely a problem", "everyone's getting one"). Real podcast clips go viral on ONE quotable line — write that line on purpose.
+- Reactions are PHYSICAL: eye-rolls, slow blinks, head tips, mouthing words off-mic, leaning back, pulling away from the mic. Write them into the shot tag, not into a stage direction at the end.
+
+MECHANICS:
+- Two distinct speakers. All spoken lines in double quotes, ≤14 words per line.
+- Attribute every line to the speaker by name immediately before the quote.
+- Spread at least 4 disfluencies across the script: like, cause, bro, dude, girl, wait, okay, oh, right?, I mean, no but, literally, genuinely. Never stack them — sprinkle.
+- CONVERSATIONAL OVERLAP is mandatory: at least once, write two consecutive quoted lines from different speakers in the same beat to signal them stepping on each other.
 - Voice MUST match CREATOR_PERSONA exactly for the on-camera guest.
-- The second speaker (Mode A only) speaks with a smooth, warm, low-register tone — calm and conversational, never bubbly or high-pitched. Describe their voice in the prompt as "smooth warm voice, low register, conversational".
-- No "Hey guys", "today I'm reviewing", "let's take a look".
+- The second speaker (Mode A only) speaks with a smooth, warm, low-register tone — calm and conversational, often the dry-comedic foil to the more excitable first speaker. Describe their voice in the prompt as "smooth warm voice, low register, dry comedic delivery".
+
+BANNED AI-SLOP PHRASING — never write any of these:
+- "Hey guys", "today I'm reviewing", "let's take a look", "let's talk about", "in this video"
+- "absolutely love", "obsessed with", "game changer", "10 out of 10", "highly recommend", "must-have", "let me tell you"
+- Symmetrical Q&A where speaker A asks a clean feature question and speaker B gives a clean feature answer. Real podcasts tangent, interrupt, joke, then circle back to the product.
+- Any line that sounds like it was written for an ad. If you wouldn't say it to your friend on a couch, cut it.
+
 
 CTA: end with one of — direct ("you gotta get a set"), soft intrigue ("they have every color you could ever want"), pointed fourth-wall (guest locks elbow, points finger into the lens), or social proof close ("all my friends are blowing me up").
 
