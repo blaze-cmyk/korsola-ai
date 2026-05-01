@@ -12,11 +12,25 @@ const corsHeaders = {
 };
 
 const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY')!;
+const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY') ?? '';
+const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY') ?? '';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
-const PRIMARY_MODEL = 'google/gemini-2.5-pro';
-const FALLBACK_MODEL = 'google/gemini-3-flash-preview';
+// Claude Sonnet 4.5 — primary writer. Anthropic direct, then OpenRouter, then
+// Lovable Gateway (Gemini) as a final emergency fallback so we never fail open.
+const CLAUDE_MODEL_ANTHROPIC = 'claude-sonnet-4-5';
+const CLAUDE_MODEL_OPENROUTER = 'anthropic/claude-sonnet-4.5';
+const EMERGENCY_GEMINI_MODEL = 'google/gemini-2.5-pro';
+
+// Creatify "video-ad-generator" skill — battle-tested ad frameworks committed
+// at supabase/functions/_skills/creatify-video-ad.md. Inlined at deploy via Deno.readTextFile.
+let CREATIFY_SKILL = '';
+try {
+  CREATIFY_SKILL = await Deno.readTextFile(new URL('../_skills/creatify-video-ad.md', import.meta.url));
+} catch (e) {
+  console.warn('[generate-script] could not load creatify skill:', e);
+}
 
 // ---------- Creator personas (rolled per call) ----------
 type Persona = {
@@ -225,67 +239,147 @@ function isWeak(finalPrompt: string, details: string[]): { weak: boolean; reason
   return { weak: false, reason: '' };
 }
 
-// ---------- LLM call helper ----------
-async function callWriter(args: {
-  model: string;
-  systemPrompt: string;
-  userTextBlock: string;
-  imageUrls: string[];
-  hasProduct: boolean;
-}) {
+// ---------- LLM call helpers ----------
+// Routes to Claude Sonnet 4.5 first (Anthropic direct → OpenRouter), then
+// Gemini Pro on the Lovable Gateway as an emergency fallback. All three return
+// a normalized OpenAI-style response so downstream parsing stays unchanged.
+
+async function fetchImageAsBase64(url: string): Promise<{ data: string; mediaType: string } | null> {
+  try {
+    const r = await fetch(url);
+    if (!r.ok) return null;
+    const mediaType = r.headers.get('content-type') || 'image/jpeg';
+    const buf = new Uint8Array(await r.arrayBuffer());
+    let binary = '';
+    const chunk = 0x8000;
+    for (let i = 0; i < buf.length; i += chunk) {
+      binary += String.fromCharCode(...buf.subarray(i, i + chunk));
+    }
+    return { data: btoa(binary), mediaType };
+  } catch (e) {
+    console.warn('image fetch failed', e);
+    return null;
+  }
+}
+
+function buildToolSchema(hasProduct: boolean) {
+  const required = hasProduct
+    ? ['final_prompt', 'voiceover_script', 'concrete_product_details', 'persona_used']
+    : ['final_prompt', 'voiceover_script', 'persona_used'];
+  return {
+    name: 'video_prompt',
+    description: 'Return a Seedance 2.0 ready video prompt that strictly follows the system message rules.',
+    parameters: {
+      type: 'object',
+      properties: {
+        concrete_product_details: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'At least 4 concrete physical details extracted from the product images: exact color names, materials, hardware pieces, printed text, distinctive features. Empty array allowed only if no product was provided.',
+        },
+        scene_description: { type: 'string', description: 'Setting + avatar appearance (or POV hands description) + product description (2–4 sentences).' },
+        voiceover_script: { type: 'string', description: 'All spoken lines in order, each in double quotes, separated by line breaks. Empty string if pure ASMR/silent.' },
+        camera_notes: { type: 'string', description: 'Camera setup: front/back/overhead, handheld feel, lighting, aspect.' },
+        on_screen_beats: { type: 'array', items: { type: 'string' }, description: 'One entry per beat (4 or 5 entries).' },
+        persona_used: { type: 'string', description: 'The exact CREATOR_PERSONA id you wrote for.' },
+        final_prompt: {
+          type: 'string',
+          description: 'Complete single-paragraph Seedance 2.0 prompt. Must literally contain the PRODUCT_NAME and AVATAR_NAME from input (when provided). Must follow the format structure and example tone. No headings, no bullets, no labels.',
+        },
+      },
+      required,
+      additionalProperties: false,
+    },
+  };
+}
+
+// Anthropic native (preferred). Returns OpenAI-shaped Response on success.
+async function callAnthropic(args: { systemPrompt: string; userTextBlock: string; imageUrls: string[]; hasProduct: boolean; }): Promise<Response> {
+  if (!ANTHROPIC_API_KEY) return new Response('no anthropic key', { status: 503 });
+  const tool = buildToolSchema(args.hasProduct);
   const userContent: any[] = [];
   for (const url of args.imageUrls.slice(0, 4)) {
-    userContent.push({ type: 'image_url', image_url: { url } });
+    const img = await fetchImageAsBase64(url);
+    if (img) userContent.push({ type: 'image', source: { type: 'base64', media_type: img.mediaType, data: img.data } });
   }
   userContent.push({ type: 'text', text: args.userTextBlock });
 
-  const required = args.hasProduct
-    ? ['final_prompt', 'voiceover_script', 'concrete_product_details', 'persona_used']
-    : ['final_prompt', 'voiceover_script', 'persona_used'];
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+    body: JSON.stringify({
+      model: CLAUDE_MODEL_ANTHROPIC,
+      max_tokens: 4096,
+      system: args.systemPrompt,
+      messages: [{ role: 'user', content: userContent }],
+      tools: [{ name: tool.name, description: tool.description, input_schema: tool.parameters }],
+      tool_choice: { type: 'tool', name: tool.name },
+    }),
+  });
+  if (!res.ok) return res;
+  const aJson = await res.json();
+  const toolUse = (aJson.content || []).find((c: any) => c.type === 'tool_use');
+  const argsObj = toolUse?.input ?? {};
+  const normalized = { choices: [{ message: { tool_calls: [{ function: { name: tool.name, arguments: JSON.stringify(argsObj) } }] } }] };
+  return new Response(JSON.stringify(normalized), { status: 200, headers: { 'content-type': 'application/json' } });
+}
 
-  const aiRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+// OpenRouter (Claude via OpenAI-compatible endpoint).
+async function callOpenRouter(args: { systemPrompt: string; userTextBlock: string; imageUrls: string[]; hasProduct: boolean; }): Promise<Response> {
+  if (!OPENROUTER_API_KEY) return new Response('no openrouter key', { status: 503 });
+  const tool = buildToolSchema(args.hasProduct);
+  const userContent: any[] = [];
+  for (const url of args.imageUrls.slice(0, 4)) userContent.push({ type: 'image_url', image_url: { url } });
+  userContent.push({ type: 'text', text: args.userTextBlock });
+  return await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+      'Content-Type': 'application/json',
+      'HTTP-Referer': 'https://lovable.dev',
+      'X-Title': 'Lovable Marketing Studio',
+    },
+    body: JSON.stringify({
+      model: CLAUDE_MODEL_OPENROUTER,
+      messages: [{ role: 'system', content: args.systemPrompt }, { role: 'user', content: userContent }],
+      tools: [{ type: 'function', function: tool }],
+      tool_choice: { type: 'function', function: { name: tool.name } },
+    }),
+  });
+}
+
+// Lovable Gemini emergency fallback.
+async function callLovableGemini(args: { systemPrompt: string; userTextBlock: string; imageUrls: string[]; hasProduct: boolean; }): Promise<Response> {
+  const tool = buildToolSchema(args.hasProduct);
+  const userContent: any[] = [];
+  for (const url of args.imageUrls.slice(0, 4)) userContent.push({ type: 'image_url', image_url: { url } });
+  userContent.push({ type: 'text', text: args.userTextBlock });
+  return await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
     method: 'POST',
     headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: args.model,
-      messages: [
-        { role: 'system', content: args.systemPrompt },
-        { role: 'user', content: userContent },
-      ],
-      tools: [
-        {
-          type: 'function',
-          function: {
-            name: 'video_prompt',
-            description: 'Return a Seedance 2.0 ready video prompt that strictly follows the system message rules.',
-            parameters: {
-              type: 'object',
-              properties: {
-                concrete_product_details: {
-                  type: 'array',
-                  items: { type: 'string' },
-                  description: 'At least 4 concrete physical details extracted from the product images: exact color names, materials, hardware pieces, printed text, distinctive features. Empty array allowed only if no product was provided.',
-                },
-                scene_description: { type: 'string', description: 'Setting + avatar appearance (or POV hands description) + product description (2–4 sentences).' },
-                voiceover_script: { type: 'string', description: 'All spoken lines in order, each in double quotes, separated by line breaks. Empty string if pure ASMR/silent.' },
-                camera_notes: { type: 'string', description: 'Camera setup: front/back/overhead, handheld feel, lighting, aspect.' },
-                on_screen_beats: { type: 'array', items: { type: 'string' }, description: 'One entry per beat (4 or 5 entries).' },
-                persona_used: { type: 'string', description: 'The exact CREATOR_PERSONA id you wrote for.' },
-                final_prompt: {
-                  type: 'string',
-                  description: 'Complete single-paragraph Seedance 2.0 prompt. Must literally contain the PRODUCT_NAME and AVATAR_NAME from input (when provided). Must follow the format structure and example tone. No headings, no bullets, no labels.',
-                },
-              },
-              required,
-              additionalProperties: false,
-            },
-          },
-        },
-      ],
-      tool_choice: { type: 'function', function: { name: 'video_prompt' } },
+      model: EMERGENCY_GEMINI_MODEL,
+      messages: [{ role: 'system', content: args.systemPrompt }, { role: 'user', content: userContent }],
+      tools: [{ type: 'function', function: tool }],
+      tool_choice: { type: 'function', function: { name: tool.name } },
     }),
   });
-  return aiRes;
+}
+
+// Unified entry. Tries providers in order; returns first 2xx.
+async function callWriter(args: { systemPrompt: string; userTextBlock: string; imageUrls: string[]; hasProduct: boolean; }): Promise<{ res: Response; provider: string }> {
+  if (ANTHROPIC_API_KEY) {
+    const r = await callAnthropic(args);
+    if (r.ok) return { res: r, provider: 'anthropic' };
+    console.warn('[generate-script] anthropic failed', r.status);
+  }
+  if (OPENROUTER_API_KEY) {
+    const r = await callOpenRouter(args);
+    if (r.ok) return { res: r, provider: 'openrouter' };
+    console.warn('[generate-script] openrouter failed', r.status);
+  }
+  const r = await callLovableGemini(args);
+  return { res: r, provider: 'lovable-gemini' };
 }
 
 Deno.serve(async (req) => {
@@ -377,7 +471,13 @@ Deno.serve(async (req) => {
       ? `USER_DIRECTION (treat as the creative core — build the scene around this; format rules govern camera/structure only): ${direction}\n`
       : `USER_DIRECTION: (none — invent a product-specific creative angle from the visible product details)\n`;
 
-    const sys = `${HUMAN_UGC_FIREWALL}\n\n${FORMAT_SYSTEM_PROMPTS[format] || FORMAT_SYSTEM_PROMPTS.UGC}`;
+    // System prompt = firewall + format prompt + Creatify skill (battle-tested ad frameworks).
+    // The skill goes LAST so format-specific rules dominate, but its frameworks (hooks, body
+    // structures, CTA patterns) are available as background reference.
+    const skillBlock = CREATIFY_SKILL
+      ? `\n\n---\nBACKGROUND REFERENCE (Creatify "video-ad-generator" skill — use as inspiration for hook formulas, body structures, and CTA patterns; format rules above always win):\n${CREATIFY_SKILL}`
+      : '';
+    const sys = `${HUMAN_UGC_FIREWALL}\n\n${FORMAT_SYSTEM_PROMPTS[format] || FORMAT_SYSTEM_PROMPTS.UGC}${skillBlock}`;
 
     const userTextBlock =
       `${personaBlock}\n` +
@@ -396,26 +496,14 @@ Deno.serve(async (req) => {
     const imageUrlsForLLM = [...productImageUrls.slice(0, 3)];
     if (avatarImageUrl) imageUrlsForLLM.push(avatarImageUrl);
 
-    // ---------- First attempt: primary model ----------
-    let aiRes = await callWriter({
-      model: PRIMARY_MODEL,
+    // ---------- First attempt: Claude Sonnet 4.5 (Anthropic → OpenRouter → Gemini) ----------
+    let { res: aiRes, provider } = await callWriter({
       systemPrompt: sys,
       userTextBlock,
       imageUrls: imageUrlsForLLM,
       hasProduct: !!productId,
     });
-
-    // Fallback to flash on rate/credit issues
-    if (aiRes.status === 429 || aiRes.status === 402 || aiRes.status >= 500) {
-      console.warn(`[generate-script] primary ${PRIMARY_MODEL} returned ${aiRes.status}, trying fallback`);
-      aiRes = await callWriter({
-        model: FALLBACK_MODEL,
-        systemPrompt: sys,
-        userTextBlock,
-        imageUrls: imageUrlsForLLM,
-        hasProduct: !!productId,
-      });
-    }
+    console.log(`[generate-script] writer provider=${provider} status=${aiRes.status}`);
 
     if (aiRes.status === 429) return new Response(JSON.stringify({ error: 'rate limited' }), { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     if (aiRes.status === 402) return new Response(JSON.stringify({ error: 'AI credits exhausted' }), { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
@@ -434,21 +522,22 @@ Deno.serve(async (req) => {
         `\n\nYour previous attempt was rejected: ${weakCheck.reason}. ` +
         `Rewrite. Every spoken line MUST be tied to a concrete physical detail you can see in the images. ` +
         `Avoid every banned phrase. Voice MUST be unmistakably ${persona.name}.`;
-      const retryRes = await callWriter({
-        model: PRIMARY_MODEL,
+      const retry = await callWriter({
         systemPrompt: sys,
         userTextBlock: stricter,
         imageUrls: imageUrlsForLLM,
         hasProduct: !!productId,
       });
-      if (retryRes.ok) {
-        aiJson = await retryRes.json();
+      if (retry.res.ok) {
+        aiJson = await retry.res.json();
         argStr = aiJson?.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
         if (argStr) script = JSON.parse(argStr);
+        provider = retry.provider;
       }
     }
 
     script.persona_used = script.persona_used || persona.id;
+    script.writer_provider = provider;
 
     return new Response(
       JSON.stringify({
