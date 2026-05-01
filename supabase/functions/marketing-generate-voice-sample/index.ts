@@ -52,7 +52,7 @@ async function generateVoiceForAvatar(
   const isMale = (avatar.gender || '').toLowerCase().startsWith('m');
   const pool = isMale ? MALE_VOICES : FEMALE_VOICES;
   const script = isMale ? MALE_SCRIPT : FEMALE_SCRIPT;
-  const voiceId = pickVoice(avatar.id, pool);
+  const voiceId = pickVoice(`${avatar.id}:${avatar.name}`, pool);
 
   const ttsRes = await fetch(
     `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`,
