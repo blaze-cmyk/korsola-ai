@@ -12,11 +12,25 @@ const corsHeaders = {
 };
 
 const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY')!;
+const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY') ?? '';
+const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY') ?? '';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
-const PRIMARY_MODEL = 'google/gemini-2.5-pro';
-const FALLBACK_MODEL = 'google/gemini-3-flash-preview';
+// Claude Sonnet 4.5 — primary writer. Anthropic direct, then OpenRouter, then
+// Lovable Gateway (Gemini) as a final emergency fallback so we never fail open.
+const CLAUDE_MODEL_ANTHROPIC = 'claude-sonnet-4-5';
+const CLAUDE_MODEL_OPENROUTER = 'anthropic/claude-sonnet-4.5';
+const EMERGENCY_GEMINI_MODEL = 'google/gemini-2.5-pro';
+
+// Creatify "video-ad-generator" skill — battle-tested ad frameworks committed
+// at supabase/functions/_skills/creatify-video-ad.md. Inlined at deploy via Deno.readTextFile.
+let CREATIFY_SKILL = '';
+try {
+  CREATIFY_SKILL = await Deno.readTextFile(new URL('../_skills/creatify-video-ad.md', import.meta.url));
+} catch (e) {
+  console.warn('[generate-script] could not load creatify skill:', e);
+}
 
 // ---------- Creator personas (rolled per call) ----------
 type Persona = {
