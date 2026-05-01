@@ -163,6 +163,9 @@ async function submitAtlas(opts: {
   const atlasImageUrls = hasRefs
     ? await Promise.all(opts.image_urls.slice(0, 9).map((url, index) => uploadAtlasMedia(url, index, 'image')))
     : [];
+  const atlasAudioUrls = hasRefs && opts.audio_urls.length > 0
+    ? await Promise.all(opts.audio_urls.slice(0, 3).map((url, index) => uploadAtlasMedia(url, index, 'audio')))
+    : [];
   const body: Record<string, unknown> = {
     model,
     prompt: opts.prompt,
@@ -175,10 +178,8 @@ async function submitAtlas(opts: {
   if (hasRefs) {
     body.reference_images = atlasImageUrls;
     body.image_urls = atlasImageUrls;
+    if (atlasAudioUrls.length) body.audio_urls = atlasAudioUrls;
   }
-  // Do not send avatar voice samples to Atlas here: Seedance/Atlas currently
-  // rejects signed audio URLs during processing. Avatar identity is locked via
-  // image references; audio is generated from the prompt.
 
   const res = await fetch('https://api.atlascloud.ai/api/v1/model/generateVideo', {
     method: 'POST',
@@ -235,6 +236,7 @@ async function submitFal(opts: {
     // fal Seedance 2.0 schema uses `image_urls` (and historically `reference_image_urls`).
     payload.image_urls = opts.image_urls.slice(0, 9);
     payload.reference_image_urls = opts.image_urls.slice(0, 9);
+    if (opts.audio_urls.length) payload.audio_urls = opts.audio_urls.slice(0, 3);
   }
   const res = await fetch(endpoint, {
     method: 'POST',
