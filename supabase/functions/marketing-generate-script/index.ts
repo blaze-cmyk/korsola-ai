@@ -499,13 +499,12 @@ Deno.serve(async (req) => {
       ? `USER_DIRECTION (treat as the creative core — build the scene around this; format rules govern camera/structure only): ${direction}\n`
       : `USER_DIRECTION: (none — invent a product-specific creative angle from the visible product details)\n`;
 
-    // System prompt = firewall + format prompt + Creatify skill (battle-tested ad frameworks).
-    // The skill goes LAST so format-specific rules dominate, but its frameworks (hooks, body
-    // structures, CTA patterns) are available as background reference.
+    // System prompt = firewall + Creatify strategy + format prompt + Creatify skill.
+    // The runtime directive makes the skill operational instead of passive reference.
     const skillBlock = CREATIFY_SKILL
-      ? `\n\n---\nBACKGROUND REFERENCE (Creatify "video-ad-generator" skill — use as inspiration for hook formulas, body structures, and CTA patterns; format rules above always win):\n${CREATIFY_SKILL}`
+      ? `\n\n---\nCREATIFY SKILL SOURCE (use the hook formulas, body structures, and testing mindset below to shape the ad idea; format rules still control camera/output syntax):\n${CREATIFY_SKILL}`
       : '';
-    const sys = `${HUMAN_UGC_FIREWALL}\n\n${FORMAT_SYSTEM_PROMPTS[format] || FORMAT_SYSTEM_PROMPTS.UGC}${skillBlock}`;
+    const sys = `${HUMAN_UGC_FIREWALL}\n\n${CREATIFY_RUNTIME_DIRECTIVE}\n\n${FORMAT_SYSTEM_PROMPTS[format] || FORMAT_SYSTEM_PROMPTS.UGC}${skillBlock}`;
 
     const userTextBlock =
       `${personaBlock}\n` +
@@ -516,7 +515,9 @@ Deno.serve(async (req) => {
       `${directionBlock}` +
       `ASPECT: ${aspect}\n` +
       `DURATION: ${duration}s\n\n` +
-      `Look at the attached reference images carefully. Extract real visible details (colors, textures, hardware, printed text, distinctive features) into concrete_product_details — do not invent. ` +
+      `Look at the attached reference images carefully. Product images are for exact visible product details. Avatar image is for facial identity only; do not use its background, clothes, pose, lighting, or framing as the scene. ` +
+      `Extract real visible product details (colors, textures, hardware, printed text, distinctive features) into concrete_product_details — do not invent. ` +
+      `Before writing, silently apply the Creatify hook/body framework and make the video concept feel designed, not like a static reference-image animation. ` +
       `Then write the Seedance 2.0 prompt following every system rule. ` +
       `Voice MUST match CREATOR_PERSONA exactly. ` +
       `Output one continuous paragraph in final_prompt. No preamble, no labels, no headings.`;
