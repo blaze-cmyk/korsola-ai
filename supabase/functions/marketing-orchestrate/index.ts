@@ -267,6 +267,7 @@ Deno.serve(async (req) => {
       }
     }
 
+    // 3) Use the AI script writer for human, format-specific UGC. If it fails
     // or returns weak copy, fall back to a deterministic Higgsfield-style prompt.
     let scriptPayload: any = null;
     let finalPrompt = userPromptTrimmed;
