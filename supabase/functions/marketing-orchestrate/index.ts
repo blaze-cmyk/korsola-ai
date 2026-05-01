@@ -257,12 +257,16 @@ Deno.serve(async (req) => {
       resolution = '720p',
       userPrompt = '',
       projectId,
+      extraRefImages = [],
+      extraRefNames = [],
     } = await req.json();
+    const userExtraRefs: string[] = uniqueValidUrls(Array.isArray(extraRefImages) ? extraRefImages : []);
+    const userExtraNames: string[] = (Array.isArray(extraRefNames) ? extraRefNames : []).map((n: any) => String(n || '').trim());
 
     const ratio = aspectToRatio(aspect);
     const userPromptTrimmed = (userPrompt || '').trim();
 
-    if (!userPromptTrimmed && !productId && !avatarId) {
+    if (!userPromptTrimmed && !productId && !avatarId && userExtraRefs.length === 0) {
       return new Response(JSON.stringify({ error: 'prompt required' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -343,11 +347,13 @@ Deno.serve(async (req) => {
     const runPipeline = async () => {
       try {
         // 4a) Gather full reference URLs + product/avatar metadata.
-        const { refs, product, avatar } = await gatherReferenceUrls(admin, {
+        const { refs: baseRefs, product, avatar } = await gatherReferenceUrls(admin, {
           productId,
           avatarId,
           maxProductImages: 6,
         });
+        // Append user-supplied extra reference images (drag/drop / @mention).
+        const refs = uniqueValidUrls([...baseRefs, ...userExtraRefs]);
 
         // 4b) One-time vision backfill for the product.
         if (productId && refs.length > 0) {
@@ -390,7 +396,7 @@ Deno.serve(async (req) => {
           finalPrompt = `${userPromptTrimmed}\n\nCRITICAL: any printed text, lettering, numbers, or logos visible on the product, packaging, or clothing must always read forward and be perfectly legible — never mirrored, flipped, reversed, or rendered as a mirror reflection.`;
           scriptPayload = { source: 'user_raw', final_prompt: finalPrompt, voiceover_script: extractSpokenLines(userPromptTrimmed) };
           scriptPersona = 'user-supplied';
-        } else if (productId || avatarId) {
+        } else if (productId || avatarId || userExtraRefs.length > 0) {
           const scriptRes = await invokeFn('marketing-generate-script', {
             productId,
             avatarId,
@@ -400,6 +406,8 @@ Deno.serve(async (req) => {
             duration: duration_seconds,
             userPrompt: userPromptTrimmed,
             userDirection: userPromptTrimmed,
+            extraRefImages: userExtraRefs,
+            extraRefNames: userExtraNames,
           });
           const candidate = scriptRes.ok ? scriptRes.json?.prompt : null;
           scriptPayload = scriptRes.ok ? scriptRes.json?.script : { error: scriptRes.text };

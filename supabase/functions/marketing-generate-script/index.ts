@@ -520,7 +520,9 @@ async function callWriter(args: { systemPrompt: string; userTextBlock: string; i
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
   try {
-    const { productId, avatarId, format, surface, aspect, duration, userPrompt, exactVoiceover, userDirection } = await req.json();
+    const { productId, avatarId, format, surface, aspect, duration, userPrompt, exactVoiceover, userDirection, extraRefImages = [], extraRefNames = [] } = await req.json();
+    const userExtraRefs: string[] = (Array.isArray(extraRefImages) ? extraRefImages : []).filter((u: any) => typeof u === 'string' && /^https?:\/\//.test(u));
+    const userExtraNames: string[] = (Array.isArray(extraRefNames) ? extraRefNames : []).map((n: any) => String(n || '').trim());
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
 
     // ---------- Build product context + collect product image URLs ----------
@@ -645,6 +647,24 @@ Deno.serve(async (req) => {
       `- Hook MUST land within the first beat window (${beatWindows[0]}). Payoff/verdict MUST land in the last beat window (${beatWindows[beatCount - 1]}).\n` +
       `- Do NOT label this as 15s/22s/etc. unless that matches DURATION. Use the windows above verbatim.\n`;
 
+    // Build the LLM image attachment list first so we can describe @mentions
+    // by their position in that list.
+    const imageUrlsForLLM = [...productImageUrls.slice(0, 3)];
+    if (avatarImageUrl) imageUrlsForLLM.push(avatarImageUrl);
+    const extraStartIdx = imageUrlsForLLM.length; // 0-based index where extras begin
+    const remainingSlots = Math.max(0, 8 - imageUrlsForLLM.length);
+    const extraForLLM = userExtraRefs.slice(0, remainingSlots);
+    imageUrlsForLLM.push(...extraForLLM);
+    extraForLLM.forEach((u) => allRefUrls.push(u));
+
+    const extraRefBlock = extraForLLM.length
+      ? `\nUSER_EXTRA_REFERENCE_IMAGES (in order, exposed to the user as @mentions):\n` +
+        extraForLLM
+          .map((_, i) => `- @${userExtraNames[i] || `Image ${i + 1}`}: attached reference image #${extraStartIdx + i + 1}`)
+          .join('\n') +
+        `\nIf USER_DIRECTION mentions @Image N (or any of the names above), treat that as a literal pointer to the matching reference image. Use those images for any people, props, settings, or wardrobe the user is asking to include — preserve their visible identity / appearance the same way you preserve the product and avatar. Never copy their background or framing — identity / appearance only.\n`
+      : '';
+
     const userTextBlock =
       // Duration spec FIRST so it dominates everything that follows.
       `${durationSpec}\n` +
@@ -656,6 +676,7 @@ Deno.serve(async (req) => {
       `${productCtx}\n` +
       `${visionFactsCtx}\n` +
       `${avatarCtx}\n\n` +
+      `${extraRefBlock}` +
       `${directionBlock}\n` +
       `Look at the attached reference images carefully. Product images are for exact visible product details. Avatar image is for facial identity only; do not use its background, clothes, pose, lighting, or framing as the scene. ` +
       `Extract real visible product details (colors, textures, hardware, printed text, distinctive features) into concrete_product_details — do not invent. ` +
@@ -663,8 +684,6 @@ Deno.serve(async (req) => {
       `Voice MUST match CREATOR_PERSONA exactly. ` +
       `Output one continuous paragraph in final_prompt. No preamble, no labels, no headings.`;
 
-    const imageUrlsForLLM = [...productImageUrls.slice(0, 3)];
-    if (avatarImageUrl) imageUrlsForLLM.push(avatarImageUrl);
 
     // ---------- First attempt: Claude Sonnet 4.5 (Anthropic → OpenRouter → Gemini) ----------
     let { res: aiRes, provider } = await callWriter({
