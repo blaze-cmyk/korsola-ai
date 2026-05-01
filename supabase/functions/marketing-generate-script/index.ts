@@ -270,7 +270,11 @@ MODE B — SINGLE GUEST + INVISIBLE OFF-CAMERA INTERVIEWER:
 - One subject seated facing slightly off-camera-left toward an unseen interviewer. One locked frame, no cuts. The interviewer is HEARD ONLY — never seen — and feeds lifestyle scenarios.
 - Mark every off-camera line in the paragraph as 'Off-camera (heard only):' or '(off-camera):' so the model never renders a second person on screen.
 
-If exactly one avatar is provided, default to MODE B with that avatar as the guest. If zero or two avatars are provided, default to MODE A and invent the missing character(s). Never produce a single-monologue script.
+CASTING ROUTING (count BOTH the avatar AND any USER_EXTRA_REFERENCE_IMAGES that depict a person):
+- 0 people total → MODE A, invent both speakers.
+- 1 person total (avatar OR a single person-ref) → MODE B with that person as the on-camera guest, invisible interviewer off-camera.
+- 2+ people total (avatar + at least one person-ref, or two person-refs) → MODE A. Speaker A = the AVATAR (or first person-ref if no avatar). Speaker B = the next person-ref provided by the user. NEVER invent Speaker B if a person-ref was attached — Speaker B's face, hair, build, skin tone, age range, and overall appearance MUST match that reference image exactly. The reference IS the casting choice.
+Never produce a single-monologue script.
 
 ANTI-AI-SLOP DECREES — these tells immediately mark a clip as AI-generated. Avoid them:
 - No floating mic with no boom arm. The mic always has a visible black articulating boom arm.
