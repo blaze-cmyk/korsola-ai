@@ -290,19 +290,19 @@ async function submitFal(opts: {
   return { ok: res.ok && !!json?.request_id, requestId: json?.request_id, raw: json };
 }
 
-async function pollFal(requestId: string): Promise<{
+async function pollFal(requestId: string, endpoint = 'bytedance/seedance-2.0/reference-to-video'): Promise<{
   status: 'running' | 'done' | 'failed';
   videoUrl?: string | null;
   error?: string;
 }> {
   const statusRes = await fetch(
-    `https://queue.fal.run/bytedance/seedance-2.0/requests/${requestId}/status`,
+    `https://queue.fal.run/${endpoint}/requests/${requestId}/status`,
     { headers: { Authorization: `Key ${FAL_KEY}` } },
   );
   const status = await statusRes.json().catch(() => ({}));
   if (status.status === 'COMPLETED') {
     const respRes = await fetch(
-      `https://queue.fal.run/bytedance/seedance-2.0/requests/${requestId}`,
+      `https://queue.fal.run/${endpoint}/requests/${requestId}`,
       { headers: { Authorization: `Key ${FAL_KEY}` } },
     );
     const resp = await respRes.json().catch(() => ({}));
