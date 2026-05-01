@@ -66,7 +66,6 @@ export function VideoDetailModal({
                 loop
                 playsInline
                 preload="auto"
-                crossOrigin="anonymous"
                 className="max-w-full max-h-full w-auto h-auto object-contain"
               />
             ) : generation.thumbUrl ? (
