@@ -537,6 +537,11 @@ Deno.serve(async (req) => {
         .eq('id', row.id)
         .select()
         .single();
+      log('INFO', 'retry: submitted', {
+        jobId: row.id,
+        provider: result.provider,
+        endpoint: providerEndpoint(result.provider, refs.length > 0),
+      });
       return new Response(JSON.stringify(updated), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
