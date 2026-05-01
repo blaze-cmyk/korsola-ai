@@ -23,14 +23,9 @@ const CLAUDE_MODEL_ANTHROPIC = 'claude-sonnet-4-5';
 const CLAUDE_MODEL_OPENROUTER = 'anthropic/claude-sonnet-4.5';
 const EMERGENCY_GEMINI_MODEL = 'google/gemini-2.5-pro';
 
-// Creatify "video-ad-generator" skill — battle-tested ad frameworks committed
-// at supabase/functions/_skills/creatify-video-ad.md. Inlined at deploy via Deno.readTextFile.
-let CREATIFY_SKILL = '';
-try {
-  CREATIFY_SKILL = await Deno.readTextFile(new URL('../_skills/creatify-video-ad.md', import.meta.url));
-} catch (e) {
-  console.warn('[generate-script] could not load creatify skill:', e);
-}
+// Creatify skill (full doc at supabase/functions/_skills/creatify-video-ad.md) is NOT
+// inlined anymore — it diluted the prompt and produced checkbox-y scripts. We keep
+// only a distilled cheat sheet (CREATIFY_DISTILLED below) as a passive reference.
 
 // ---------- Creator personas (rolled per call) ----------
 type Persona = {
@@ -114,12 +109,22 @@ Hard rules that override every format below:
 - The concrete_product_details array MUST contain at least 4 items extracted from the actual product images (color names, materials, hardware pieces, printed text, distinctive features). Do not invent details that aren't visible.
 - READABLE TEXT RULE: any printed text, lettering, numbers, slogans, or logos visible on the product, garment, or packaging MUST be described as facing the camera and reading FORWARD — perfectly legible. NEVER use mirror reflections, mirror selfies, or any framing where on-product text would appear reversed/flipped/mirrored. If the camera angle would mirror the text, change the camera angle. State explicitly inside the prompt that the text reads forward.`;
 
-const CREATIFY_RUNTIME_DIRECTIVE = `CREATIFY STRATEGY PASS (mandatory before writing final_prompt):
-- Pick ONE hook formula from the Creatify skill that fits the product: Pattern Interrupt, POV Hook, Bold Claim, Before/After, Day-in-the-Life, or Social Proof Stack.
-- Pick ONE body structure: Problem-Agitate-Solve, Feature Cascade, Before/After, Day-in-the-Life, or Social Proof Stack.
-- Turn that strategy into visible UGC actions, not marketing words: an opening physical interruption, a tactile proof beat, a product-use or styling beat, and a payoff/reaction beat.
-- No generic CTA copy in the generated video. The payoff can be a quiet human line, but never "shop now" or polished ad narration.
-- The creative concept must be different from the avatar upload photo and different from a basic bedroom selfie unless the user specifically requested that.`;
+// Distilled Creatify reference. Use sparingly — Higgsfield few-shots are the dominant
+// stylistic signal. These are HINTS the writer can pull from, not a checklist.
+const CREATIFY_DISTILLED = `CREATIFY REFERENCE (use only if it fits the product naturally — never force a formula):
+HOOK FORMULAS (pick at most one):
+- Pattern Interrupt — start mid-action, unexpected visual.
+- POV Hook — "POV: you finally found a [thing] that [does X]".
+- Bold Claim — lead with the strongest single benefit, stated flat.
+- Question Hook — open a curiosity loop the viewer must close.
+- Stat / Authority — one number or one credential, no list.
+BODY STRUCTURES (pick at most one):
+- Problem → Agitate → Solve.
+- Feature Cascade — hero feature, two supporting beats, proof.
+- Social Proof Stack — quote, visible proof, volume, urgency.
+- Before / After — plain → product → improved result.
+- Day-in-the-Life — one realistic moment, tactile beat, quiet payoff.
+Rules: pick formulas silently. Never name them in the output. If USER_DIRECTION is present, the user's idea wins — formulas only shape camera/structure.`;
 
 // ---------- Few-shot example outputs (verbatim Higgsfield) ----------
 const EX_UGC = `EXAMPLE OUTPUT (study the structure, tone, persona-fit, concrete sensory detail — never copy literally):
@@ -370,11 +375,20 @@ async function callAnthropic(args: { systemPrompt: string; userTextBlock: string
 
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: { 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+    headers: {
+      'x-api-key': ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+      // Prompt caching: the static system prompt (firewall + format rules + distilled
+      // Creatify) is identical across calls, so we cache it server-side at Anthropic.
+      // ~10× cheaper + faster on cache hits, no Skills beta needed.
+      'anthropic-beta': 'prompt-caching-2024-07-31',
+      'content-type': 'application/json',
+    },
     body: JSON.stringify({
       model: CLAUDE_MODEL_ANTHROPIC,
       max_tokens: 4096,
-      system: args.systemPrompt,
+      // System as a cacheable block (Anthropic's prompt-caching format).
+      system: [{ type: 'text', text: args.systemPrompt, cache_control: { type: 'ephemeral' } }],
       messages: [{ role: 'user', content: userContent }],
       tools: [{ name: tool.name, description: tool.description, input_schema: tool.parameters }],
       tool_choice: { type: 'tool', name: tool.name },
@@ -529,9 +543,7 @@ Deno.serve(async (req) => {
 
     // ---------- Roll persona ----------
     const persona = rollPersona();
-    const creativeAngle = rollCreativeAngle();
     const personaBlock = `CREATOR_PERSONA: ${persona.id} — ${persona.name}\nVOICE GUIDE: ${persona.voice}\n`;
-    const creativeAngleBlock = `CREATIFY_CREATIVE_ANGLE_TO_USE: ${creativeAngle}\n`;
 
     // ---------- POV hands branch ----------
     const isPovHands = !avatarId && !!productId && (format === 'UGC' || format === 'Tutorial' || format === 'Unboxing');
@@ -543,12 +555,16 @@ Deno.serve(async (req) => {
       ? `USER_DIRECTION (treat as the creative core — build the scene around this; format rules govern camera/structure only): ${direction}\n`
       : `USER_DIRECTION: (none — invent a product-specific creative angle from the visible product details)\n`;
 
-    // System prompt = firewall + Creatify strategy + format prompt + Creatify skill.
-    // The runtime directive makes the skill operational instead of passive reference.
-    const skillBlock = CREATIFY_SKILL
-      ? `\n\n---\nCREATIFY SKILL SOURCE (use the hook formulas, body structures, and testing mindset below to shape the ad idea; format rules still control camera/output syntax):\n${CREATIFY_SKILL}`
-      : '';
-    const sys = `${HUMAN_UGC_FIREWALL}\n\n${CREATIFY_RUNTIME_DIRECTIVE}\n\n${FORMAT_SYSTEM_PROMPTS[format] || FORMAT_SYSTEM_PROMPTS.UGC}${skillBlock}`;
+    // Only inject a random creative angle when the user gave no direction — otherwise
+    // the random roll fights the user's intent and produces off-brief scripts.
+    const creativeAngleBlock = direction
+      ? ''
+      : `CREATIVE_ANGLE_HINT (use only if it fits the product; ignore if it doesn't): ${rollCreativeAngle()}\n`;
+
+    // System prompt = firewall + format prompt + distilled Creatify reference.
+    // Order: hardest rules first (firewall), format-specific structure second,
+    // light Creatify hints last so they stay reference, not checklist.
+    const sys = `${HUMAN_UGC_FIREWALL}\n\n${FORMAT_SYSTEM_PROMPTS[format] || FORMAT_SYSTEM_PROMPTS.UGC}\n\n${CREATIFY_DISTILLED}`;
 
     // ---------- Build hard duration spec ----------
     const durSec = Math.max(1, Math.min(60, Number(duration) || 8));
@@ -579,20 +595,20 @@ Deno.serve(async (req) => {
       `- Do NOT label this as 15s/22s/etc. unless that matches DURATION. Use the windows above verbatim.\n`;
 
     const userTextBlock =
+      // Duration spec FIRST so it dominates everything that follows.
+      `${durationSpec}\n` +
+      `ASPECT: ${aspect}\n` +
+      `DURATION: ${durSec}s\n\n` +
       `${personaBlock}\n` +
       `${creativeAngleBlock}` +
       `${modeNote}` +
       `${productCtx}\n` +
       `${visionFactsCtx}\n` +
       `${avatarCtx}\n\n` +
-      `${directionBlock}` +
-      `ASPECT: ${aspect}\n` +
-      `DURATION: ${durSec}s\n\n` +
-      `${durationSpec}\n` +
+      `${directionBlock}\n` +
       `Look at the attached reference images carefully. Product images are for exact visible product details. Avatar image is for facial identity only; do not use its background, clothes, pose, lighting, or framing as the scene. ` +
       `Extract real visible product details (colors, textures, hardware, printed text, distinctive features) into concrete_product_details — do not invent. ` +
-      `Before writing, silently apply the Creatify hook/body framework and make the video concept feel designed, not like a static reference-image animation. ` +
-      `Then write the Seedance 2.0 prompt following every system rule AND the STRICT DURATION SPEC above. ` +
+      `Write the Seedance 2.0 prompt as ONE continuous paragraph that fits inside ${durSec} seconds, uses exactly ${beatCount} beats with windows ${beatWindows.join(', ')}, and stays under ${maxSpokenWords} spoken words total. ` +
       `Voice MUST match CREATOR_PERSONA exactly. ` +
       `Output one continuous paragraph in final_prompt. No preamble, no labels, no headings.`;
 
