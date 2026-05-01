@@ -146,22 +146,35 @@ function FormatTile({ item, active, onClick }: { item: FormatItem; active: boole
       className="text-left group focus:outline-none"
     >
       <div
+        ref={wrapRef}
         className={`relative aspect-[3/4] rounded-2xl overflow-hidden bg-black/40 ring-1 transition-all duration-300 ease-out will-change-transform ${
           active
             ? 'ring-2 ring-white shadow-[0_20px_60px_-20px_rgba(255,255,255,0.4)] scale-[1.04]'
             : `ring-white/10 ${hovered ? 'scale-[1.05] ring-white/30 shadow-[0_24px_60px_-20px_rgba(0,0,0,0.8)]' : ''}`
         }`}
       >
-        <video
-          ref={ref}
-          src={item.src}
-          muted={muted}
-          loop
-          autoPlay
-          playsInline
-          preload="metadata"
-          className="w-full h-full object-cover"
+        {/* Lightweight poster shown until the video lazy-mounts */}
+        <img
+          src={item.preview}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 w-full h-full object-cover"
+          loading="lazy"
+          decoding="async"
         />
+        {inView && (
+          <video
+            ref={ref}
+            src={item.src}
+            muted={muted}
+            loop
+            autoPlay
+            playsInline
+            preload="metadata"
+            poster={item.preview}
+            className="relative w-full h-full object-cover"
+          />
+        )}
         {/* Mute toggle */}
         <button
           type="button"
