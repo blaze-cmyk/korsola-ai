@@ -69,10 +69,6 @@ function falSafeImageUrls(opts: { image_urls: string[]; productId?: string | nul
   return opts.image_urls;
 }
 
-function isFalAvatarPolicyError(error?: string) {
-  return /fal blocked|content[-_ ]policy|real-person likeness|likeness of a real person/i.test(error ?? '');
-}
-
 function hasAudioUrlError(raw: unknown) {
   return /audio_url|reference_audio|reference_audios|invalid url/i.test(JSON.stringify(raw));
 }
