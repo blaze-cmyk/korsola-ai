@@ -667,6 +667,21 @@ Deno.serve(async (req) => {
 
     const imageUrlsForLLM = [...productImageUrls.slice(0, 3)];
     if (avatarImageUrl) imageUrlsForLLM.push(avatarImageUrl);
+    // Append user-supplied extra reference images (drag/drop, paste, @mentions).
+    // Cap total images sent to the LLM at 8 to keep latency / token budget sane.
+    const remainingSlots = Math.max(0, 8 - imageUrlsForLLM.length);
+    const extraForLLM = userExtraRefs.slice(0, remainingSlots);
+    imageUrlsForLLM.push(...extraForLLM);
+    extraForLLM.forEach((u) => allRefUrls.push(u));
+
+    const extraRefBlock = userExtraRefs.length
+      ? `\nUSER_EXTRA_REFERENCE_IMAGES (in order, exposed to the user as @mentions):\n` +
+        userExtraRefs
+          .map((_, i) => `- @${userExtraNames[i] || `Image ${i + 1}`}: see attached reference image #${productImageUrls.slice(0, 3).length + (avatarImageUrl ? 1 : 0) + i + 1}`)
+          .join('\n') +
+        `\nIf USER_DIRECTION mentions @Image N, treat that as a literal pointer to the matching reference image above. Use those images for any people, props, settings, or wardrobe the user is asking to include — preserve their visible identity / appearance the same way you preserve the product and avatar.\n`
+      : '';
+
 
     // ---------- First attempt: Claude Sonnet 4.5 (Anthropic → OpenRouter → Gemini) ----------
     let { res: aiRes, provider } = await callWriter({
