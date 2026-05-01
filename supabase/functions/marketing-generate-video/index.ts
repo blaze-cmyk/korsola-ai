@@ -594,6 +594,7 @@ Deno.serve(async (req) => {
       avatarId,
       keyframeUrl: keyframe_url,
       fallbackUrls: keyframe_url ? [keyframe_url, ...image_urls] : image_urls,
+      maxProductImages: 1,
     });
 
     // Pull the avatar's pre-generated reference voice clip.
