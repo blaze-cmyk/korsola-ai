@@ -82,6 +82,19 @@ function rollPersona(): Persona {
   return PERSONAS[Math.floor(Math.random() * PERSONAS.length)];
 }
 
+const CREATIVE_ANGLES = [
+  'Pattern Interrupt: start mid-action with the product unexpectedly entering frame, then reveal the specific detail that makes it worth stopping for.',
+  'Day-in-the-Life: show the product moving through one realistic premium moment, with a tactile proof beat and a quiet payoff.',
+  'Feature Cascade: open on the most visual feature, then stack two close-up proof beats before the creator reacts naturally.',
+  'Before/After: begin with a plain everyday moment, add the product, then show the improved styling/result in one clean payoff.',
+  'POV Hook: make the viewer feel like Alexia is texting/showing her best friend one unusually good find, with camera switches and close-ups.',
+  'Social Proof Stack without stats: frame it as "I get it now" — visible detail first, use/wear test second, honest final reaction third.',
+];
+
+function rollCreativeAngle() {
+  return CREATIVE_ANGLES[Math.floor(Math.random() * CREATIVE_ANGLES.length)];
+}
+
 // ---------- Hard rules that override every format ----------
 const HUMAN_UGC_FIREWALL = `You are not writing ad copy. You are writing the exact prompt a strong UGC director would send to a video model.
 
