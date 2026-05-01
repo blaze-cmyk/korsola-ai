@@ -48,6 +48,58 @@ function clampDuration(d: unknown) {
   return Math.max(4, Math.min(15, n));
 }
 
+// Lazily generate (and cache) a smooth-warm female reference voice clip for the
+// "second speaker" in Podcast Mode A. Cached as a public object in
+// `video-inputs/system/podcast-second-jessica.mp3` so we only pay ElevenLabs
+// once across all podcast renders. Uses Jessica (cgSgspJ2msm6clMCkdW9) — the
+// closest match to the smooth, warm Jade-like tone the user asked for.
+async function ensurePodcastSecondVoiceUrl(
+  admin: ReturnType<typeof createClient>,
+): Promise<string | null> {
+  const ELEVENLABS_API_KEY = Deno.env.get('ELEVENLABS_API_KEY');
+  if (!ELEVENLABS_API_KEY) return null;
+  const path = 'system/podcast-second-jessica.mp3';
+  const { data: pub } = admin.storage.from('video-inputs').getPublicUrl(path);
+  const publicUrl = pub?.publicUrl;
+  if (!publicUrl) return null;
+  try {
+    const head = await fetch(publicUrl, { method: 'HEAD' });
+    if (head.ok) return publicUrl;
+  } catch { /* fall through to generate */ }
+  try {
+    const text =
+      "Yeah... I mean, I really love this. It just feels good, you know? Like, the moment you put it on you just kinda sink into it. That's the whole vibe.";
+    const tts = await fetch(
+      `https://api.elevenlabs.io/v1/text-to-speech/cgSgspJ2msm6clMCkdW9?output_format=mp3_44100_128`,
+      {
+        method: 'POST',
+        headers: { 'xi-api-key': ELEVENLABS_API_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text,
+          model_id: 'eleven_multilingual_v2',
+          voice_settings: { stability: 0.55, similarity_boost: 0.8, style: 0.25, use_speaker_boost: true, speed: 1.0 },
+        }),
+      },
+    );
+    if (!tts.ok) {
+      log('WARN', 'podcast 2nd voice: ElevenLabs failed', { status: tts.status });
+      return null;
+    }
+    const audio = new Uint8Array(await tts.arrayBuffer());
+    const { error: upErr } = await admin.storage
+      .from('video-inputs')
+      .upload(path, audio, { contentType: 'audio/mpeg', upsert: true });
+    if (upErr) {
+      log('WARN', 'podcast 2nd voice: upload failed', { err: upErr.message });
+      return null;
+    }
+    return publicUrl;
+  } catch (e) {
+    log('WARN', 'podcast 2nd voice: exception', { err: e instanceof Error ? e.message : String(e) });
+    return null;
+  }
+}
+
 function isValidHttpUrl(value: unknown) {
   if (typeof value !== 'string' || !value.trim()) return false;
   try {
@@ -519,6 +571,10 @@ Deno.serve(async (req) => {
         const { data: av } = await admin.from('ms_avatars').select('voice_sample_url').eq('id', row.avatar_id).maybeSingle();
         if (isValidHttpUrl(av?.voice_sample_url)) audio_urls.push(String(av?.voice_sample_url).trim());
       }
+      if (String(row.format).toLowerCase() === 'podcast') {
+        const secondVoice = await ensurePodcastSecondVoiceUrl(admin);
+        if (secondVoice && !audio_urls.includes(secondVoice)) audio_urls.push(secondVoice);
+      }
       const result = await submitWithFallback({
         prompt: row.prompt,
         image_urls: refs,
@@ -601,7 +657,9 @@ Deno.serve(async (req) => {
       maxProductImages: 1,
     });
 
-    // Pull the avatar's pre-generated reference voice clip.
+    // Pull the avatar's pre-generated reference voice clip. For Podcast Mode A
+    // we ALSO append a smooth-warm Jessica clip as the second-speaker reference
+    // so Seedance doesn't invent a default high-pitched voice for speaker B.
     const audio_urls: string[] = [];
     if (avatarId) {
       const { data: av } = await admin
@@ -610,6 +668,10 @@ Deno.serve(async (req) => {
         .eq('id', avatarId)
         .maybeSingle();
       if (isValidHttpUrl(av?.voice_sample_url)) audio_urls.push(String(av?.voice_sample_url).trim());
+    }
+    if (String(format).toLowerCase() === 'podcast') {
+      const secondVoice = await ensurePodcastSecondVoiceUrl(admin);
+      if (secondVoice && !audio_urls.includes(secondVoice)) audio_urls.push(secondVoice);
     }
 
     // 1) Persist row immediately (so client polling has a real id) — or reuse one created by the orchestrator

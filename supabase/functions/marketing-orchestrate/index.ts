@@ -263,6 +263,15 @@ Deno.serve(async (req) => {
     const userExtraRefs: string[] = uniqueValidUrls(Array.isArray(extraRefImages) ? extraRefImages : []);
     const userExtraNames: string[] = (Array.isArray(extraRefNames) ? extraRefNames : []).map((n: any) => String(n || '').trim());
 
+    // Podcast multi-cam shuffle physically cannot fit in <12s — short durations
+    // produce the "AI slop" frozen wide shot. Force a minimum.
+    let effectiveDuration = Number(duration_seconds) || 8;
+    if (String(format).toLowerCase() === 'podcast' && effectiveDuration < 12) {
+      effectiveDuration = 12;
+    }
+    // Use effectiveDuration for the rest of the pipeline.
+    const duration_seconds_final = effectiveDuration;
+
     const ratio = aspectToRatio(aspect);
     const userPromptTrimmed = (userPrompt || '').trim();
 
@@ -326,7 +335,7 @@ Deno.serve(async (req) => {
         format: effectiveFormat,
         surface,
         aspect: ratio,
-        duration_seconds,
+        duration_seconds: duration_seconds_final,
         resolution,
         prompt: userPromptTrimmed || '(generating script…)',
         script: { source: 'pending' },
@@ -403,7 +412,7 @@ Deno.serve(async (req) => {
             format: effectiveFormat,
             surface,
             aspect: ratio,
-            duration: duration_seconds,
+            duration: duration_seconds_final,
             userPrompt: userPromptTrimmed,
             userDirection: userPromptTrimmed,
             extraRefImages: userExtraRefs,
@@ -450,7 +459,7 @@ Deno.serve(async (req) => {
           prompt: finalPrompt,
           image_urls: refs,
           aspect: ratio,
-          duration_seconds,
+          duration_seconds: duration_seconds_final,
           resolution,
           productId,
           avatarId,

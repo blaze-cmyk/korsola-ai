@@ -241,9 +241,16 @@ OUTPUT: One paragraph. No preamble, no labels.
 
 ${EX_TALKING_HEAD}`;
 
-const PODCAST_PROMPT = `You write Seedance 2.0 video generation prompts for faux-podcast UGC ads. The video is styled to look like a 20–45-second clip pulled out of a real MULTI-CAM podcast episode. One continuous paragraph, 320–500 words. No headings, no bullet points, no numbered steps, no emojis, no hashtags.
+const PODCAST_PROMPT = `You write Seedance 2.0 video generation prompts for faux-podcast UGC ads. The video is styled to look like a 12–25-second clip pulled out of a real MULTI-CAM podcast episode. One continuous paragraph, 320–500 words. No headings, no bullet points, no numbered steps, no emojis, no hashtags.
 
-Vertical 9:16, mixed practical interior lighting (warm lamp + window edge), real interior with a couch or armchair, foreground black podcast microphone slightly out of focus — the mic is MANDATORY. No music — only conversational dialogue and natural room tone.
+LOCKED STUDIO LOOK — do not improvise the room. Every Podcast script renders this exact aesthetic unless USER_DIRECTION overrides it explicitly:
+- Vertical 9:16, dim modern podcast studio interior.
+- Back wall: matte-black acoustic foam panels (square wedge pattern), or alternating walnut wood slats with black foam — never a generic "living room" or "office".
+- Lighting: ONE warm tungsten key light cutting in from camera-left at ~3200K, ONE soft amber rim light behind the guest(s) from a vintage edison bulb or practical lamp, deep shadows on the opposite cheek. No flat overhead light. No daylight window.
+- Furniture: dark brown or black leather armchair(s) with visible stitching and brass studs, OR a single low-back swivel chair. A low walnut or matte-black coffee table with a half-full glass tumbler or matte ceramic mug.
+- Foreground: a black RØDE PodMic (or Shure SM7B) on a visible articulating boom arm, slightly out of focus, occupying the lower-left or lower-right of frame. The mic is MANDATORY in EVERY shot tag.
+- Camera: locked tripod, ~50mm equivalent, shallow depth of field (background foam softly blurred), subtle film grain, faint chromatic aberration on highlights.
+- Audio: no music, only conversational dialogue and natural room tone.
 
 CRITICAL — MULTI-CAM IS THE FORMAT, NOT A FEATURE.
 Real podcast clips are cut from 3+ cameras. The single biggest "AI slop" tell is a static locked wide two-shot of two avatars sitting still talking the whole video. You MUST avoid that. Every Mode A script is a SHUFFLE between three locked-tripod cameras with hard cuts motivated by who is speaking — never a single continuous wide.
@@ -251,12 +258,12 @@ Real podcast clips are cut from 3+ cameras. The single biggest "AI slop" tell is
 CASTING — pick exactly one mode and commit to it:
 
 MODE A — TWO-PERSON MULTI-CAM SHUFFLE (default when 0 or 2 avatars are involved):
-- Three locked-tripod cameras: WIDE TWO-SHOT (both subjects + foreground mic), SINGLE A (chest-up of speaker A alone with their own foreground mic), SINGLE B (chest-up of speaker B alone with their own foreground mic).
+- Three locked-tripod cameras: WIDE TWO-SHOT (both subjects + foreground RØDE mic), SINGLE A (chest-up of speaker A alone with their own foreground RØDE mic), SINGLE B (chest-up of speaker B alone with their own foreground RØDE mic).
 - Cut to the SINGLE of whoever is currently speaking. The other person is OFF-SCREEN while the single is held.
 - Use the WIDE only for the opening hook beat, the tactile proof beat, and the action-cut transition. The rest of the runtime alternates SINGLE A ↔ SINGLE B with at least one REACTION shot.
 - REACTION SHOTS are mandatory — at least one beat is a silent 1–2s SINGLE of the non-speaking person nodding, smirking, glancing down at the product, or pinching the fabric, while the other person's voice continues over the cut.
 - Label EVERY beat in the paragraph with one of these tags inline: 'WIDE TWO-SHOT', 'SINGLE A — [name]', 'SINGLE B — [name]', 'REACTION — [name]'. The script must contain at least 4 shot tags across at least 3 distinct angles.
-- Each speaker has their OWN visible podcast mic in their single shot.
+- Each speaker has their OWN visible RØDE mic in their single shot.
 - Banned in Mode A: a single locked wide two-shot held for the entire runtime. That is the AI-slop pattern this format exists to defeat.
 
 MODE B — SINGLE GUEST + INVISIBLE OFF-CAMERA INTERVIEWER:
@@ -265,9 +272,16 @@ MODE B — SINGLE GUEST + INVISIBLE OFF-CAMERA INTERVIEWER:
 
 If exactly one avatar is provided, default to MODE B with that avatar as the guest. If zero or two avatars are provided, default to MODE A and invent the missing character(s). Never produce a single-monologue script.
 
+ANTI-AI-SLOP DECREES — these tells immediately mark a clip as AI-generated. Avoid them:
+- No floating mic with no boom arm. The mic always has a visible black articulating boom arm.
+- No identical guests (do not mirror the avatar's face onto the second speaker — give the invented speaker a clearly different look: different hair, age, build, wardrobe).
+- No symmetrical "two heads facing camera" composition for more than 1 beat.
+- No glassy plastic skin, no airbrushed lighting — describe practical light sources by name (tungsten, edison, key, rim) so the model knows it is interior, motivated lighting, not generic studio.
+- No subtitles, no captions, no on-screen text, no logos floating in the background, no smartphone in frame.
+
 PRODUCT — described from the actual product images using PRODUCT_NAME and the concrete_product_details list. Any printed text, lettering, numbers, slogans, or logos visible on the product MUST face the camera and read forward — perfectly legible, never mirrored.
 
-POSTURE-AS-PROOF: for comfort, wellness, loungewear, or sleepwear products, the on-screen subject MUST visibly slump, sink, or nest into the seat. Posture physically validates the spoken claim.
+POSTURE-AS-PROOF: for comfort, wellness, loungewear, or sleepwear products, the on-screen subject MUST visibly slump, sink, or nest into the leather chair. Posture physically validates the spoken claim.
 
 BEATS: scale to DURATION using the STRICT DURATION SPEC windows above. Every script MUST include at least one TACTILE PROOF BEAT — a physical action (pinch fabric, pull hood, grip strap, throw matching piece) that lands inside the same beat as the claim it validates. If the script needs a wardrobe or state change, mask the cut with an ACTION-CUT TRANSITION (throw mask / lean mask / hand-swipe mask) — describe the action and write 'Hard cut masked by motion blur of …' verbatim. All other Mode A multi-cam cuts are normal hard cuts between the three locked angles, motivated by speech.
 
@@ -277,6 +291,7 @@ DIALOGUE RULES:
 - At least three disfluencies spread across the script: like, cause, bro, dude, girl, wait, okay, oh, right?, I mean.
 - Conversational overlap is encouraged: write two consecutive quoted lines for the same beat to signal speakers stepping on each other.
 - Voice MUST match CREATOR_PERSONA exactly for the on-camera guest.
+- The second speaker (Mode A only) speaks with a smooth, warm, low-register tone — calm and conversational, never bubbly or high-pitched. Describe their voice in the prompt as "smooth warm voice, low register, conversational".
 - No "Hey guys", "today I'm reviewing", "let's take a look".
 
 CTA: end with one of — direct ("you gotta get a set"), soft intrigue ("they have every color you could ever want"), pointed fourth-wall (guest locks elbow, points finger into the lens), or social proof close ("all my friends are blowing me up").
