@@ -243,7 +243,30 @@ Deno.serve(async (req) => {
       effectiveFormat = 'AVATAR_TALKING_HEAD';
     }
 
-    // 3) Use the AI script writer for human, format-specific UGC. If it fails
+    // 2b) One-time vision backfill: if this product has no cached
+    // vision_analysis yet, run analyze-product once on the primary image and
+    // persist it. The script writer will pick it up next call (and on retries).
+    if (productId && refs.length > 0) {
+      try {
+        const { data: prodRow } = await admin
+          .from('ms_products')
+          .select('vision_analysis')
+          .eq('id', productId)
+          .maybeSingle();
+        if (prodRow && !(prodRow as any).vision_analysis) {
+          const visRes = await invokeFn('marketing-analyze-product', { image_url: refs[0] });
+          if (visRes.ok && visRes.json?.visual_facts) {
+            await admin
+              .from('ms_products')
+              .update({ vision_analysis: visRes.json.visual_facts })
+              .eq('id', productId);
+          }
+        }
+      } catch (e) {
+        console.warn('[orchestrate] vision backfill failed', e);
+      }
+    }
+
     // or returns weak copy, fall back to a deterministic Higgsfield-style prompt.
     let scriptPayload: any = null;
     let finalPrompt = userPromptTrimmed;
