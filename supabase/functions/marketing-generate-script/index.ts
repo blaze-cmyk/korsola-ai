@@ -82,7 +82,8 @@ Hard rules that override every format below:
 - If an avatar is provided, use them as the creator inside the scene. If no avatar is provided, use POV hands (with described nail color and sleeve color matched to product palette) — NEVER invent a random spokesperson.
 - Output MUST feel like the EXAMPLE OUTPUT below: camera/style line, concrete scene/product paragraph, then "Action and dialogue sequence:" with timed physical beats and short quoted lines.
 - The CREATOR_PERSONA voice is mandatory — every line of dialogue must sound like that specific archetype, not a generic UGC creator.
-- The concrete_product_details array MUST contain at least 4 items extracted from the actual product images (color names, materials, hardware pieces, printed text, distinctive features). Do not invent details that aren't visible.`;
+- The concrete_product_details array MUST contain at least 4 items extracted from the actual product images (color names, materials, hardware pieces, printed text, distinctive features). Do not invent details that aren't visible.
+- READABLE TEXT RULE: any printed text, lettering, numbers, slogans, or logos visible on the product, garment, or packaging MUST be described as facing the camera and reading FORWARD — perfectly legible. NEVER use mirror reflections, mirror selfies, or any framing where on-product text would appear reversed/flipped/mirrored. If the camera angle would mirror the text, change the camera angle. State explicitly inside the prompt that the text reads forward.`;
 
 // ---------- Few-shot example outputs (verbatim Higgsfield) ----------
 const EX_UGC = `EXAMPLE OUTPUT (study the structure, tone, persona-fit, concrete sensory detail — never copy literally):
