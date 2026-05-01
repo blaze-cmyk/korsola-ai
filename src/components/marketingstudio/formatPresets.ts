@@ -88,6 +88,8 @@ const TUTORIAL_NUDELAB = `@Nude Lab Authentic amateur-style UGC in a bright bath
 10–12s: Final close-up: both hands hold @Nude Lab up near her face, she gives a small playful shrug and a genuine smile, clip ends mid-motion like a real social post.
 Audio: Only her voice + natural bathroom room tone (faint water, soft tile echo). No music, no sound effects, no narrator. Voice: warm, friendly, mid-20s American accent, conversational, natural breaths and pauses.`;
 
+const PODCAST_COMFRT = `@Comfrt Olive Set @Guy 1 @Guy 2 A 25-second vertical 9:16 UGC video styled as a multi-cam podcast clip, locked tripod, mixed practical lighting in a dim modern living room, brown fabric couch, foreground black podcast microphone slightly out of focus on the left of frame. Two guys on the couch — Guy 1 (left, black LA cap, black tee) and Guy 2 (right, white ribbed tank, thick olive-green Comfrt sweatpants with elastic drawstring waistband). 0–2s HOOK: Guy 1 leans back, looks at Guy 2: "What is the most comfortable pair of sweatpants you own?" Guy 2, calm: "Comfrt?" 2–9s VIRAL CLAIM: Guy 1 leans forward, hand chops down on "viral", points at Guy 2 on "market": "Bro, they're going viral right now for being like the most comfortable sweat set on the market." Guy 2 nods, glances at his pants: "And they're the best thing I've ever purchased." 9–11s TACTILE: Guy 1 leans deep across the frame, pinches the thick olive fabric on Guy 2's left thigh: "May I feel?" Guy 2 shifts his leg: "Yeah, check 'em out." 11–13s ACTION CUT: Guy 2 dips off-camera right, snaps back up, violently throws a bundled olive-green Comfrt hoodie across the frame at Guy 1: "Wait dude, check out the whole set." Hard cut masked by motion blur of the hoodie crossing the lens. 13–25s FEATURE + CTA: Guy 2 is now wearing the matching olive-green Comfrt pullover with the black "COMFRT" chest logo facing the camera and reading forward. Guy 1 sits back in his original neutral pose. Guy 2 pinches the hoodie fabric near his collarbone and pulls it slightly to show thickness: "I don't fly or do any sort of traveling unless it's in a Comfrt set. I love the brand because it's like this slightly weighted material that's supposed to like help with stress, anxiety. I love anything that supports mental health too — so you gotta get a set." On the final line he locks his elbow and points his index finger directly into the lens, breaking the fourth wall. Style: raw podcast clip, no music, no text overlays, only natural room tone and conversational overlap.`;
+
 // Keyed by FormatCard id from MarketingStudio.tsx
 export const FORMAT_PRESETS: Record<string, FormatPreset> = {
   f1: {
@@ -170,6 +172,14 @@ export const FORMAT_PRESETS: Record<string, FormatPreset> = {
     avatarThumb: '/formats/preset-avatar-bathroom.jpg',
     productName: 'Nude Lab',
     avatarName: 'Ava',
+  },
+  f10: {
+    mode: 'Podcast',
+    prompt: PODCAST_COMFRT,
+    duration: '25s',
+    aspect: '9:16',
+    productName: 'Comfrt Olive Set',
+    avatarName: 'Guy 1 + Guy 2',
   },
 };
 

@@ -142,6 +142,9 @@ HOOK (0–2s) POV handheld, slightly shaky. A bright red shopping bag with gold 
 const EX_TALKING_HEAD = `EXAMPLE OUTPUT (study the structure, tone, persona-fit — never copy literally):
 Vertical 9:16, shot on iPhone front camera, natural daylight from a side window, handheld with subtle micro-shake, real skin tones, no filters. A young woman sits close to the front camera in a casual room — warm light, soft background, slightly cluttered desk visible at the edge. She speaks directly to the lens, relaxed and natural, like talking to a friend. Action and dialogue sequence: She leans in slightly, half-smile: "Okay I need to tell you something." Pauses, looks off camera, looks back. Continues with one personal observation, one specific reason it matters, one honest reaction. Keeps it under five spoken lines. Final beat: she stops talking, holds eye contact for a beat, breaks into a small smile, reaches toward the phone — video ends mid-motion.`;
 
+const EX_PODCAST = `EXAMPLE OUTPUT (study the structure, tone, casting, tactile-proof beat, action-cut, conversational overlap — never copy literally):
+A 25-second vertical 9:16 UGC video styled as a multi-cam podcast clip, locked tripod, mixed practical lighting in a dim modern living room, brown fabric couch, foreground black podcast microphone slightly out of focus on the left of frame. Two guys on the couch — Guy 1 (left, black LA cap, black tee) and Guy 2 (right, white ribbed tank, thick olive-green Comfrt sweatpants with elastic drawstring waistband). 0–2s HOOK: Guy 1 leans back, looks at Guy 2: "What is the most comfortable pair of sweatpants you own?" Guy 2, calm: "Comfrt?" 2–9s VIRAL CLAIM: Guy 1 leans forward, hand chops down on "viral", points at Guy 2 on "market": "Bro, they're going viral right now for being like the most comfortable sweat set on the market." Guy 2 nods, glances at his pants: "And they're the best thing I've ever purchased." 9–11s TACTILE: Guy 1 leans deep across the frame, pinches the thick olive fabric on Guy 2's left thigh: "May I feel?" Guy 2 shifts his leg: "Yeah, check 'em out." 11–13s ACTION CUT: Guy 2 dips off-camera right, snaps back up, throws a bundled olive-green Comfrt hoodie across the frame at Guy 1: "Wait dude, check out the whole set." Hard cut masked by motion blur of the hoodie crossing the lens. 13–25s FEATURE + CTA: Guy 2 is now wearing the matching olive-green Comfrt pullover with the black "COMFRT" chest logo facing the camera and reading forward. Guy 1 sits back. Guy 2 pinches the hoodie fabric near his collarbone and pulls it slightly: "I don't fly or do any traveling unless it's in a Comfrt set. It's like this slightly weighted material that's supposed to help with stress, anxiety. I love anything that supports mental health — so you gotta get a set." On the final line he locks his elbow and points his index finger directly into the lens. Style: raw podcast clip, no music, no text overlays, only natural room tone and conversational overlap.`;
+
 // ---------- Format prompts with POV_HANDS branches ----------
 const UGC_PROMPT = `You write Seedance 2.0 video generation prompts for UGC-style product review videos. Your output is a single continuous paragraph of 220–380 words. No headings, no bullet points, no numbered steps, no emojis, no hashtags.
 
@@ -238,11 +241,41 @@ OUTPUT: One paragraph. No preamble, no labels.
 
 ${EX_TALKING_HEAD}`;
 
+const PODCAST_PROMPT = `You write Seedance 2.0 video generation prompts for faux-podcast UGC ads. The video is styled to look like a 20–45-second clip pulled out of a real podcast episode. One continuous paragraph, 280–460 words. No headings, no bullet points, no numbered steps, no emojis, no hashtags.
+
+Vertical 9:16, locked tripod, mixed practical interior lighting (warm lamp + window edge), real interior with a couch or armchair, foreground black podcast microphone slightly out of focus — the mic is MANDATORY and must be described explicitly in the SETTING. No camera moves of any kind. No B-roll. No music — only conversational dialogue and natural room tone.
+
+CASTING — pick exactly one mode and commit to it:
+MODE A — TWO-PERSON (host + guest on couch): two subjects fully inside the 9:16 frame. Host (asks questions, hypes the guest) uses the hype-friend or chaotic-bestie energy; Guest (delivers proof, demos product) uses CREATOR_PERSONA voice. They overlap and react physically to each other.
+MODE B — SINGLE GUEST + INVISIBLE OFF-CAMERA INTERVIEWER: one subject seated facing slightly off-camera-left toward an unseen interviewer. The interviewer is HEARD ONLY — never seen — and feeds lifestyle scenarios that the guest reacts to. Mark every off-camera line in the paragraph as 'Off-camera (heard only):' or '(off-camera):' so the model never renders a second person on screen.
+
+If a single avatar is provided, default to MODE B with that avatar as the guest. If no avatar is provided, default to MODE A and invent both characters. Never produce a single-monologue script.
+
+PRODUCT — described from the actual product images using PRODUCT_NAME and the concrete_product_details list. Any printed text, lettering, numbers, slogans, or logos visible on the product MUST face the camera and read forward — perfectly legible, never mirrored.
+
+POSTURE-AS-PROOF: for comfort, wellness, loungewear, or sleepwear products, the on-screen subject MUST visibly slump, sink, or nest into the seat. Posture physically validates the spoken claim.
+
+BEATS: scale to DURATION using the STRICT DURATION SPEC windows above. Every script MUST include at least one TACTILE PROOF BEAT — a physical action (pinch fabric, pull hood, grip strap, throw matching piece) that lands inside the same beat as the claim it validates. If the script needs a wardrobe or state change, mask the only allowed hard cut with an ACTION-CUT TRANSITION (throw mask / lean mask / hand-swipe mask) — describe the action and write 'Hard cut masked by motion blur of …' verbatim. Never use a clean wipe, fade, or unmasked jump cut.
+
+DIALOGUE RULES:
+- Two distinct speakers, all lines in double quotes, ≤14 words per line.
+- At least three disfluencies spread across the script: like, cause, bro, dude, girl, wait, okay, oh, right?, I mean.
+- Conversational overlap is encouraged: write two consecutive quoted lines for the same beat to signal speakers stepping on each other.
+- Voice MUST match CREATOR_PERSONA exactly for the on-camera guest.
+- No "Hey guys", "today I'm reviewing", "let's take a look".
+
+CTA: end with one of — direct ("you gotta get a set"), soft intrigue ("they have every color you could ever want"), pointed fourth-wall (guest locks elbow, points finger into the lens), or social proof close ("all my friends are blowing me up").
+
+OUTPUT: One paragraph. Final prompt ready to send to Seedance 2.0. No preamble, no labels.
+
+${EX_PODCAST}`;
+
 const FORMAT_SYSTEM_PROMPTS: Record<string, string> = {
   UGC: UGC_PROMPT,
   'UGC Virtual Try On': UGC_TRYON_PROMPT,
   Tutorial: TUTORIAL_PROMPT,
   Unboxing: UNBOXING_PROMPT,
+  Podcast: PODCAST_PROMPT,
   AVATAR_TALKING_HEAD: AVATAR_TALKING_HEAD_PROMPT,
   // Legacy formats keep lightweight prompts
   'Pro Virtual Try On': `You write polished editorial try-on scripts. Street-style energy, fashion-photographer aesthetic, slow camera pushes, light natural dialog or beat-cut silence. Voice = CREATOR_PERSONA.`,
@@ -271,11 +304,29 @@ function isWeak(
   details: string[],
   maxSpokenWords?: number,
   durSec?: number,
+  format?: string,
 ): { weak: boolean; reason: string } {
   if (!finalPrompt || finalPrompt.length < 350) return { weak: true, reason: 'too short' };
   if (BANNED_RX.test(finalPrompt)) return { weak: true, reason: 'banned phrase' };
   if (!/Action and dialogue sequence|HOOK|JUMP CUT|BEAT|POV:|0[–-]\d|Before|After/i.test(finalPrompt)) return { weak: true, reason: 'no creatify-style structure' };
-  if (!/(switches to the back camera|back camera|close-up|macro|props the phone|jump cut|overhead|POV|sets the phone down|detail shot)/i.test(finalPrompt)) return { weak: true, reason: 'too static' };
+
+  // Podcast format has its own structural checks (locked tripod, no jump cuts).
+  // Skip the camera-movement "too static" check that's tuned for selfie UGC.
+  if (format === 'Podcast') {
+    if (!/podcast/i.test(finalPrompt)) return { weak: true, reason: 'missing podcast framing' };
+    if (!/(microphone|\bmic\b)/i.test(finalPrompt)) return { weak: true, reason: 'missing visible podcast microphone' };
+    const quotedLines = (finalPrompt.match(/"([^"\n]{1,200})"/g) || []).length;
+    if (quotedLines < 4) return { weak: true, reason: `podcast needs at least 4 quoted lines (got ${quotedLines})` };
+    if (!/(off-camera|off camera|host|guest|guy 1|guy 2|she:|he:|interviewer)/i.test(finalPrompt)) {
+      return { weak: true, reason: 'podcast needs two distinct speakers (off-camera or two-person)' };
+    }
+    if (!/(pinch|grip|pull|tug|tap|touch|throws?|leans? (deep|forward|across)|holds? up)/i.test(finalPrompt)) {
+      return { weak: true, reason: 'podcast missing tactile proof beat' };
+    }
+  } else {
+    if (!/(switches to the back camera|back camera|close-up|macro|props the phone|jump cut|overhead|POV|sets the phone down|detail shot)/i.test(finalPrompt)) return { weak: true, reason: 'too static' };
+  }
+
   if (details && details.length >= 2) {
     const hits = details.filter((d) => d && finalPrompt.toLowerCase().includes(String(d).toLowerCase().split(' ').slice(0, 2).join(' '))).length;
     if (hits === 0) return { weak: true, reason: 'no product detail mentioned' };
@@ -633,7 +684,7 @@ Deno.serve(async (req) => {
 
     // ---------- Retry once if weak ----------
     const details = Array.isArray(script.concrete_product_details) ? script.concrete_product_details : [];
-    const weakCheck = isWeak(script.final_prompt || '', details, maxSpokenWords, durSec);
+    const weakCheck = isWeak(script.final_prompt || '', details, maxSpokenWords, durSec, format);
     if (weakCheck.weak && (productId || avatarId)) {
       console.warn(`[generate-script] weak output (${weakCheck.reason}), retrying`);
       const stricter =
