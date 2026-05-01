@@ -278,7 +278,7 @@ Never produce a single-monologue script.
 
 ANTI-AI-SLOP DECREES — these tells immediately mark a clip as AI-generated. Avoid them:
 - No floating mic with no boom arm. The mic always has a visible black articulating boom arm.
-- No identical guests (do not mirror the avatar's face onto the second speaker — give the invented speaker a clearly different look: different hair, age, build, wardrobe).
+- No identical guests. If a person-ref image was attached for Speaker B, lock Speaker B to that reference's appearance verbatim (hair, build, age, skin tone, wardrobe colors). If NO person-ref was attached, invent a Speaker B clearly distinct from Speaker A (different hair, age, build, wardrobe).
 - No symmetrical "two heads facing camera" composition for more than 1 beat.
 - No glassy plastic skin, no airbrushed lighting — describe practical light sources by name (tungsten, edison, key, rim) so the model knows it is interior, motivated lighting, not generic studio.
 - No subtitles, no captions, no on-screen text, no logos floating in the background, no smartphone in frame.
