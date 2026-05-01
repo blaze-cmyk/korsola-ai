@@ -243,6 +243,12 @@ async function submitFal(opts: {
   const endpoint = hasRefs
     ? 'https://queue.fal.run/bytedance/seedance-2.0/reference-to-video'
     : 'https://queue.fal.run/bytedance/seedance-2.0/text-to-video';
+  const falImageUrls = hasRefs
+    ? await Promise.all(opts.image_urls.slice(0, 9).map((url, index) => toFalDataUri(url, index, 'image')))
+    : [];
+  const falAudioUrls = hasRefs && opts.audio_urls.length > 0
+    ? await Promise.all(opts.audio_urls.slice(0, 3).map((url, index) => toFalDataUri(url, index, 'audio')))
+    : [];
   const payload: Record<string, unknown> = {
     prompt: opts.prompt,
     aspect_ratio: opts.ratio,
@@ -252,9 +258,9 @@ async function submitFal(opts: {
   };
   if (hasRefs) {
     // fal Seedance 2.0 schema uses `image_urls` (and historically `reference_image_urls`).
-    payload.image_urls = opts.image_urls.slice(0, 9);
-    payload.reference_image_urls = opts.image_urls.slice(0, 9);
-    if (opts.audio_urls.length) payload.audio_urls = opts.audio_urls.slice(0, 3);
+    payload.image_urls = falImageUrls;
+    payload.reference_image_urls = falImageUrls;
+    if (falAudioUrls.length) payload.audio_urls = falAudioUrls;
   }
   const res = await fetch(endpoint, {
     method: 'POST',
