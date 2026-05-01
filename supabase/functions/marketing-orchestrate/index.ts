@@ -200,26 +200,32 @@ Deno.serve(async (req) => {
     } = await req.json();
 
     const ratio = aspectToRatio(aspect);
-    let finalPrompt = (userPrompt || '').trim();
+    const userPromptTrimmed = (userPrompt || '').trim();
 
-    // If no prompt was provided but we have product/avatar refs, synthesize a
-    // minimal neutral prompt so the provider has something to work with.
-    if (!finalPrompt) {
-      if (productId || avatarId) {
-        const parts: string[] = [];
-        if (avatarId) parts.push('a person');
-        if (productId) parts.push(`${avatarId ? 'holding and showcasing' : 'showcasing'} the product`);
-        finalPrompt = `${format || 'UGC'} style video of ${parts.join(' ')}, natural lighting, cinematic.`;
-      } else {
-        return new Response(JSON.stringify({ error: 'prompt required' }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
+    if (!userPromptTrimmed && !productId && !avatarId) {
+      return new Response(JSON.stringify({ error: 'prompt required' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    // 1) Resolve refs + thumb up front so the row has something to show.
-    const { refs, thumb } = await gatherReferenceUrls(admin, { productId, avatarId });
+    // 1) Resolve refs + product/avatar metadata up front so we can build a
+    // concrete Higgsfield-style prompt anchored on real visual details.
+    const { refs, thumb, product, avatar } = await gatherReferenceUrls(admin, { productId, avatarId });
+
+    // 2) Always build a structured cinematography prompt. If the user typed
+    // their own prompt, it is woven in as a "creator note" rather than sent
+    // raw — this prevents AI slop from underspecified prompts.
+    const finalPrompt = (productId || avatarId)
+      ? buildHiggsfieldPrompt({
+          format,
+          product,
+          avatar,
+          userPrompt: userPromptTrimmed,
+          hasProduct: !!productId,
+          hasAvatar: !!avatarId,
+        })
+      : userPromptTrimmed;
 
     // 2) Persist row immediately at stage=videoing — no scripting step anymore.
     const { data: row, error: insErr } = await admin
