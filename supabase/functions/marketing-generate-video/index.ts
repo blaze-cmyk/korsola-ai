@@ -18,6 +18,7 @@ const ATLAS_KEY = Deno.env.get('ATLASCLOUD_API_KEY') ?? '';
 const FAL_KEY = Deno.env.get('FAL_KEY') ?? '';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const PROVIDER_TIMEOUT_MS = 10 * 60 * 1000;
 
 type Provider = 'atlascloud' | 'fal';
 
@@ -161,6 +162,17 @@ function normalizeRes(r: string) {
   if (r === '1080p') return '1080p';
   if (r === '480p') return '480p';
   return '720p';
+}
+
+function providerEndpoint(provider: Provider, hasRefs: boolean) {
+  if (provider === 'atlascloud') {
+    return hasRefs
+      ? 'bytedance/seedance-2.0/reference-to-video'
+      : 'bytedance/seedance-2.0/text-to-video';
+  }
+  return hasRefs
+    ? 'bytedance/seedance-2.0/reference-to-video'
+    : 'bytedance/seedance-2.0/text-to-video';
 }
 
 // ---------------- AtlasCloud (primary) ----------------
