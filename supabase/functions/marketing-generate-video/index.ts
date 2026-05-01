@@ -280,7 +280,7 @@ async function submitWithFallback(opts: {
       reasons.push(`${provider}: ${e instanceof Error ? e.message : 'threw'}`);
     }
   }
-  return { error: reasons.join(' | ') || 'all_providers_failed', details: lastErr };
+  return { error: reasons.join(' | ') || 'all_providers_failed', details: lastErr, stage: 'submit' };
 }
 
 Deno.serve(async (req) => {
