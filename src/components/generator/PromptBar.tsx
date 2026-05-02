@@ -105,7 +105,7 @@ export function PromptBar() {
           />
         )}
 
-        <div className="flex items-stretch gap-2">
+        <div className="flex items-center gap-2">
           {/* Left + button (upload reference) — only when no refs yet */}
           {referenceImages.length === 0 && (
             <button
