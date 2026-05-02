@@ -146,6 +146,7 @@ async function gatherFreshReferenceUrls(admin: any, opts: {
   keyframeUrl?: string | null;
   fallbackUrls?: unknown[];
   maxProductImages?: number;
+  maxReferenceImages?: number;
 }) {
   const refs: string[] = [];
   if (opts.keyframePath) {
@@ -183,7 +184,9 @@ async function gatherFreshReferenceUrls(admin: any, opts: {
     if (typeof avatarUrl === 'string') refs.push(avatarIdentityCropUrl(avatarUrl));
   }
 
-  return uniqueValidUrls(refs.length ? refs : (opts.fallbackUrls ?? []), 3);
+  // Keep the core product/avatar refs first, but DO NOT drop user-added prompt
+  // reference images. Seedance 2.0 accepts up to 9 reference_images per Atlas docs.
+  return uniqueValidUrls([...refs, ...(opts.fallbackUrls ?? [])], opts.maxReferenceImages ?? 9);
 }
 
 async function uploadAtlasMedia(url: string, index: number, kind: 'image' | 'audio') {
@@ -233,6 +236,16 @@ async function toFalDataUri(url: string, index: number, kind: 'image' | 'audio')
 
 function hasAudioUrlError(raw: unknown) {
   return /audio_url|reference_audio|reference_audios|invalid url/i.test(JSON.stringify(raw));
+}
+
+function canPollFallbackToFal(row: any, result: { status: 'running' | 'done' | 'failed'; error?: string }) {
+  return (
+    result.status === 'failed' &&
+    row?.provider === 'atlascloud' &&
+    !row?.fallback_attempted &&
+    !!FAL_KEY &&
+    ((row?.reference_paths || []).length > 0 || row?.product_id || row?.avatar_id || row?.keyframe_url || row?.keyframe_path)
+  );
 }
 
 function normalizeRes(r: string) {
