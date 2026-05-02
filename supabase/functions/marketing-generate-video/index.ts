@@ -616,7 +616,7 @@ Deno.serve(async (req) => {
       provider: submission.provider,
       provider_endpoint: submission.endpoint,
       fal_request_id: submission.requestId,
-      fallback_attempted: !!submission.usedFallback,
+      fallback_attempted: false,
     }).eq('id', row.id).select().single();
 
     log('INFO', 'submit: done', { jobId: row.id, provider: submission.provider, endpoint: submission.endpoint, requestId: submission.requestId });
