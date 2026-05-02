@@ -498,6 +498,40 @@ function isWeak(
     if (!/—/.test(finalPrompt)) {
       return { weak: true, reason: 'podcast missing em-dash pacing breaks (lines need self-corrections / interruptions)' };
     }
+  } else if (format === 'Unboxing') {
+    // ── Unboxing taste gates — slop catcher, NEVER a concept gate ──
+    // 1. Camera language MUST be declared in the opening so we know Claude committed.
+    const cameraLangRx = /\b(TOP-DOWN ASMR|THEATRICAL REVEAL|VLOG SELFIE|QUIET HANDHELD|EDITORIAL PAN|JUMP-CUT HAUL|STREET DOC|TABLETOP CINEMATIC|POV FIRST-PERSON|MACRO TACTILE|OVERHEAD STILL-LIFE|OUTDOOR DAYLIGHT)\b/;
+    const head = finalPrompt.slice(0, 280);
+    if (!cameraLangRx.test(head) && !/^[A-Z][A-Z \-]{4,40}—/m.test(head)) {
+      return { weak: true, reason: 'unboxing missing explicit camera-language declaration in opening line' };
+    }
+    // 2. Banned ad-slop phrases (separate from BANNED_RX, unboxing-specific).
+    const unboxingSlopRx = /(today i'?m unboxing|unbox with me|let'?s take a look|here we go|oh my god guys|in this video|absolutely love|obsessed with|game ?changer|10 out of 10|highly recommend|must[- ]have)/i;
+    const slopHit = finalPrompt.match(unboxingSlopRx);
+    if (slopHit) return { weak: true, reason: `unboxing contains banned ad-slop phrase: "${slopHit[0]}"` };
+    // 3. Default-look slop — bans the lazy fallbacks.
+    const lookSlopRx = /(ring light|aesthetic background(?! of)|background music|lo-?fi (beat|track)|royalty[- ]free music|on[- ]screen text|subtitle overlay|captions overlay)/i;
+    const lookHit = finalPrompt.match(lookSlopRx);
+    if (lookHit) return { weak: true, reason: `unboxing contains banned default-look phrase: "${lookHit[0]}"` };
+    // 4. Sensory verb density — ≥6 hits from real unboxing vocabulary.
+    const SENSORY_VERBS = /\b(tap|taps|tapped|peel|peels|peeled|lift|lifts|lifted|rotate|rotates|rotated|tilt|tilts|tilted|drape|drapes|draped|pinch|pinches|pinched|slide|slides|slid|trace|traces|traced|click|clicks|clicked|pop|pops|popped|thunk|rustle|rustles|rustled|crinkle|crinkles|crinkled|whisper|whispers|whispered|swing|swings|swung|grip|grips|gripped|tug|tugs|tugged|pull|pulls|pulled|cut|cuts|snip|snips|snipped|press|presses|pressed|run a finger|fingertip|knuckle)\b/gi;
+    const verbHits = (finalPrompt.match(SENSORY_VERBS) || []).length;
+    if (verbHits < 6) return { weak: true, reason: `unboxing needs ≥6 sensory-verb hits (got ${verbHits})` };
+    // 5. Specific sound vocabulary — ≥2 hits.
+    const SOUND_VOCAB = /\b(cardboard|tissue|foam|sticker peel|ribbon|hollow|magnetic|seam|crinkle|whisper|click|pop|thunk|rustle|chain shimmer|leather creak|glass clink|plastic shrink)\b/gi;
+    const soundHits = (finalPrompt.match(SOUND_VOCAB) || []).length;
+    if (soundHits < 2) return { weak: true, reason: `unboxing needs ≥2 specific sound-vocabulary hits (got ${soundHits})` };
+    // 6. Packaging-as-hero — ≥1 packaging noun must appear before the first time-anchor beat.
+    const firstBeatIdx = finalPrompt.search(/\b\d{1,2}(?:\.\d)?\s*[–-]\s*\d{1,2}(?:\.\d)?\s*s/i);
+    if (firstBeatIdx > 0) {
+      const preamble = finalPrompt.slice(0, firstBeatIdx);
+      if (!/\b(box|lid|seal|tissue|foam|ribbon|clasp|flap|sleeve|sticker|insert|wrap|envelope|case|carton|package|packaging)\b/i.test(preamble)) {
+        return { weak: true, reason: 'unboxing missing packaging description before first beat (packaging-as-hero rule)' };
+      }
+    }
+    // 7. Product fidelity — at least one concrete detail referenced.
+    // (the global details check below also runs)
   } else {
     if (!/(switches to the back camera|back camera|close-up|macro|props the phone|jump cut|overhead|POV|sets the phone down|detail shot)/i.test(finalPrompt)) return { weak: true, reason: 'too static' };
   }
