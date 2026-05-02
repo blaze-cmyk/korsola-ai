@@ -636,6 +636,7 @@ Deno.serve(async (req) => {
         keyframePath: row.keyframe_path,
         keyframeUrl: row.keyframe_url,
         fallbackUrls: row.reference_paths || [],
+        maxReferenceImages: 9,
       });
       const audio_urls: string[] = [];
       if (row.avatar_id) {
@@ -726,6 +727,7 @@ Deno.serve(async (req) => {
       keyframeUrl: keyframe_url,
       fallbackUrls: keyframe_url ? [keyframe_url, ...image_urls] : image_urls,
       maxProductImages: 1,
+      maxReferenceImages: 9,
     });
 
     // Pull the avatar's pre-generated reference voice clip. For Podcast Mode A
