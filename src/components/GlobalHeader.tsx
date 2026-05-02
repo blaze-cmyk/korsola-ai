@@ -52,7 +52,7 @@ export function GlobalHeader() {
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  `relative px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  `relative px-4 py-2 rounded-2xl text-[15px] font-medium transition-colors ${
                     isActive
                       ? 'text-foreground bg-muted/60'
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
@@ -74,26 +74,26 @@ export function GlobalHeader() {
         <div className="flex items-center gap-2">
           {!isLoggedIn ? (
             <>
-              <button className="hidden sm:flex items-center gap-1.5 px-3 h-8 rounded-full text-xs font-semibold text-foreground hover:bg-muted/50 relative transition-colors">
-                <Gem className="w-3.5 h-3.5 text-[#FF2D78]" />
+              <button className="hidden sm:flex items-center gap-1.5 px-4 h-10 rounded-2xl text-sm font-semibold text-foreground hover:bg-muted/50 relative transition-colors">
+                <Gem className="w-4 h-4 text-[#FF2D78]" />
                 Pricing
-                <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 text-[8px] font-bold px-1.5 py-px rounded-full bg-[#FF2D78] text-white whitespace-nowrap">
+                <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 text-[9px] font-bold px-1.5 py-px rounded-full bg-[#FF2D78] text-white whitespace-nowrap">
                   30% OFF
                 </span>
               </button>
-              <button className="text-xs font-semibold text-foreground hover:opacity-80 px-2">
+              <button className="px-4 h-10 rounded-2xl text-sm font-semibold text-foreground hover:bg-muted/50 transition-colors">
                 Login
               </button>
-              <button className="px-4 h-8 rounded-full text-xs font-bold text-white bg-[#FF2D78] hover:brightness-110 transition-all">
+              <button className="px-5 h-10 rounded-2xl text-sm font-bold text-white bg-[#FF2D78] hover:brightness-110 transition-all">
                 Sign up
               </button>
             </>
           ) : (
             <>
-              <button className="hidden sm:flex items-center gap-1.5 px-3 h-8 rounded-full text-xs font-bold text-white bg-[#FF2D78] hover:brightness-110 transition-all relative">
-                <Gem className="w-3.5 h-3.5" />
+              <button className="hidden sm:flex items-center gap-1.5 px-5 h-10 rounded-2xl text-sm font-bold text-white bg-[#FF2D78] hover:brightness-110 transition-all relative">
+                <Gem className="w-4 h-4" />
                 Upgrade
-                <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 text-[8px] font-bold px-1.5 py-px rounded-full bg-lime-300 text-black whitespace-nowrap">
+                <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 text-[9px] font-bold px-1.5 py-px rounded-full bg-lime-300 text-black whitespace-nowrap">
                   30% OFF
                 </span>
               </button>
