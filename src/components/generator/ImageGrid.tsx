@@ -144,14 +144,12 @@ function ImageCard({ image }: {
     );
   }
 
-  // Use natural image aspect if loaded, otherwise fall back to aspectRatio setting
-  const style = naturalAspect ? { aspectRatio: naturalAspect } : undefined;
-  const containerClass = naturalAspect ? '' : aspectClass;
+  // Use natural aspect once loaded; before load show a neutral placeholder ratio
+  const placeholderAspect = naturalAspect ? undefined : aspectClass;
 
   return (
     <div
-      className={`group relative ${containerClass} rounded-xl overflow-hidden bg-ms-surface-2 ring-1 ring-ms-border hover:ring-foreground/30 transition-all cursor-pointer`}
-      style={style}
+      className={`group relative ${placeholderAspect ?? ''} rounded-xl overflow-hidden bg-ms-surface-2 ring-1 ring-ms-border hover:ring-foreground/30 transition-all cursor-pointer`}
       onClick={() => setSelectedImageId(image.id)}
     >
       {/* Loading skeleton */}
