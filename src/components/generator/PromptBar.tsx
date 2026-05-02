@@ -176,7 +176,7 @@ export function PromptBar() {
           </Popover>
 
           {/* Aspect ratio */}
-          <Popover>
+          <Popover open={aspectOpen} onOpenChange={setAspectOpen}>
             <PopoverTrigger asChild>
               <button className="ms-chip-glass flex items-center gap-1.5 px-3.5 h-9 rounded-full text-xs text-foreground transition-all">
                 <AspectIcon ratio={aspectRatio} />
@@ -198,7 +198,7 @@ export function PromptBar() {
                   return (
                     <button
                       key={ar}
-                      onClick={() => setAspectRatio(ar)}
+                      onClick={() => { setAspectRatio(ar); setAspectOpen(false); }}
                       className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-colors ${
                         active ? 'bg-white/10 text-white' : 'text-white/85 hover:bg-white/5'
                       }`}
