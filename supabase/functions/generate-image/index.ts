@@ -261,53 +261,44 @@ serve(async (req) => {
         });
       }
 
-      const routedReferenceImages = activeModel === "flux-uncensored-v2"
-        ? referenceImages.slice(0, 1)
-        : referenceImages;
-      const hasReferenceInput = modelConfig.supportsImageInput && routedReferenceImages.length > 0;
-      if (activeModel === "flux-uncensored-v2" && referenceImages.length > 1) {
-        console.log(`Flux Uncensored V2 supports a single fal.ai reference image; using the first of ${referenceImages.length}.`);
-      }
-      let falModel = hasReferenceInput && modelConfig.falImageModel
+      const hasReferenceInput = modelConfig.supportsImageInput && referenceImages.length > 0;
+      const falModel = hasReferenceInput && modelConfig.falImageModel
         ? modelConfig.falImageModel
         : modelConfig.falModel!;
-      if (modelConfig.requiresImage && routedReferenceImages.length === 0 && modelConfig.textFallback) {
-        falModel = modelConfig.textFallback;
-        console.log(`No reference images for editing model, falling back to: ${falModel}`);
-      }
-
-      const reqBody: Record<string, unknown> = {
-        prompt,
-        num_images: 1,
-        output_format: "png",
-      };
 
       const imageSize = arToSize(ar, quality);
-      reqBody.image_size = imageSize;
-      reqBody.num_inference_steps = 28;
-      reqBody.guidance_scale = 3.5;
-      if (activeModel === "flux-uncensored-v2") reqBody.acceleration = "regular";
+      const reqBody: Record<string, unknown> = { prompt, num_images: 1 };
 
-      // Add LoRA if configured + disable safety checker for LoRA models
-      if (modelConfig.lora) {
-        reqBody.loras = [{ path: modelConfig.lora, scale: 1.0 }];
-        reqBody.enable_safety_checker = false;
-      }
-      if (activeModel !== "flux-uncensored-v2" && ar !== "Auto") reqBody.aspect_ratio = ar;
-
-      if (hasReferenceInput) {
-        if (falModel.includes("image-to-image")) {
-          reqBody.image_url = routedReferenceImages[0];
-          reqBody.strength = 0.85;
-        } else if (modelConfig.isMultiRef && routedReferenceImages.length > 1) {
-          reqBody.image_urls = routedReferenceImages;
+      // Per-family request shapes (based on fal.ai docs)
+      if (activeModel === "grok-imagine") {
+        reqBody.aspect_ratio = ar === "Auto" ? "1:1" : ar;
+        reqBody.resolution = quality === "1K" ? "1k" : "2k";
+      } else if (activeModel === "kling") {
+        reqBody.aspect_ratio = ["1:1","16:9","9:16","4:3","3:4","3:2","2:3","21:9"].includes(ar) ? ar : "1:1";
+        reqBody.resolution = quality === "1K" ? "1K" : "2K";
+        if (hasReferenceInput) reqBody.image_url = referenceImages[0];
+      } else if (activeModel === "seedream-4" || activeModel === "seedream-5-lite") {
+        reqBody.image_size = imageSize;
+        reqBody.max_images = 1;
+        if (hasReferenceInput) reqBody.image_urls = referenceImages.slice(0, 10);
+      } else if (activeModel === "wan") {
+        reqBody.image_size = imageSize;
+        if (hasReferenceInput) reqBody.image_url = referenceImages[0];
+      } else if (activeModel === "flux") {
+        reqBody.output_format = "png";
+        if (hasReferenceInput) {
+          reqBody.image_url = referenceImages[0];
         } else {
-          reqBody.image_url = routedReferenceImages[0];
+          reqBody.image_size = imageSize;
+          if (ar !== "Auto") reqBody.aspect_ratio = ar;
         }
+      } else {
+        reqBody.image_size = imageSize;
+        if (hasReferenceInput) reqBody.image_url = referenceImages[0];
       }
 
       const endpoint = `${FAL_BASE}/${falModel}`;
-      console.log(`Calling fal.ai: ${endpoint}, ar=${ar}, refs=${routedReferenceImages.length}`);
+      console.log(`Calling fal.ai: ${endpoint}, ar=${ar}, refs=${referenceImages.length}`);
 
       const submitResp = await fetch(endpoint, {
         method: "POST",
@@ -331,21 +322,23 @@ serve(async (req) => {
         });
       }
 
-      const outputImage = resultData?.images?.[0];
-      if (outputImage?.url) {
-        const imgResp = await fetch(outputImage.url);
+      const outputImage = resultData?.images?.[0] ?? resultData?.image;
+      const outUrl = typeof outputImage === "string" ? outputImage : outputImage?.url;
+      if (outUrl) {
+        const imgResp = await fetch(outUrl);
         if (imgResp.ok) {
           const buf = await imgResp.arrayBuffer();
           imageBase64 = toBase64DataUri(new Uint8Array(buf), imgResp.headers.get("content-type") || "image/png");
         } else {
-          imageUrl = outputImage.url;
+          imageUrl = outUrl;
         }
       } else {
-        return new Response(JSON.stringify({ error: "No image in fal.ai response" }), {
+        return new Response(JSON.stringify({ error: "No image in fal.ai response", details: JSON.stringify(resultData).slice(0, 500) }), {
           status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
     }
+
 
     // ========== RUNWARE MODELS ==========
     if (modelConfig.type === "runware") {
