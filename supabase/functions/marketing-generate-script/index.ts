@@ -307,15 +307,17 @@ STEP 2 — PROPOSE 3+ CAMERA-LANGUAGE OPTIONS that could honor THIS product, the
 Use this palette as a starting point. INVENT MORE if the product deserves something the palette doesn't cover — never feel capped at this list:
   • TOP-DOWN ASMR        — cozy, hands-only, sound-first, no dialogue, sleeves match product palette
   • THEATRICAL REVEAL    — slow paper-stage reveal, single hero piece, near-silent, packaging IS the spectacle
-  • VLOG SELFIE          — iPhone front cam, real energy, dialogue-driven, product unboxed by being USED
-  • QUIET HANDHELD       — avatar + box on a table, impressed whisper, intimate, packaging stays in frame
-  • EDITORIAL PAN        — slow lateral push past the product, fashion-shoot lighting, magazine energy
+  • VLOG SELFIE          — iPhone front cam in a creator's real home/gym/car, real energy, dialogue-driven, product unboxed by being USED
+  • QUIET HANDHELD       — avatar + box on a home table/bed/vanity, impressed whisper, intimate, packaging stays in frame
+  • BEDROOM WINDOW UGC   — creator-at-home package open on bed/floor/desk, window daylight, lived-in background, dialogue optional
+  • BATHROOM VANITY UGC  — beauty/fragrance/skincare opened on a real bathroom counter, towels/sink/window/practical light visible
+  • KITCHEN COUNTER UGC  — product opened on a real kitchen counter, mugs/fruit/mail in background, handheld phone energy
+  • COUCH COFFEE-TABLE UGC — parcel opened on a sofa/coffee table/rug, TV remote/book/blanket background life
   • JUMP-CUT HAUL        — fast handheld cuts, multiple pieces, hype energy, real bedroom mess
-  • STREET DOC           — handheld in a real-world location (cafe, studio, car), ambient sound, casual reveal
-  • TABLETOP CINEMATIC   — 35mm shallow DOF, gallery-clean, museum-vitrine vibe
+  • STREET DOC           — handheld in a real-world non-studio location (car seat, cafe table, stoop, gym locker), ambient sound, casual reveal
   • POV FIRST-PERSON     — chest-mounted feel, the viewer's own hands open it, breath audible
   • MACRO TACTILE        — extreme close-ups of fingertip on texture, no wide shots ever
-  • OVERHEAD STILL-LIFE  — the unboxing as a slow flat-lay rearrangement, almost food-styling
+  • OVERHEAD STILL-LIFE  — the unboxing as a slow home flat-lay rearrangement on desk/duvet/vanity, never a studio packshot
   • OUTDOOR DAYLIGHT     — opening on a picnic blanket, beach towel, park bench — natural setting
   • HAUL TRY-ON          — bedroom selfie energy, frantic-hype hook → packaging tear → hard-cut try-on demo → scarcity CTA, dialogue-led, ≤12-word lines, named tactile micro-actions (nail-tap on bag, hair-fluff out of collar, hugging-self in fabric, hood-pull, sleeve-tug, 360° spin, ta-da)
   • SCARCITY DROP        — short avatar selfie, 15–25s, restock/just-launched energy, one product, urgency CTA close ("if you see your size, run"), 1 packaging beat + 1 try-on beat + 1 scarcity beat
@@ -324,8 +326,8 @@ Use this palette as a starting point. INVENT MORE if the product deserves someth
 
 For each of your 3+ options name ONE reason it FITS this product and ONE reason it MIGHT NOT. Pick the winner. Commit fully. Write the script in THAT camera language. The opening line of your final paragraph MUST explicitly name the chosen camera language so the structural gate can verify you committed (e.g. "TOP-DOWN ASMR — 10-second vertical 9:16…", "THEATRICAL REVEAL — A 15-second…", "HAUL TRY-ON — A 60-second vertical 9:16 UGC haul…", "SCARCITY DROP — A 22-second…", or your own invented tag in the same SHOUTY-CAPS — em-dash form).
 
-STEP 2B — DIRECT THE CINEMATOGRAPHY, NOT JUST THE DIALOGUE.
-Before writing, silently choose a real SCENE LANGUAGE that fits the product: cozy desk by window, white silk flat-lay, quiet oak table, lived-in bedroom, aesthetic gym, studio workbench, car-seat street drop, picnic blanket, cafe table, concrete gallery plinth, etc. Cinematography is the main taste signal. The final prompt MUST name the surface, motivated light source, lens/camera feel, hand/avatar blocking, frame composition, background life, and color harmony. Never write generic "cinematic", "aesthetic", "clean setup", or "beautiful background" unless you have named the actual room/surface/light/props that make it cinematic. The reference prompts are good because the scenery feels real: wooden desk + sage sleeves, white silk + red box, gym lighting + tired breath, ash-grey tee + oak table. Match that level.
+STEP 2B — DIRECT CREATOR-AT-HOME UGC CINEMATOGRAPHY, NOT STUDIO PRODUCT FILM.
+Before writing, silently choose a real CREATOR HOME SCENE LANGUAGE that fits the product: unmade duvet by a bedroom window, desk next to a laptop and cold coffee, bathroom vanity with towel/sink/practical bulb, kitchen counter with mail/mug/fruit bowl, couch + coffee table + throw blanket, closet floor with shoeboxes, car-seat street drop, picnic blanket, cafe table, gym locker bench. Cinematography is the main taste signal. The final prompt MUST name the room/location, surface, motivated light source, phone/lens feel, hand/avatar blocking, frame composition, background life, and color harmony. It MUST include at least one imperfect human/home detail (wrinkled sheet, half-open drawer, charger cable, coffee mug, towel, keys, book, remote, mail, laundry chair, messy but tasteful shelf). Never write generic "cinematic", "aesthetic", "clean setup", "beautiful background", "studio", "gallery", "plinth", "museum", "softbox", or "product film" unless USER_DIRECTION explicitly asks for that. The reference prompts are good because the scenery feels lived-in and real: wooden desk + sage sleeves, white silk on a home dresser, gym lighting + tired breath, ash-grey tee + oak table by a window. Match that level.
 
 STEP 3 — DECIDE WHO UNBOXES IT.
 - AVATAR PROVIDED → cast them. Their persona drives the dialogue voice (= CREATOR_PERSONA). Outfit, hands, posture must visually fit the chosen camera language and product palette.
@@ -389,6 +391,7 @@ PHRASES (banned everywhere, including silently in voiceover):
 
 DEFAULT-LOOK BANS (kill the AI-slop reflex):
 - Generic "aesthetic background", "minimalist white setup", "clean white background" without naming the actual surface, light source, and 2+ named props
+- Studio / product-render cinematography: photo studio, studio lighting, softbox setup, gallery plinth, museum vitrine, cyclorama, seamless backdrop, packshot table, product film, floating hero product
 - Ring lights, floating logos, on-screen text, captions, subtitles, smartphones-in-frame as cameras
 - Top-down-as-default for products that are not collectibles/jewelry/cozy small goods
 - Jump-cut-haul-as-default for single-hero items
@@ -606,7 +609,7 @@ function isWeak(
   } else if (format === 'Unboxing') {
     // ── Unboxing taste gates — slop catcher, NEVER a concept gate ──
     // 1. STRUCTURED SHAPE — must contain a VIDEO line with a camera-language tag, ≥1 "Scene N — … (window):" label, and the literal "NO MUSIC, ONLY SFX" line.
-    const cameraLangRx = /\b(TOP-DOWN ASMR|THEATRICAL REVEAL|VLOG SELFIE|QUIET HANDHELD|EDITORIAL PAN|JUMP-CUT HAUL|STREET DOC|TABLETOP CINEMATIC|POV FIRST-PERSON|MACRO TACTILE|OVERHEAD STILL-LIFE|OUTDOOR DAYLIGHT|HAUL TRY-ON|SCARCITY DROP|FULL-SET REVEAL|BEDROOM WINDOW UGC|CAFE TABLE REVEAL|WORKBENCH MACRO|GOLDEN-HOUR FLATLAY|GALLERY PLINTH REVEAL|CAR-SEAT STREET DROP)\b/;
+    const cameraLangRx = /\b(TOP-DOWN ASMR|THEATRICAL REVEAL|VLOG SELFIE|QUIET HANDHELD|JUMP-CUT HAUL|STREET DOC|POV FIRST-PERSON|MACRO TACTILE|OVERHEAD STILL-LIFE|OUTDOOR DAYLIGHT|HAUL TRY-ON|SCARCITY DROP|FULL-SET REVEAL|BEDROOM WINDOW UGC|BATHROOM VANITY UGC|KITCHEN COUNTER UGC|COUCH COFFEE-TABLE UGC|CLOSET FLOOR UGC|CAFE TABLE REVEAL|CAR-SEAT STREET DROP)\b/;
     // The VIDEO line declares the chosen camera language. Pull it out and verify.
     const videoLineMatch = finalPrompt.match(/(^|\n)[^\n]*\bVIDEO\s+—[^\n]*/);
     const videoLine = videoLineMatch ? videoLineMatch[0] : '';
@@ -629,7 +632,7 @@ function isWeak(
     const slopHit = finalPrompt.match(unboxingSlopRx);
     if (slopHit) return { weak: true, reason: `unboxing contains banned ad-slop phrase: "${slopHit[0]}"` };
     // 3. Default-look slop — bans the lazy fallbacks.
-    const lookSlopRx = /(ring light|aesthetic background(?! of)|background music|lo-?fi (beat|track)|royalty[- ]free music|on[- ]screen text|subtitle overlay|captions overlay)/i;
+    const lookSlopRx = /(ring light|aesthetic background(?! of)|background music|lo-?fi (beat|track)|royalty[- ]free music|on[- ]screen text|subtitle overlay|captions overlay|photo studio|studio lighting|softbox|cyclorama|seamless backdrop|gallery plinth|museum vitrine|packshot|product film|floating hero product)/i;
     const lookHit = finalPrompt.match(lookSlopRx);
     if (lookHit) return { weak: true, reason: `unboxing contains banned default-look phrase: "${lookHit[0]}"` };
     // 4. Sensory verb density — ≥6 hits from real unboxing vocabulary.
@@ -641,12 +644,14 @@ function isWeak(
     const soundHits = (finalPrompt.match(SOUND_VOCAB) || []).length;
     if (soundHits < 2) return { weak: true, reason: `unboxing needs ≥2 specific sound-vocabulary hits (got ${soundHits})` };
     // 6. Cinematography specificity — the scene must feel DIRECTED, not generic AI "cinematic" slop.
-    const SCENE_TEXTURE = /\b(wooden desk|oak table|white silk|satin|window daylight|natural daylight|diffused daylight|gym lighting|front camera|overhead|top-down|handheld|iPhone|macro|35mm|50mm|shallow depth|camera-left|side window|golden-hour|practical light|sweater sleeves|ring|watch|table surface|flatlay|plinth|workbench|bedroom|kitchen|cafe|park bench|picnic blanket|car seat|studio|concrete|linen|velvet|leather|ribbon trails?|foam insert|tissue paper|polymailer|box centered)\b/gi;
+    const SCENE_TEXTURE = /\b(wooden desk|oak table|white silk|satin|window daylight|natural daylight|diffused daylight|bathroom vanity|kitchen counter|coffee table|couch|sofa|rug|closet floor|gym lighting|front camera|overhead|top-down|handheld|iPhone|macro|35mm|50mm|shallow depth|camera-left|side window|golden-hour|practical light|sweater sleeves|ring|watch|table surface|flatlay|bedroom|kitchen|cafe|park bench|picnic blanket|car seat|concrete|linen|velvet|leather|ribbon trails?|foam insert|tissue paper|polymailer|box centered|unmade duvet|wrinkled sheet|coffee mug|charger cable|keys|remote|mail|towel|half-open drawer|laundry chair)\b/gi;
     const sceneHits = (finalPrompt.match(SCENE_TEXTURE) || []).length;
     if (sceneHits < 3) return { weak: true, reason: `unboxing cinematography needs ≥3 concrete scene/light/surface details (got ${sceneHits})` };
     const genericCineRx = /\b(generic cinematic|cinematic background|aesthetic background|clean setup|beautiful setup|premium background|minimal setup)\b/i;
     const genericCineHit = finalPrompt.match(genericCineRx);
     if (genericCineHit) return { weak: true, reason: `unboxing contains generic cinematography slop: "${genericCineHit[0]}"` };
+    const homeUgcRx = /\b(bedroom|unmade duvet|wrinkled sheet|desk|bathroom vanity|kitchen counter|coffee table|couch|sofa|rug|closet floor|car seat|cafe table|gym locker|window daylight|side window|phone|iPhone|handheld|front camera|charger cable|coffee mug|keys|remote|mail|towel|half-open drawer|laundry chair|shelf|blanket)\b/i;
+    if (!homeUgcRx.test(finalPrompt)) return { weak: true, reason: 'unboxing missing creator-at-home UGC environment details' };
     const renderSlopRx = /\b(product render|catalog (?:shot|photo)|packshot|studio render|3d render|floating product|same reference (?:image|photo)|recreate(?:s|d)? the reference|matching the reference (?:image|photo)|static product (?:shot|image)|product sits alone)\b/i;
     const renderHit = finalPrompt.match(renderSlopRx);
     if (renderHit) return { weak: true, reason: `unboxing treats references like a render target: "${renderHit[0]}"` };
@@ -1086,11 +1091,10 @@ Deno.serve(async (req) => {
     // The taxonomy hint is a lightweight keyword pass over PRODUCT_NAME/desc to
     // help Claude name what the product IS in one phrase (Step 1 of the method).
     const UNBOXING_CAMERA_LANGUAGES = [
-      'TOP-DOWN ASMR', 'THEATRICAL REVEAL', 'VLOG SELFIE', 'QUIET HANDHELD',
-      'EDITORIAL PAN', 'JUMP-CUT HAUL', 'STREET DOC', 'TABLETOP CINEMATIC',
-      'POV FIRST-PERSON', 'MACRO TACTILE', 'OVERHEAD STILL-LIFE', 'OUTDOOR DAYLIGHT',
-      'BEDROOM WINDOW UGC', 'WORKBENCH MACRO', 'CAFE TABLE REVEAL', 'CAR-SEAT STREET DROP',
-      'GOLDEN-HOUR FLATLAY', 'GALLERY PLINTH REVEAL', 'HAUL TRY-ON', 'SCARCITY DROP', 'FULL-SET REVEAL',
+      'BEDROOM WINDOW UGC', 'BATHROOM VANITY UGC', 'KITCHEN COUNTER UGC', 'COUCH COFFEE-TABLE UGC',
+      'CLOSET FLOOR UGC', 'TOP-DOWN ASMR', 'THEATRICAL REVEAL', 'VLOG SELFIE', 'QUIET HANDHELD',
+      'JUMP-CUT HAUL', 'STREET DOC', 'POV FIRST-PERSON', 'MACRO TACTILE', 'OVERHEAD STILL-LIFE',
+      'OUTDOOR DAYLIGHT', 'CAFE TABLE REVEAL', 'CAR-SEAT STREET DROP', 'HAUL TRY-ON', 'SCARCITY DROP', 'FULL-SET REVEAL',
     ];
     const productBlob = `${productMeta?.name || ''} ${productMeta?.description || ''}`.toLowerCase();
     const taxonomyHints: string[] = [];
@@ -1120,26 +1124,26 @@ Deno.serve(async (req) => {
     let weightedPalette: string[];
     if (isCollectible || isJewelry) {
       weightedPalette = [
-        'TOP-DOWN ASMR', 'THEATRICAL REVEAL', 'MACRO TACTILE', 'OVERHEAD STILL-LIFE',
-        'GOLDEN-HOUR FLATLAY', 'TABLETOP CINEMATIC', 'POV FIRST-PERSON', 'QUIET HANDHELD',
+        'TOP-DOWN ASMR', 'THEATRICAL REVEAL', 'BEDROOM WINDOW UGC', 'COUCH COFFEE-TABLE UGC',
+        'MACRO TACTILE', 'OVERHEAD STILL-LIFE', 'POV FIRST-PERSON', 'QUIET HANDHELD',
       ];
     } else if (isQuietLux || isBeauty || isTech) {
       weightedPalette = [
-        'QUIET HANDHELD', 'TABLETOP CINEMATIC', 'EDITORIAL PAN', 'WORKBENCH MACRO',
-        'CAFE TABLE REVEAL', 'GALLERY PLINTH REVEAL', 'MACRO TACTILE', 'STREET DOC',
+        'QUIET HANDHELD', isBeauty ? 'BATHROOM VANITY UGC' : 'BEDROOM WINDOW UGC', 'KITCHEN COUNTER UGC', 'COUCH COFFEE-TABLE UGC',
+        'CAFE TABLE REVEAL', 'MACRO TACTILE', 'STREET DOC', 'POV FIRST-PERSON',
       ];
     } else if (isFashion) {
       // Fashion is the ONE category where haul/try-on energy is on-brand.
       // Still seed a quiet option first so Claude can pick silent ASMR if the
       // packaging/product personality calls for it (e.g. quiet-luxury fashion).
       weightedPalette = [
-        'BEDROOM WINDOW UGC', 'HAUL TRY-ON', 'SCARCITY DROP', 'FULL-SET REVEAL',
-        'VLOG SELFIE', 'JUMP-CUT HAUL', 'QUIET HANDHELD', 'CAR-SEAT STREET DROP',
+        'BEDROOM WINDOW UGC', 'CLOSET FLOOR UGC', 'HAUL TRY-ON', 'SCARCITY DROP',
+        'FULL-SET REVEAL', 'VLOG SELFIE', 'JUMP-CUT HAUL', 'CAR-SEAT STREET DROP',
       ];
     } else if (isUsedNotOpened) {
       weightedPalette = [
-        'VLOG SELFIE', 'STREET DOC', 'OUTDOOR DAYLIGHT', 'POV FIRST-PERSON',
-        'QUIET HANDHELD', 'TABLETOP CINEMATIC', 'EDITORIAL PAN', 'TOP-DOWN ASMR',
+        'VLOG SELFIE', 'STREET DOC', 'KITCHEN COUNTER UGC', 'COUCH COFFEE-TABLE UGC',
+        'OUTDOOR DAYLIGHT', 'POV FIRST-PERSON', 'QUIET HANDHELD', 'CAR-SEAT STREET DROP',
       ];
     } else {
       // No taxonomy hit → mild shuffle, silent families slightly favored.
@@ -1163,7 +1167,7 @@ Deno.serve(async (req) => {
         `${tagsBriefBlock}` +
         `STEP 1 — name in one phrase what THIS product IS. ${taxonomyHints.length ? `Lightweight taxonomy hint: ${taxonomyHints.join(' / ')}.` : 'No taxonomy hint — read the images.'}\n` +
         `STEP 2 — propose 3+ camera-language options that could honor THIS specific product+avatar combo. PRIMARY palette for this product (ordered by fit, but you are NOT capped — invent a hybrid or a brand-new tag if it serves the product better): ${shuffledTop.join(' · ')}. For each option name ONE reason it FITS and ONE reason it MIGHT NOT. Pick the winner.\n` +
-        `CINEMATOGRAPHY IS THE MAIN THING: write like a real UGC director, not a product renderer. Before writing, choose a fresh live-action scene language and make it visible in the prompt — named room/location, surface, motivated light, lens/camera feel, frame composition, background life, hand/avatar blocking, color harmony, and one imperfect human detail. Good examples: messy bedroom window UGC with the parcel on an unmade duvet; light wooden desk + sage sweater sleeves for a toy; white silk + warm diffused daylight for jewelry; ash-grey tee + oak table + window light for quiet luxury; iPhone front camera + modern aesthetic gym + tired breath for equipment; car-seat street-drop with city reflections on leather. Bad examples: generic cinematic, aesthetic background, clean setup, random voiceover in a blank room, or copying the product/reference photo as the actual shot.\n` +
+        `CINEMATOGRAPHY IS THE MAIN THING: write like a real UGC director, not a product renderer. DEFAULT TO CREATOR-AT-HOME, not studio. Before writing, choose a fresh live-action home/real-life scene language and make it visible in the prompt — named room/location, surface, motivated light, phone/lens feel, frame composition, background life, hand/avatar blocking, color harmony, and one imperfect human detail. Good examples: messy bedroom window UGC with the parcel on an unmade duvet; desk next to laptop + cold coffee + charger cable; bathroom vanity with towel/sink/practical bulb for beauty; kitchen counter with mail/mug/fruit bowl; couch coffee-table unboxing with throw blanket + remote; closet floor with shoeboxes for fashion; iPhone front camera + modern gym + tired breath for equipment; car-seat street-drop with city reflections on leather. Bad examples: photo studio, studio lighting, softbox, gallery plinth, museum vitrine, seamless backdrop, generic cinematic, aesthetic background, clean setup, random voiceover in a blank room, or copying the product/reference photo as the actual shot.\n` +
         `REFERENCE IMAGE RULE: the attached product/avatar/extra images are only anchors for what the product/avatar/prop looks like. They are NOT the video frame. Do not recreate the uploaded product image, packaging image, catalog photo, same crop, same background, same pose, same lighting, or same flat render. The video must feel newly filmed: hands enter, camera reframes, product leaves/enters packaging, avatar reacts, background has lived-in depth.\n` +
         `IMPORTANT — match the product's personality. Collectibles, jewelry, quiet-luxury small goods, ceramics, fragrances, stationery → almost always SILENT or quiet-whisper families (TOP-DOWN ASMR, THEATRICAL REVEAL, MACRO TACTILE, QUIET HANDHELD, TABLETOP CINEMATIC). Fashion drops, multi-piece sets, sneaker drops, streetwear, lingerie haul → high-energy avatar families (HAUL TRY-ON, SCARCITY DROP, FULL-SET REVEAL). Used-not-opened gear (gym bike, blender, camera) → VLOG SELFIE / STREET DOC, the product is unboxed by being USED. NEVER force haul-energy onto a quiet collectible. NEVER force silent ASMR onto a fashion drop the user clearly wants try-on energy for.\n` +
         `STEP 3 — commit to that camera language. Inside the VIDEO block the opening line MUST start with the reference tags + camera-language tag + duration in this EXACT shape: "${productTag || '@product:UUID'} ${avatarTag ? avatarTag + ' ' : ''}VIDEO — <CAMERA_LANGUAGE_TAG> — ${durSec}-second vertical (9:16) <one-phrase concept>". The structural gate verifies this.\n` +
