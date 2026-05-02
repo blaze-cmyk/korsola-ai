@@ -269,23 +269,6 @@ export function PromptBar() {
           </button>
 
           <div className="flex-1" />
-
-          {/* Free gens toggle */}
-          <button
-            onClick={() => setFreeGens(!freeGens)}
-            className="ms-chip-glass flex items-center gap-2 px-3.5 h-9 rounded-full text-xs text-foreground transition-all"
-          >
-            Extra free gens
-            <span className={`w-8 h-4 rounded-full relative transition-colors ${freeGens ? 'bg-[#FF2D78]' : 'bg-white/15'}`}>
-              <span className={`w-3 h-3 rounded-full bg-white absolute top-0.5 transition-all ${freeGens ? 'right-0.5' : 'left-0.5'}`} />
-            </span>
-          </button>
-
-          {/* Draw */}
-          <button className="ms-chip-glass flex items-center gap-1.5 px-3.5 h-9 rounded-full text-xs text-foreground transition-all">
-            <PenLine className="w-3.5 h-3.5" />
-            Draw
-          </button>
         </div>
       </div>
 
