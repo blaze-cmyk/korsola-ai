@@ -24,6 +24,24 @@ export function PromptBar() {
   
   const [previewImg, setPreviewImg] = useState<string | null>(null);
 
+  // @-mention autocomplete
+  const [mentionOpen, setMentionOpen] = useState(false);
+  const [mentionQuery, setMentionQuery] = useState('');
+  const [mentionAnchor, setMentionAnchor] = useState<number>(0);
+
+  const refNames = referenceImages.map((_, i) => `Image ${i + 1}`);
+
+  const insertMention = (name: string) => {
+    setPrompt(
+      (() => {
+        const p = prompt;
+        const sep = p.length === 0 || p.endsWith(' ') || p.endsWith('\n') ? '' : ' ';
+        return `${p}${sep}@${name} `;
+      })()
+    );
+    setTimeout(() => textareaRef.current?.focus(), 0);
+  };
+
   const selectedModel = MODELS.find((m) => m.id === model);
 
   // Auto-resize textarea
@@ -100,8 +118,13 @@ export function PromptBar() {
             images={referenceImages}
             onAdd={() => fileInputRef.current?.click()}
             onPreview={setPreviewImg}
-            onRemove={removeReferenceImage}
+            onRemove={(idx) => {
+              const removedName = `Image ${idx + 1}`;
+              removeReferenceImage(idx);
+              setPrompt(prompt.replace(new RegExp(`@${removedName}\\b`, 'g'), '').replace(/\s{2,}/g, ' ').trim());
+            }}
             onReorder={reorderReferenceImages}
+            onChipClick={(idx) => insertMention(`Image ${idx + 1}`)}
           />
         )}
 
@@ -121,12 +144,29 @@ export function PromptBar() {
 
           {/* Prompt area */}
           <div className="flex-1 min-w-0 flex flex-col gap-1.5 py-1 pr-1">
+            <div className="relative">
             <textarea
               ref={textareaRef}
               value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                setPrompt(val);
+                const caret = e.currentTarget.selectionStart ?? val.length;
+                const upto = val.slice(0, caret);
+                const m = upto.match(/(?:^|\s)@([A-Za-z0-9 ]{0,20})$/);
+                if (m && referenceImages.length > 0) {
+                  setMentionOpen(true);
+                  setMentionQuery(m[1] || '');
+                  setMentionAnchor(caret - (m[1]?.length ?? 0) - 1);
+                } else {
+                  setMentionOpen(false);
+                }
+              }}
               onPaste={handlePaste}
               onKeyDown={(e) => {
+                if (mentionOpen && (e.key === 'Escape' || e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+                  setMentionOpen(false);
+                }
                 if (e.key === 'Enter' && !e.shiftKey && (e.metaKey || e.ctrlKey)) {
                   e.preventDefault();
                   handleSubmit();
@@ -137,9 +177,48 @@ export function PromptBar() {
                 }
               }}
               rows={2}
-              placeholder="Describe the scene you imagine"
+              placeholder={referenceImages.length > 0 ? 'Describe the scene… type @ to reference an image' : 'Describe the scene you imagine'}
               className="w-full bg-transparent border-0 text-sm leading-[1.6] text-foreground placeholder:text-muted-foreground/70 focus:outline-none resize-none ms-prompt-scroll min-h-[44px] max-h-[220px] overflow-y-auto"
             />
+
+            {mentionOpen && (
+              <div className="absolute left-0 bottom-full mb-2 z-30 w-56 rounded-xl ms-glass shadow-2xl overflow-hidden">
+                <div className="px-3 py-2 text-[10px] uppercase tracking-wider text-muted-foreground border-b border-white/5">
+                  Reference an image
+                </div>
+                <div className="max-h-56 overflow-y-auto">
+                  {refNames
+                    .map((name, idx) => ({ name, idx }))
+                    .filter((r) => r.name.toLowerCase().includes(mentionQuery.toLowerCase()))
+                    .map((r) => (
+                      <button
+                        key={r.idx}
+                        type="button"
+                        onClick={() => {
+                          const before = prompt.slice(0, mentionAnchor);
+                          const after = prompt.slice(mentionAnchor).replace(/^@[A-Za-z0-9 ]*/, '');
+                          const next = `${before}@${r.name} ${after.replace(/^\s+/, '')}`;
+                          setPrompt(next);
+                          setMentionOpen(false);
+                          setTimeout(() => {
+                            const pos = (before + `@${r.name} `).length;
+                            textareaRef.current?.focus();
+                            textareaRef.current?.setSelectionRange(pos, pos);
+                          }, 0);
+                        }}
+                        className="w-full flex items-center gap-2 px-2.5 py-2 hover:bg-white/5 text-left"
+                      >
+                        <img src={referenceImages[r.idx]} alt="" className="w-7 h-7 rounded-md object-cover" />
+                        <span className="text-sm text-foreground">@{r.name}</span>
+                      </button>
+                    ))}
+                  {refNames.filter((n) => n.toLowerCase().includes(mentionQuery.toLowerCase())).length === 0 && (
+                    <div className="px-3 py-2 text-xs text-muted-foreground">No matches</div>
+                  )}
+                </div>
+              </div>
+            )}
+            </div>
           </div>
 
           {/* Generate CTA */}
