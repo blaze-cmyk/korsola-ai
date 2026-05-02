@@ -532,95 +532,9 @@ Deno.serve(async (req) => {
         });
       }
       if (result.status === 'failed') {
-        // Auto-fallback: AtlasCloud's content filter sometimes rejects realistic
-        // avatars mid-inference with "input image may contain real person".
-        // When that happens and fal.ai is configured, resubmit on fal WITHOUT
-        // the avatar reference image (product refs + voice are kept; the avatar
-        // persona is already encoded in the script's character description).
-        const isAtlasRealPerson =
-          row.provider === 'atlascloud' &&
-          (result as any).failureCode === 'real_person' &&
-          !!FAL_KEY &&
-          !row.fallback_attempted;
-
-        if (isAtlasRealPerson) {
-          log('WARN', 'poll: atlas rejected avatar (real person), falling back to fal without avatar ref', {
-            jobId: row.id,
-          });
-          // Rebuild references but exclude the avatar image.
-          const productRefs = await gatherFreshReferenceUrls(admin, {
-            productId: row.product_id,
-            avatarId: null, // strip avatar
-            keyframePath: row.keyframe_path,
-            keyframeUrl: row.keyframe_url,
-            fallbackUrls: row.reference_paths || [],
-          });
-          const audio_urls: string[] = [];
-          if (row.avatar_id) {
-            const { data: av } = await admin
-              .from('ms_avatars')
-              .select('voice_sample_url')
-              .eq('id', row.avatar_id)
-              .maybeSingle();
-            if (isValidHttpUrl(av?.voice_sample_url)) audio_urls.push(String(av?.voice_sample_url).trim());
-          }
-          if (String(row.format).toLowerCase() === 'podcast') {
-            const secondVoice = await ensurePodcastSecondVoiceUrl(admin);
-            if (secondVoice && !audio_urls.includes(secondVoice)) audio_urls.push(secondVoice);
-          }
-          const falRes = await submitFal({
-            prompt: row.prompt,
-            image_urls: productRefs,
-            audio_urls,
-            ratio: aspectToRatio(row.aspect),
-            duration: row.duration_seconds || 8,
-            resolution: normalizeRes(row.resolution),
-          });
-          if (falRes.ok && falRes.requestId) {
-            const endpoint = providerEndpoint('fal', productRefs.length > 0);
-            const { data: updated } = await admin
-              .from('ms_generations')
-              .update({
-                status: 'queued',
-                stage: 'videoing',
-                provider: 'fal',
-                provider_endpoint: endpoint,
-                fal_request_id: falRes.requestId,
-                error: null,
-                video_url: null,
-                fallback_attempted: true,
-              })
-              .eq('id', row.id)
-              .select()
-              .single();
-            log('INFO', 'poll: fal fallback submitted', { jobId: row.id, requestId: falRes.requestId });
-            return new Response(JSON.stringify(updated ?? { ...row, status: 'queued' }), {
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            });
-          }
-          // Fal also rejected — surface a combined, actionable error.
-          const friendly =
-            'Both providers rejected the avatar image (AtlasCloud: real-person filter; fal: content policy). Try a less photorealistic avatar (3D render, illustration, or stylized portrait), or generate without an avatar reference.';
-          const { data: updated } = await admin
-            .from('ms_generations')
-            .update({ status: 'failed', stage: 'failed', error: friendly, fallback_attempted: true })
-            .eq('id', row.id)
-            .select()
-            .single();
-          return new Response(JSON.stringify(updated), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
-        }
-
-        // Friendlier message for the common Atlas real-person rejection when fal isn't available.
-        let finalError = result.error ?? 'failed';
-        if (row.provider === 'atlascloud' && (result as any).failureCode === 'real_person') {
-          finalError =
-            'AtlasCloud blocked the avatar image (its safety filter flagged it as a real person). Try a less photorealistic avatar — a 3D render, illustration, or stylized portrait usually passes.';
-        }
         const { data: updated } = await admin
           .from('ms_generations')
-          .update({ status: 'failed', stage: 'failed', error: finalError })
+          .update({ status: 'failed', stage: 'failed', error: result.error ?? 'failed' })
           .eq('id', row.id)
           .select()
           .single();
