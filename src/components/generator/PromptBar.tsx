@@ -7,6 +7,22 @@ import { ChevronDownIcon } from '@/components/marketingstudio/FormatIcons';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ModelIcon } from '@/components/generator/ModelIcons';
 
+function buildChip(idx: number, imgUrl?: string): HTMLElement {
+  const chip = document.createElement('span');
+  chip.contentEditable = 'false';
+  chip.setAttribute('data-mention', String(idx));
+  chip.className = 'inline-flex items-center gap-1.5 pl-1 pr-2 py-0.5 mx-0.5 rounded-full bg-white/[0.08] border border-white/10 text-[12px] font-medium text-foreground/90 align-middle select-none';
+  if (imgUrl) {
+    const img = document.createElement('img');
+    img.src = imgUrl;
+    img.className = 'w-4 h-4 rounded-full object-cover';
+    chip.appendChild(img);
+  }
+  const label = document.createTextNode(`@Image ${idx + 1}`);
+  chip.appendChild(label);
+  return chip;
+}
+
 export function PromptBar() {
   const {
     prompt, setPrompt, referenceImages, addReferenceImage, removeReferenceImage, reorderReferenceImages,
