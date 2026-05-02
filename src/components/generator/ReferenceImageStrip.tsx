@@ -18,6 +18,7 @@ type ReferenceImageStripProps = {
   onPreview: (image: string) => void;
   onRemove: (index: number) => void;
   onReorder: (fromIndex: number, toIndex: number) => void;
+  onChipClick?: (index: number) => void;
 };
 
 type SortableReferenceImage = {
