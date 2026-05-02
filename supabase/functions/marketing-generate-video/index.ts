@@ -568,6 +568,9 @@ Deno.serve(async (req) => {
         });
       }
       const audioSourceUrls = await gatherAudioSourceUrls(admin, { avatarId: row.avatar_id, format: row.format });
+      const existingRefs: string[] = Array.isArray(row.reference_paths)
+        ? (row.reference_paths as unknown[]).filter(isValidHttpUrl).map(String)
+        : [];
       const bundle = await buildReferenceBundle(admin, {
         productId: row.product_id,
         avatarId: row.avatar_id,
@@ -575,9 +578,10 @@ Deno.serve(async (req) => {
         keyframeUrl: row.keyframe_url,
         format: row.format,
         audioSourceUrls,
+        extraImageUrls: existingRefs,
       });
 
-      const submission = await submitToAtlas({
+      const submission = await submitWithModerationFallback({
         prompt: row.prompt,
         bundle,
         duration: clampDuration(row.duration_seconds ?? 8),
