@@ -30,7 +30,7 @@ export function PromptBar() {
   const [mentionQuery, setMentionQuery] = useState('');
   const [mentionAnchor, setMentionAnchor] = useState<number>(0);
 
-  const refNames = referenceImages.map((_, i) => `${i + 1}`);
+  const refNames = referenceImages.map((_, i) => `Image ${i + 1}`);
 
   const insertMention = (name: string) => {
     setPrompt(
@@ -120,12 +120,12 @@ export function PromptBar() {
             onAdd={() => fileInputRef.current?.click()}
             onPreview={setPreviewImg}
             onRemove={(idx) => {
-              const removedName = `${idx + 1}`;
+              const removedName = `Image ${idx + 1}`;
               removeReferenceImage(idx);
               setPrompt(prompt.replace(new RegExp(`@${removedName}\\b`, 'g'), '').replace(/\s{2,}/g, ' ').trim());
             }}
             onReorder={reorderReferenceImages}
-            onChipClick={(idx) => insertMention(`${idx + 1}`)}
+            onChipClick={(idx) => insertMention(`Image ${idx + 1}`)}
           />
         )}
 
