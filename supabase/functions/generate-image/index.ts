@@ -24,43 +24,60 @@ type ModelConfig = {
   fallbackModel?: string; // model ID to retry with if this one fails
 };
 
+// All models route through fal.ai (with Gemini fallback for nano banana family).
+// Each entry has a text-to-image endpoint and (optionally) an edit/image-to-image endpoint
+// that's used automatically when reference images are provided.
 const MODEL_MAP: Record<string, ModelConfig> = {
-  // Gemini models (via apiyi, fallback to fal/runware)
-  "gemini-3.1-flash-image": { apiModel: "gemini-3.1-flash-image-preview", type: "gemini", supportsImageInput: true, isMultiRef: true, fallbackModel: "rw-flux-2-pro" },
-  "gemini-3-pro-image": { apiModel: "gemini-3-pro-image-preview", type: "gemini", supportsImageInput: true, isMultiRef: true, fallbackModel: "rw-flux-2-pro" },
-  "gemini-2.5-flash-image": { apiModel: "gemini-2.5-flash-image", type: "gemini", supportsImageInput: true, isMultiRef: true, fallbackModel: "flux-schnell" },
+  // Google Nano Banana family — primary via apiyi (Gemini), fall back to fal Seedream
+  "nano-banana-pro": {
+    apiModel: "gemini-3-pro-image-preview", type: "gemini",
+    supportsImageInput: true, isMultiRef: true, fallbackModel: "seedream-4",
+  },
+  "nano-banana-2": {
+    apiModel: "gemini-3.1-flash-image-preview", type: "gemini",
+    supportsImageInput: true, isMultiRef: true, fallbackModel: "seedream-4",
+  },
 
-  // Flux Kontext (via fal.ai) — editing models
-  "flux-kontext-pro": { falModel: "fal-ai/flux-pro/kontext", type: "fal", supportsImageInput: true, requiresImage: true, textFallback: "fal-ai/flux-pro/v1.1" },
-  "flux-kontext-max": { falModel: "fal-ai/flux-pro/kontext/max", type: "fal", supportsImageInput: true, requiresImage: true, textFallback: "fal-ai/flux-pro/v1.1" },
-  "flux-kontext-multi": { falModel: "fal-ai/flux-pro/kontext/multi", type: "fal", supportsImageInput: true, isMultiRef: true, requiresImage: true, textFallback: "fal-ai/flux-pro/v1.1" },
+  // ByteDance Seedream — fal.ai
+  "seedream-4": {
+    falModel: "fal-ai/bytedance/seedream/v4/text-to-image",
+    falImageModel: "fal-ai/bytedance/seedream/v4/edit",
+    type: "fal", supportsImageInput: true, isMultiRef: true,
+  },
+  "seedream-5-lite": {
+    falModel: "fal-ai/bytedance/seedream/v5/lite/text-to-image",
+    falImageModel: "fal-ai/bytedance/seedream/v5/lite/edit",
+    type: "fal", supportsImageInput: true, isMultiRef: true,
+  },
 
-  // Flux 2 (via fal.ai)
-  "flux-2-pro": { falModel: "fal-ai/flux-2-pro/edit", type: "fal", supportsImageInput: true, requiresImage: true, textFallback: "fal-ai/flux-pro/v1.1" },
-  "flux-2-max": { falModel: "fal-ai/flux-2-max/edit", type: "fal", supportsImageInput: true, requiresImage: true, textFallback: "fal-ai/flux-pro/v1.1" },
-  "flux-2-flex": { falModel: "fal-ai/flux-2-flex/edit", type: "fal", supportsImageInput: true, isMultiRef: true, requiresImage: true, textFallback: "fal-ai/flux-pro/v1.1" },
-  "flux-2-dev": { falModel: "fal-ai/flux-2/edit", type: "fal", supportsImageInput: true, requiresImage: true, textFallback: "fal-ai/flux/dev" },
+  // xAI Grok Imagine — fal.ai (text-to-image only)
+  "grok-imagine": {
+    falModel: "xai/grok-imagine-image",
+    type: "fal", supportsImageInput: false,
+  },
 
-  // Flux 1 (via fal.ai) — text-to-image
-  "flux-schnell": { falModel: "fal-ai/flux/schnell", type: "fal", supportsImageInput: false },
-  "flux-uncensored-v2": { falModel: "fal-ai/flux-lora", falImageModel: "fal-ai/flux-lora/image-to-image", type: "fal", supportsImageInput: true, isMultiRef: false, lora: "https://huggingface.co/enhanceaiteam/Flux-Uncensored-V2/resolve/main/lora.safetensors" },
-  "flux-dev": { falModel: "fal-ai/flux/dev", type: "fal", supportsImageInput: false },
-  "flux-pro-v1.1": { falModel: "fal-ai/flux-pro/v1.1", type: "fal", supportsImageInput: false },
+  // Kling Image V3 — fal.ai
+  "kling": {
+    falModel: "fal-ai/kling-image/v3/text-to-image",
+    falImageModel: "fal-ai/kling-image/v3/image-to-image",
+    type: "fal", supportsImageInput: true,
+  },
 
-  // Other fal.ai models
-  "recraft-v3": { falModel: "fal-ai/recraft-v3", type: "fal", supportsImageInput: false },
-  "ideogram-v3": { falModel: "fal-ai/ideogram/v3", type: "fal", supportsImageInput: false },
+  // Black Forest Labs Flux 2 Pro — fal.ai
+  "flux": {
+    falModel: "fal-ai/flux-pro/v1.1",
+    falImageModel: "fal-ai/flux-2-pro/edit",
+    type: "fal", supportsImageInput: true,
+  },
 
-  // Runware Flux models (uncensored)
-  "rw-flux-1-dev": { runwareModel: "runware:100@1", type: "runware", supportsImageInput: true },
-  "rw-flux-1-schnell": { runwareModel: "runware:100@1", type: "runware", supportsImageInput: false },
-  "rw-flux-2-pro": { runwareModel: "bfl:5@1", type: "runware", supportsImageInput: true },
-  "rw-flux-2-flex": { runwareModel: "bfl:6@1", type: "runware", supportsImageInput: true },
-  "rw-flux-2-dev": { runwareModel: "runware:400@1", type: "runware", supportsImageInput: true },
-  "rw-flux-1.1-pro": { runwareModel: "bfl:2@1", type: "runware", supportsImageInput: false },
-  "rw-flux-1.1-pro-ultra": { runwareModel: "bfl:2@2", type: "runware", supportsImageInput: false },
-  "rw-flux-kontext-dev": { runwareModel: "runware:101@1", type: "runware", supportsImageInput: true },
+  // Wan 2.2 (14B) — fal.ai
+  "wan": {
+    falModel: "fal-ai/wan/v2.2-a14b/text-to-image",
+    falImageModel: "fal-ai/wan/v2.2-a14b/image-to-image",
+    type: "fal", supportsImageInput: true,
+  },
 };
+
 
 const QUALITY_MAP: Record<string, string> = { "1K": "1K", "2K": "2K", "4K": "4K" };
 
