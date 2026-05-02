@@ -72,7 +72,7 @@ export function ReferenceImageStrip({
         items={sortableImages.map((image) => image.id)}
         strategy={horizontalListSortingStrategy}
       >
-        <div className="mb-2 flex items-center gap-3 overflow-x-auto pb-1">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1">
           {sortableImages.map((image) => (
             <SortableThumbnail
               key={image.id}
@@ -89,9 +89,9 @@ export function ReferenceImageStrip({
               type="button"
               onClick={onAdd}
               title="Upload image"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-dashed border-border bg-muted/15 text-muted-foreground transition-all hover:border-foreground/20 hover:bg-muted/30 hover:text-foreground/70"
+              className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl ms-chip-glass text-muted-foreground transition-all hover:text-foreground"
             >
-              <ImagePlus className="h-4 w-4" />
+              <ImagePlus className="h-5 w-5" strokeWidth={1.5} />
             </button>
           )}
         </div>
