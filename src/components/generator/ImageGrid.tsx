@@ -200,12 +200,9 @@ function ImageCard({ image }: {
     );
   }
 
-  // Use natural aspect once loaded; before load show a neutral placeholder ratio
-  const placeholderAspect = naturalAspect ? undefined : aspectClass;
-
   return (
     <div
-      className={`group relative ${placeholderAspect ?? ''} rounded-xl overflow-hidden bg-ms-surface-2 ring-1 ring-ms-border hover:ring-foreground/30 transition-all cursor-pointer`}
+      className="group relative w-full h-full rounded-xl overflow-hidden bg-ms-surface-2 ring-1 ring-ms-border hover:ring-foreground/30 transition-all cursor-pointer"
       onClick={() => setSelectedImageId(image.id)}
     >
       {/* Loading skeleton */}
@@ -217,7 +214,7 @@ function ImageCard({ image }: {
         srcSet={image.imageUrl ? `${thumbUrl(image.imageUrl, 480, 70)} 1x, ${thumbUrl(image.imageUrl, 960, 72)} 2x` : undefined}
         sizes="(max-width: 640px) 50vw, 220px"
         alt=""
-        className={`w-full h-auto block transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
         loading="lazy"
         decoding="async"
         draggable={false}
