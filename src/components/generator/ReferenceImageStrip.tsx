@@ -110,9 +110,10 @@ type SortableThumbnailProps = {
   index: number;
   onPreview: () => void;
   onRemove: () => void;
+  onChipClick?: () => void;
 };
 
-function SortableThumbnail({ id, src, index, onPreview, onRemove }: SortableThumbnailProps) {
+function SortableThumbnail({ id, src, index, onPreview, onRemove, onChipClick }: SortableThumbnailProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
 
    return (
@@ -120,13 +121,14 @@ function SortableThumbnail({ id, src, index, onPreview, onRemove }: SortableThum
       ref={setNodeRef}
       {...attributes}
       {...listeners}
-      onClick={() => onPreview()}
+      onClick={() => (onChipClick ? onChipClick() : onPreview())}
+      onDoubleClick={() => onPreview()}
       style={{ transform: CSS.Transform.toString(transform), transition, touchAction: 'none' }}
       className={`group relative h-16 w-16 shrink-0 cursor-grab rounded-2xl overflow-hidden border border-white/10 bg-muted/20 active:cursor-grabbing ${isDragging ? 'z-20 opacity-60 scale-105 shadow-xl' : ''}`}
     >
       <img src={src} alt="" className="pointer-events-none h-full w-full select-none object-cover" draggable={false} />
-      <span className="pointer-events-none absolute bottom-1 left-1 flex h-4 min-w-4 px-1 items-center justify-center rounded bg-black/65 text-[10px] font-bold text-white backdrop-blur-sm">
-        {index + 1}
+      <span className="pointer-events-none absolute bottom-1 left-1 flex h-4 min-w-4 px-1 items-center justify-center rounded bg-[#FF2D78] text-[10px] font-bold text-white">
+        @{index + 1}
       </span>
 
       <button
