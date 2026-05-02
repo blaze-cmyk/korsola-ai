@@ -103,6 +103,7 @@ export type Database = {
           duration_seconds: number | null
           error: string | null
           fal_request_id: string | null
+          fallback_attempted: boolean
           format: string | null
           id: string
           keyframe_path: string | null
@@ -132,6 +133,7 @@ export type Database = {
           duration_seconds?: number | null
           error?: string | null
           fal_request_id?: string | null
+          fallback_attempted?: boolean
           format?: string | null
           id?: string
           keyframe_path?: string | null
@@ -161,6 +163,7 @@ export type Database = {
           duration_seconds?: number | null
           error?: string | null
           fal_request_id?: string | null
+          fallback_attempted?: boolean
           format?: string | null
           id?: string
           keyframe_path?: string | null
