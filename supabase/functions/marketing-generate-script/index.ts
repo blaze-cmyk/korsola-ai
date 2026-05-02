@@ -914,6 +914,37 @@ Deno.serve(async (req) => {
         `Variety rule: surprise the viewer. Do not reuse the same studio you would obviously default to.\n`
       : '';
 
+    // ---------- Per-request UNBOXING creative brief (camera-language palette + packaging anchor) ----------
+    // We shuffle the camera-language palette so Claude sees a fresh order each
+    // call — small bias against defaulting to the same language twice in a row.
+    // The taxonomy hint is a lightweight keyword pass over PRODUCT_NAME/desc to
+    // help Claude name what the product IS in one phrase (Step 1 of the method).
+    const UNBOXING_CAMERA_LANGUAGES = [
+      'TOP-DOWN ASMR', 'THEATRICAL REVEAL', 'VLOG SELFIE', 'QUIET HANDHELD',
+      'EDITORIAL PAN', 'JUMP-CUT HAUL', 'STREET DOC', 'TABLETOP CINEMATIC',
+      'POV FIRST-PERSON', 'MACRO TACTILE', 'OVERHEAD STILL-LIFE', 'OUTDOOR DAYLIGHT',
+    ];
+    const shuffledLangs = [...UNBOXING_CAMERA_LANGUAGES].sort(() => Math.random() - 0.5);
+    const productBlob = `${productMeta?.name || ''} ${productMeta?.description || ''}`.toLowerCase();
+    const taxonomyHints: string[] = [];
+    if (/\b(toy|figure|figurine|vinyl|plush|collectible|art toy|blind box)\b/.test(productBlob)) taxonomyHints.push('designer collectible / art toy');
+    if (/\b(necklace|bracelet|ring|earring|pendant|jewelry|jewellery|chain|charm)\b/.test(productBlob)) taxonomyHints.push('fine jewelry');
+    if (/\b(watch|leather wallet|cardholder|small leather|fragrance|perfume|cologne)\b/.test(productBlob)) taxonomyHints.push('quiet-luxury small good');
+    if (/\b(bag|tote|crossbody|handbag|purse|sneaker|shoe|hoodie|jacket|tee|outfit|skirt|dress|sunglasses)\b/.test(productBlob)) taxonomyHints.push('fashion / wearable');
+    if (/\b(skincare|serum|cream|cleanser|lipstick|mascara|makeup|beauty|fragrance)\b/.test(productBlob)) taxonomyHints.push('beauty');
+    if (/\b(headphone|earbud|speaker|camera|gadget|charger|keyboard|mouse|tech|device)\b/.test(productBlob)) taxonomyHints.push('tech accessory');
+    if (/\b(bike|treadmill|equipment|gym|fitness|tumbler|bottle|blender|appliance)\b/.test(productBlob)) taxonomyHints.push('used-not-opened equipment');
+    const hasPackagingRef = isUnboxing && userExtraRefs.length > 0;
+    const unboxingPresetBlock = isUnboxing
+      ? `\nUNBOXING CREATIVE BRIEF — DO STEPS 1–4 SILENTLY, OUTPUT ONLY THE FINAL PARAGRAPH.\n` +
+        `STEP 1 — name in one phrase what THIS product IS. ${taxonomyHints.length ? `Lightweight taxonomy hint: ${taxonomyHints.join(' / ')}.` : 'No taxonomy hint — read the images.'}\n` +
+        `STEP 2 — propose 3+ camera-language options that could honor THIS specific product+avatar combo. Camera-language palette (shuffled this call — pick the BEST FIT, not the first listed; invent a new one if needed): ${shuffledLangs.slice(0, 8).join(' · ')}. For each option name ONE reason it FITS and ONE reason it MIGHT NOT. Pick the winner.\n` +
+        `STEP 3 — commit to that camera language. The opening line of your final paragraph MUST start with the camera-language tag in caps, an em-dash, then the duration ("TOP-DOWN ASMR — 10-second vertical 9:16…"). The structural gate verifies this.\n` +
+        `STEP 4 — write the script in the exact shape of the REFERENCE LIBRARY: one-line camera/style header → setting+packaging+product paragraph (≥30% of words on the unopened packaging) → ${beatCount} timestamped beats with windows ${beatWindows.join(', ')}, each beat = action + named sound + sensory verb → closing style line.\n` +
+        `${hasPackagingRef ? `PACKAGING ANCHOR: attached reference image #1 IS the packaging — preserve its color, finish, lid mechanism, ribbon, embossing, printed text, and seals EXACTLY. Do NOT invent a different box.\n` : ''}` +
+        `Variety rule: across consecutive generations vary the camera language. AI slop = every clip looking identical. Surprise the viewer.\n`
+      : '';
+
     const userTextBlock =
       // Duration spec FIRST so it dominates everything that follows.
       `${durationSpec}\n` +
