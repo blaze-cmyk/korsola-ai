@@ -24,6 +24,24 @@ export function PromptBar() {
   
   const [previewImg, setPreviewImg] = useState<string | null>(null);
 
+  // @-mention autocomplete
+  const [mentionOpen, setMentionOpen] = useState(false);
+  const [mentionQuery, setMentionQuery] = useState('');
+  const [mentionAnchor, setMentionAnchor] = useState<number>(0);
+
+  const refNames = referenceImages.map((_, i) => `Image ${i + 1}`);
+
+  const insertMention = (name: string) => {
+    setPrompt(
+      (() => {
+        const p = prompt;
+        const sep = p.length === 0 || p.endsWith(' ') || p.endsWith('\n') ? '' : ' ';
+        return `${p}${sep}@${name} `;
+      })()
+    );
+    setTimeout(() => textareaRef.current?.focus(), 0);
+  };
+
   const selectedModel = MODELS.find((m) => m.id === model);
 
   // Auto-resize textarea
