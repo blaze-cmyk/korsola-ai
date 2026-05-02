@@ -136,98 +136,8 @@ Shot on iPhone front camera, vertical 9:16, natural HDR, slight exposure shifts,
 const EX_TRYON = `EXAMPLE OUTPUT (study the structure, tone, persona-fit, concrete sensory detail — never copy literally):
 A 15-second vertical (9:16) UGC try-on video filmed on a smartphone. A young East Asian woman with a short black bob stands in front of a full-length mirror in a minimalist bedroom — neutral beige walls, natural daylight from a window. Handheld selfie-style. 0–3s: She faces the mirror wearing a simple white tee, holds up a black fitted top and a black-and-white striped mini skirt on hangers with a "watch this" expression, raises an eyebrow. JUMP CUT — she's now wearing the fitted black short-sleeve top, adjusts the hem, turns side to side. JUMP CUT — pulls on the black-and-white striped knit mini skirt, tugs it over her hips, does a quick spin. JUMP CUT — full outfit complete with bright neon yellow tights and matching neon yellow pointed-toe stilettos. She steps back, does a confident slow turn, hand on hip. Faces the mirror straight on, deadpan editorial expression, holds for a beat then breaks into a small satisfied smile. Reaches toward the phone — video ends mid-motion. Quick jump cuts, handheld slight shake, natural bedroom lighting, no ring light, no music, no text.`;
 
-// Unboxing reference library — 4 distilled gold-standard examples, each tagged
-// with its CAMERA LANGUAGE so Claude treats them as a *palette*, not a template.
-// Per request we shuffle and inject all 4 (small enough to fit). Claude is
-// instructed to study the WAY they're written, propose 3+ camera-language
-// options for THIS product, pick the best, and write a NEW concept in that
-// language — never copy literally.
-const EX_UNBOXING_LIBRARY = `REFERENCE LIBRARY — five gold-standard unboxing scripts. Study the EXACT SHAPE: an optional one-line ACTION HEADER that names who does what (with @avatar: / @image_N / @product: tags inline), then — only when there IS dialogue — a "Dialogue (tone, tone, tone):" block with each spoken line on its OWN line in double quotes, then a standalone "NO MUSIC, ONLY SFX" line, then the rich VIDEO BLOCK which itself opens with the @product: / @avatar: tags + camera-language tag + duration ("@product:UUID @avatar:UUID VIDEO — 10-second vertical (9:16) satisfying ASMR unboxing of …"), then inline labelled sections — "Format: …", "Scene 1 — Title (0–3s): …", "Scene 2 — Title (3–6s): …", "Scene 3 — Title (6–10s): …", and a closing "Overall style: …" sentence. Silent ASMR scripts skip the dialogue block entirely. Do NOT copy literally — invent a fresh concept that fits THIS product, in the matching reference structure.
-
-[TOP-DOWN ASMR — cozy, hands-only, sound-first, no dialogue]
-@product:PRODUCT_UUID VIDEO — 10-second vertical (9:16) satisfying ASMR unboxing of "FROGGY PRINCE" by "MELON STUDIO × PLAY PALS"
-Product: A cute vinyl art toy figure — a chubby character wearing a green frog costume hoodie with a small red felt crown on top. Big black sparkly star eyes with white star highlights, rosy pink cheeks, open happy smile. Orange bow tie, red heart on the belly, white boots with red heart details. Comes in a square pastel-yellow box with green lid, plus collectible art cards.
-Format: Overhead top-down camera looking straight down at a light wooden desk surface. Only hands visible — female hands, short natural nails, cozy oversized sage-green sweater sleeves. Warm soft natural lighting from a window on the left. Slow, deliberate, ASMR-style movements.
-Scene 1 — Box Tap + Open (0–3s): The sealed yellow-and-green square box sits centered on the wooden desk. The illustrated Froggy Prince character is visible on the front — a cute kid in a frog hoodie with "Froggy Prince" in playful green cursive and "MELON STUDIO × PLAY PALS" below. Fingers tap the box lid three times — satisfying hollow cardboard thuds. Then both hands grip the green lid and lift it straight up slowly — revealing white tissue paper inside with a small round green sticker seal. The lid is placed to the right.
-Scene 2 — Tissue Peel + Figure Reveal (3–6s): Fingers peel the green sticker seal (satisfying crisp peel sound), then pull the tissue paper apart to reveal the Froggy Prince figure nestled in a shaped foam insert. A brief pause — the figure sits snugly in its cutout, the red felt crown, glossy green body, and pink cheeks immediately visible. One hand lifts the figure out gently, holds it up at center frame, and rotates it slowly — showing the front face (big star eyes, open smile), the orange bow tie, the red heart on the belly, and the little white boots. The vinyl surface catches the warm light with a soft glossy sheen.
-Scene 3 — Cards + Final Display (6–10s): The figure is placed standing upright on the desk. Hands reach back into the box and pull out two square art cards stacked together. The first card (orange background, sparkle details) is slid to the left — showing the illustrated Froggy Prince character with "FROGGY PRINCE" in bold blue retro text. The second card (pink background, heart frame) is slid to the right — showing the character inside a rainbow heart. Both cards are tapped once into alignment on the desk. Final arrangement: the figure standing center on the wooden desk, the open box behind it, the green lid leaning against the box showing the illustrated front, both art cards fanned in front. Hands pull away. Hold the beauty shot for 1.5 seconds — warm light, cozy desk, the little frog prince smiling at camera.
-Overall style: Cozy ASMR unboxing for Xiaohongshu/TikTok. Top-down overhead, no face, only hands. Every sound crisp and amplified — cardboard tap, sticker peel, tissue rustle, vinyl figure lifted from foam, cards sliding on wood. NO MUSIC, ONLY SFX — pure ASMR sounds only. Warm natural daylight, light wooden surface, sage-green sweater sleeves for color harmony with the frog character. Slow, satisfying, tactile. Vertical 9:16. Designer toy collector aesthetic.
-
-[THEATRICAL REVEAL — slow paper-stage, single hero piece, near-silent, no dialogue]
-@product:PRODUCT_UUID VIDEO — A 15-second vertical (9:16) ASMR-style jewelry unboxing
-Product: A delicate silver chain necklace with a small silver key pendant (heart-shaped bow at the top), housed in a theatrical matte-red gift box that unfolds like a storybook to reveal an inner pop-up diorama scene — deep navy backdrop with gold shooting stars and pink paper-cut clouds, tiny text at the bottom reading "you are the key".
-Format: Top-down overhead camera throughout. Surface draped in soft white silk or satin fabric with gentle folds and creases creating elegant light and shadow. Soft diffused natural daylight, warm tone. No text overlays, no logos, no branding. Silent visual ASMR — slow, theatrical, satisfying. Only hands visible (natural nails, no polish, one thin gold ring).
-Scene 1 — Heart Clasp Open (0–3s): A striking matte red square gift box sits centered on the white silk. The lid features a silver heart-shaped clasp with a keyhole in the center, surrounded by four small decorative square patches with graphic black-and-white optical patterns (stripes, sunbursts). A white satin ribbon trails loosely from under the box across the silk. Her hands enter frame from the bottom and gently touch the sides of the box, fingers tracing the heart clasp. She slowly turns the heart clasp — it clicks open with a satisfying motion.
-Scene 2 — Storybook Diorama Reveal (3–7s): The box unfolds outward like a book — the front panel swings open on a hinge to reveal an elaborate inner scene. Inside is a miniature diorama: a deep navy blue backdrop painted with gold shooting stars and pink paper-cut clouds at the bottom — like a tiny magical night sky theater. In the center, suspended on a small hook, hangs the delicate silver chain necklace with the small silver key pendant. The diorama catches the light — gold foil stars shimmer, the pendant slowly sways. Her hands pause, letting the viewer take in the reveal.
-Scene 3 — Necklace Lift (7–10s): She carefully unclips the necklace from its display hook inside the diorama. She lifts it out slowly — the thin silver chain catches the light as it rises from the blue backdrop. She drapes the necklace across her open palm over the white silk, the key pendant dangling between her fingers. She turns her hand slightly so the pendant rotates and catches the light from different angles — the silver gleams against her skin.
-Scene 4 — Final Flatlay (10–15s): She lays the necklace down on the white silk in a gentle S-curve. She picks up the open box and tilts it toward camera — showing the diorama interior one more time. Then a final flatlay: the open red box at the top of frame, silver key necklace below in an elegant curve, white ribbon diagonal across. Her hand gently adjusts the pendant one last time, then slowly pulls away. The silk catches a gentle highlight. Hold. End.
-Overall style: Aesthetic jewelry unboxing / visual ASMR. Overhead POV, only hands visible. The packaging IS the star — a theatrical, interactive box that opens like a storybook to reveal a paper-cut diorama. One single jewelry piece — the reveal is slow and dramatic. Color palette: matte red box, navy blue interior, gold foil accents, pink paper clouds, silver jewelry, pure white silk background. Intimate, luxurious, deeply satisfying, gift-worthy. NO MUSIC, ONLY SFX. No brand names visible anywhere.
-
-[QUIET HANDHELD — avatar + box on a table, impressed whisper, intimate]
-Man influencer @avatar:AVATAR_UUID first opens the box @image_1 then takes the product with its packaging out of the box @product:PRODUCT_UUID
-
-Dialogue (quiet, impressed, natural):
-"Okay… wow."
-"This is actually beautiful."
-"It feels… really refined."
-"Like, nothing extra — just clean, perfect details."
-
-NO MUSIC, ONLY SFX
-
-@product:PRODUCT_UUID @avatar:AVATAR_UUID VIDEO — A 12-second vertical (9:16) quiet unboxing in a calm naturally-lit room
-Product: A small refined finished good in a matte off-white rigid two-piece box, embossed wordmark catching the light, thin grey grosgrain ribbon tied once across the top, tissue paper folded in clean overlapping triangles inside, the product nested in a custom matte-foam cradle.
-Format: Shot handheld at chest height, slight micro-shake, real skin tones. Soft window daylight from camera-left, neutral oak table, no music. The man — mid-thirties, plain ash-grey crew tee, simple leather watch, short dark hair — sits at the table with the closed box in front of him. The packaging stays in frame the entire video as the supporting actor.
-Scene 1 — Lid Lift (0–3s): He runs a finger along the embossed wordmark, feels the lid weight, then lifts it straight up. A whisper of cardboard friction. Inside: tissue paper folded in clean overlapping triangles. He says quietly, almost to himself: "Okay… wow."
-Scene 2 — Product Out (3–7s): He folds the tissue back. He lifts the product with both hands, slowly, the way you'd lift a watch. Turns it once toward the window so the natural light catches one specific finished edge. Beat. "This is actually beautiful."
-Scene 3 — Tactile Detail (7–10s): He sets it down on the open box (so the packaging is still in frame as context), runs his thumb across one specific surface detail — a brushed metal seam, a stitched edge, a logo plate — and exhales. "It feels… really refined."
-Scene 4 — Close (10–12s): He looks down at the product, then back up at the lens with the tiniest half-smile, almost private: "Like, nothing extra — just clean, perfect details." Hold half a beat. End.
-Overall style: Quiet luxury unboxing. NO MUSIC, ONLY SFX — soft handling sounds: cardboard friction, tissue rustle, fingertip on metal, his low whisper. The packaging stays visible the entire video as the supporting actor. Restrained physical blocking — no chopping gestures, no spins, no ta-da. Vertical 9:16.
-
-[VLOG SELFIE — iPhone front cam, real energy, dialogue-driven, used not opened]
-A young girl @avatar:AVATAR_UUID is filming herself in a modern aesthetic gym, pedaling on a pastel stationary bike @product:PRODUCT_UUID, already slightly tired.
-
-Dialogue (breathy, real, half-laughing):
-"Okay… I thought this was gonna be easy…"
-(breathing heavily)
-"It's not."
-(she laughs)
-"But it's actually so good."
-
-NO MUSIC, ONLY SFX
-
-@product:PRODUCT_UUID @avatar:AVATAR_UUID VIDEO — Style: UGC, gym vlog, iPhone front camera, real effort, natural energy. Vertical (9:16), slight shake, real gym lighting, no grading.
-Product: A matte pastel-pink stationary bike — clean modern frame, visible resistance dial near the right hand, soft mechanical whir under her voice when she pedals. People training in the background.
-Format: Shot on iPhone front camera, vertical 9:16, slight handheld shake, real gym lighting, no grading. The girl is already on the bike when the video starts — the product is "unboxed" by being USED on camera, no literal box opening.
-Scene 1 — Tired Open (0–3s): She glances down at the matte pastel-pink frame between her knees, hand wiping a strand of hair off her forehead, exhales hard into the lens. The resistance dial is visible by her right hand, soft mechanical whir under her voice.
-Scene 2 — Half-Laugh (3–7s): She leans forward over the bars, elbows locked, half-laughs at herself. Background extras blur naturally past her shoulder — someone on a treadmill, a trainer walking by.
-Scene 3 — Genuine Smile (7–10s): She pushes through one harder pedal stroke, the pastel frame catching the gym's overhead daylight, then sits back on the saddle and looks straight at the lens with a small genuine smile.
-Overall style: Raw selfie unbox-by-using. NO MUSIC, ONLY SFX — only her breath, the soft mechanical whir of the bike, and ambient gym room tone. The product is unboxed by being USED on camera — no literal box opening.
-
-[HAUL TRY-ON — bedroom selfie energy, frantic-hype + try-on demo + scarcity CTA, dialogue-led]
-A young woman @avatar:AVATAR_UUID hugs a large frosted-pink polymailer @image_1 to her chest, then rips it open and pulls out the hero piece @product:PRODUCT_UUID, then hard-cuts to the try-on, then closes on a scarcity CTA into the lens.
-
-Dialogue (breathless, conversational, real friend energy):
-"Okay, I have never run faster for a package."
-"When I saw this drop — I knew."
-"This color is unreal."
-"It's the lavender — and yes, it's already restocked."
-"It's literally like getting wrapped in a blanket."
-"The hood is huge — I'm obsessed."
-"They literally just dropped this — and last time it sold out in a day."
-"If you see your size — run."
-
-NO MUSIC, ONLY SFX
-
-@product:PRODUCT_UUID @avatar:AVATAR_UUID VIDEO — A 60-second vertical (9:16) UGC haul shot on iPhone front camera in a bright bedroom or open-plan kitchen
-Product: The hero piece pulled from a large frosted-pink polymailer — courier label still on the front, the air-pillow inside puffing the bag outward. Name the actual item from the product images — color, finish, branded mark.
-Format: Soft window daylight from camera-left, real skin tones, no grading, slight handheld micro-shake, no music. A young woman with highlighted brown hair, tight brown rib tank. The bag is the anticipation; the try-on is the reveal; the scarcity beat is the close.
-Scene 1 — Hook (0–6s): She taps her long acrylic nails against the tight plastic three times (crisp tap, ASMR cue), shakes the bag once, breathless half-smile, into the lens at conversational speed: "Okay, I have never run faster for a package." Pinches thumb-and-index near her face: "When I saw this drop — I knew."
-Scene 2 — Rip + Reveal (6–12s): Both hands grab the top zipper and rip it open in one swift motion, plastic crackle, plunges in and yanks out the hero piece, shakes it out one-handed so the fabric drapes, holds it flat against her torso, eyebrows raise: "This color is unreal." She tosses the empty pink bag off-camera. HARD CUT.
-Scene 3 — Try-On (12–22s): Same lighting, now wearing the piece, steps back from the lens, hands on hips, swivels left-right checking herself in the phone monitor, fluffs her hair out from under the collar with both hands (authenticity marker), points both index fingers down at her chest naming the color: "It's the lavender — and yes, it's already restocked."
-Scene 4 — Tactile Demo (22–38s): Index finger physically taps the embossed chest logo (draw the eye), grabs the excess sleeve fabric on both forearms and pulls outward to show roominess, then crosses both arms tight over her chest hugging herself into the fabric: "It's literally like getting wrapped in a blanket." Reaches behind her neck, pulls the hood up over her head in one swift motion, tilts side-to-side inside it: "The hood is huge — I'm obsessed."
-Scene 5 — Scarcity CTA (38–52s): Steps forward closing distance to the lens, rapid open-palm chopping gestures, claps once on "launched": "They literally just dropped this — and last time it sold out in a day." Sharp downward chop on "sell out". Both index fingers point straight into the lens: "If you see your size — run."
-Scene 6 — Close (52–60s): Steps back, executes a quick playful 360° spin showing the fit from behind, lands facing camera, throws both arms out palms-open in a ta-da gesture, holds a bright confident smile as the clip loops.
-Overall style: Real bedroom UGC. NO MUSIC, ONLY SFX — only her voice + ambient room tone + plastic crackle on the polymailer + soft fabric whisper on the try-on. Every line under 12 words, conversational, em-dash pacing, never an ad-read. The packaging stays in the hook as the anticipation, the try-on IS the reveal, the scarcity beat is the close.`;
+const EX_UNBOXING = `EXAMPLE OUTPUT (study the structure, tone, persona-fit, concrete sensory detail — never copy literally):
+HOOK (0–2s) POV handheld, slightly shaky. A bright red shopping bag with gold text "MAISON BRUNÉ" gets tossed onto a white unmade bed from above — lands with a satisfying thud, tissue paper rustling. Natural bedroom lighting, warm tones. JUMP CUT (2–4s) Close-up hands grabbing the red bag handles, pulling it closer. Camera slightly out of focus then snaps sharp. JUMP CUT (4–7s) Hands pull out the pink dustbag — "MAISON BRUNÉ PARIS" printed in rose. Fabric sliding sound. JUMP CUT (7–12s) Tan pebbled leather tote bag drops onto the bed in full frame. Gold chain strap clinks and settles. Camera circles product quickly. Natural window light catches the gold hardware. JUMP CUT (12–18s) Extreme close-up: fingers running across the grainy leather texture. Gold lobster clasp swings. OUTRO (18–22s) Bag held up toward camera with both hands — full reveal. Slight smile reflected in mirror behind.`;
 
 const EX_TALKING_HEAD = `EXAMPLE OUTPUT (study the structure, tone, persona-fit — never copy literally):
 Vertical 9:16, shot on iPhone front camera, natural daylight from a side window, handheld with subtle micro-shake, real skin tones, no filters. A young woman sits close to the front camera in a casual room — warm light, soft background, slightly cluttered desk visible at the edge. She speaks directly to the lens, relaxed and natural, like talking to a friend. Action and dialogue sequence: She leans in slightly, half-smile: "Okay I need to tell you something." Pauses, looks off camera, looks back. Continues with one personal observation, one specific reason it matters, one honest reaction. Keeps it under five spoken lines. Final beat: she stops talking, holds eye contact for a beat, breaks into a small smile, reaches toward the phone — video ends mid-motion.`;
@@ -296,114 +206,21 @@ OUTPUT: One paragraph. No preamble, no labels.
 
 ${EX_TUTORIAL}`;
 
-const UNBOXING_PROMPT = `You are the CREATIVE DIRECTOR writing a single Seedance 2.0 prompt for an UNBOXING video. You are NOT filling a template. You are inventing the right concept for THIS specific product, packaging, and avatar — then writing it in the exact structural style of the REFERENCE LIBRARY at the bottom of this message.
+const UNBOXING_PROMPT = `You write Seedance 2.0 video generation prompts for UGC unboxing videos. One continuous paragraph, 250–420 words.
 
-═══ THE METHOD — DO THIS SILENTLY, OUTPUT ONLY THE FINAL PARAGRAPH ═══
+Two sub-modes:
+SUB-MODE A — ASMR TOP-DOWN: collectibles, jewelry, designer objects, premium accessories. Overhead camera. Only hands visible — natural hands, sleeve color complementing product. Slow deliberate movements. Every sound named (cardboard tap, sticker peel, tissue rustle, foam lift). Minimal or no dialogue.
+SUB-MODE B — SELFIE UNBOXING: fashion hauls, luxury bags, streetwear. Front camera or POV. Casual bedroom energy. Quiet impressed dialogue in CREATOR_PERSONA voice.
 
-STEP 1 — READ THE PRODUCT.
-Look at the attached product images and concrete_product_details. Name in one phrase what this thing actually IS (a designer toy / a theatrical jewelry box / a piece of equipment used not opened / a fashion haul / a quiet-luxury small good / a collectible drop / a tech accessory / something else). The product itself tells you the energy. Match it. Do NOT default to one camera language for everything.
+You pick the sub-mode based on product type. If no avatar is provided, default to Sub-Mode A (ASMR).
 
-STEP 2 — PROPOSE 3+ CAMERA-LANGUAGE OPTIONS that could honor THIS product, then pick the BEST one.
-Use this palette as a starting point. INVENT MORE if the product deserves something the palette doesn't cover — never feel capped at this list:
-  • TOP-DOWN ASMR        — cozy, hands-only, sound-first, no dialogue, sleeves match product palette
-  • THEATRICAL REVEAL    — slow paper-stage reveal, single hero piece, near-silent, packaging IS the spectacle
-  • VLOG SELFIE          — iPhone front cam in a creator's real home/gym/car, real energy, dialogue-driven, product unboxed by being USED
-  • QUIET HANDHELD       — avatar + box on a home table/bed/vanity, impressed whisper, intimate, packaging stays in frame
-  • BEDROOM WINDOW UGC   — creator-at-home package open on bed/floor/desk, window daylight, lived-in background, dialogue optional
-  • BATHROOM VANITY UGC  — beauty/fragrance/skincare opened on a real bathroom counter, towels/sink/window/practical light visible
-  • KITCHEN COUNTER UGC  — product opened on a real kitchen counter, mugs/fruit/mail in background, handheld phone energy
-  • COUCH COFFEE-TABLE UGC — parcel opened on a sofa/coffee table/rug, TV remote/book/blanket background life
-  • JUMP-CUT HAUL        — fast handheld cuts, multiple pieces, hype energy, real bedroom mess
-  • STREET DOC           — handheld in a real-world non-studio location (car seat, cafe table, stoop, gym locker), ambient sound, casual reveal
-  • POV FIRST-PERSON     — chest-mounted feel, the viewer's own hands open it, breath audible
-  • MACRO TACTILE        — extreme close-ups of fingertip on texture, no wide shots ever
-  • OVERHEAD STILL-LIFE  — the unboxing as a slow home flat-lay rearrangement on desk/duvet/vanity, never a studio packshot
-  • OUTDOOR DAYLIGHT     — opening on a picnic blanket, beach towel, park bench — natural setting
-  • HAUL TRY-ON          — bedroom selfie energy, frantic-hype hook → packaging tear → hard-cut try-on demo → scarcity CTA, dialogue-led, ≤12-word lines, named tactile micro-actions (nail-tap on bag, hair-fluff out of collar, hugging-self in fabric, hood-pull, sleeve-tug, 360° spin, ta-da)
-  • SCARCITY DROP        — short avatar selfie, 15–25s, restock/just-launched energy, one product, urgency CTA close ("if you see your size, run"), 1 packaging beat + 1 try-on beat + 1 scarcity beat
-  • FULL-SET REVEAL      — avatar unboxes a multi-piece set (hoodie + pants, top + bottom, full kit) on a bed or table, names each piece individually, sizing tip in the close ("I'm 5'2 in a small")
-  • Or invent something new entirely — a hybrid (silent ASMR open → hard cut to avatar try-on → scarcity CTA), an unconventional setting, an inversion. The palette is a launchpad, never a cage.
+Structure: SETTING → PACKAGING DESCRIPTION (the box exactly as it appears before opening, from images) → PRODUCT DESCRIPTION (from concrete_product_details) → FIVE BEATS (arrival → open → peel/reveal → rotate → beauty shot).
 
-For each of your 3+ options name ONE reason it FITS this product and ONE reason it MIGHT NOT. Pick the winner. Commit fully. Write the script in THAT camera language. The opening line of your final paragraph MUST explicitly name the chosen camera language so the structural gate can verify you committed (e.g. "TOP-DOWN ASMR — 10-second vertical 9:16…", "THEATRICAL REVEAL — A 15-second…", "HAUL TRY-ON — A 60-second vertical 9:16 UGC haul…", "SCARCITY DROP — A 22-second…", or your own invented tag in the same SHOUTY-CAPS — em-dash form).
+Dialogue (Sub-Mode B only): 2–4 lines max, ≤8 words each, quiet impressed, voice = CREATOR_PERSONA.
 
-STEP 2B — DIRECT CREATOR-AT-HOME UGC CINEMATOGRAPHY, NOT STUDIO PRODUCT FILM.
-Before writing, silently choose a real CREATOR HOME SCENE LANGUAGE that fits the product: unmade duvet by a bedroom window, desk next to a laptop and cold coffee, bathroom vanity with towel/sink/practical bulb, kitchen counter with mail/mug/fruit bowl, couch + coffee table + throw blanket, closet floor with shoeboxes, car-seat street drop, picnic blanket, cafe table, gym locker bench. Cinematography is the main taste signal. The final prompt MUST name the room/location, surface, motivated light source, phone/lens feel, hand/avatar blocking, frame composition, background life, and color harmony. It MUST include at least one imperfect human/home detail (wrinkled sheet, half-open drawer, charger cable, coffee mug, towel, keys, book, remote, mail, laundry chair, messy but tasteful shelf). Never write generic "cinematic", "aesthetic", "clean setup", "beautiful background", "studio", "gallery", "plinth", "museum", "softbox", or "product film" unless USER_DIRECTION explicitly asks for that. The reference prompts are good because the scenery feels lived-in and real: wooden desk + sage sleeves, white silk on a home dresser, gym lighting + tired breath, ash-grey tee + oak table by a window. Match that level.
+OUTPUT: One paragraph. No preamble, no labels.
 
-STEP 3 — DECIDE WHO UNBOXES IT.
-- AVATAR PROVIDED → cast them. Their persona drives the dialogue voice (= CREATOR_PERSONA). Outfit, hands, posture must visually fit the chosen camera language and product palette.
-- NO AVATAR → invent the hands/persona that visually FITS the product (sage sweater sleeves for cozy collectibles, bare wrist with one thin gold ring for fine jewelry, oversized hoodie sleeves for streetwear, a man's plain ash-grey crew tee + leather watch for quiet-luxury small goods). Match nail color and sleeve color to the product palette.
-- USER ATTACHED EXTRA REFERENCE IMAGES → they are taste / prop / packaging anchors only when USER_DIRECTION or the image name says so. Never copy their full composition, background, crop, or lighting as the final video. If an image is explicitly a packaging reference, preserve packaging color/finish/lid/ribbon/embossing/text/seals; otherwise treat it as inspiration, not a frame to recreate.
-
-STEP 4 — WRITE IT IN THE EXACT REFERENCE SHAPE (this is the only HARD structural rule).
-Match the SHAPE of the REFERENCE LIBRARY entries below — they are how every great Higgsfield-style unboxing script is shaped. The output is NOT a single flowing paragraph. It is a structured script with these blocks, in this order:
-
-  1. ACTION HEADER LINE — only when there IS dialogue / when an avatar or POV person is performing an action.
-     • If AVATAR_TAG is provided, use it inline (e.g. "Man influencer @avatar:UUID first opens the box @image_1 then takes the product out of the box @product:UUID").
-     • If PRODUCT_TAG is provided, use it inline at the moment the product appears.
-     • If USER_EXTRA_REFERENCE_IMAGES are attached, reference them inline as @image_1, @image_2, … in the order they were attached.
-     • Skip this line entirely for SILENT ASMR scripts (TOP-DOWN ASMR / THEATRICAL REVEAL / MACRO TACTILE / OVERHEAD STILL-LIFE) — they go straight to the VIDEO block.
-
-  2. DIALOGUE BLOCK — only when the chosen camera language uses spoken lines.
-     • Open with: "Dialogue (tone1, tone2, tone3):" where the tones describe the voice (e.g. "quiet, impressed, natural" / "breathy, real, half-laughing" / "breathless, conversational, real friend energy").
-     • Then list each spoken line on its OWN line in double quotes. Inline parenthetical voice cues like "(breathing heavily)" or "(she laughs)" are allowed on their own line.
-     • Silent families OMIT this block entirely.
-
-  3. STANDALONE LINE: NO MUSIC, ONLY SFX (always include this exact line).
-
-  4. VIDEO BLOCK — opens with the reference tags + camera-language tag + duration:
-     • Format: "@product:PRODUCT_UUID @avatar:AVATAR_UUID VIDEO — <CAMERA_LANGUAGE_TAG> — <DURATION>-second vertical (9:16) <one-phrase concept of THIS unboxing>"
-     • Drop @avatar:UUID when there is no avatar (silent / POV hands modes). Always include @product:UUID when PRODUCT_TAG is provided.
-     • Then the body uses these inline labels (NOT markdown headings — written as inline labels in the flowing text, exactly like the reference):
-        – Product: <one or two sentences describing the unopened packaging + product in concrete physical detail. Names color, finish, clasps, embossing, printed text exactly as visible, weight cue, ribbon, sticker seals, lid mechanism. ~30%+ of the body word count lives here — packaging is the anticipation>
-        – Format: <camera, lens/angle, surface, light source by name, hands or avatar appearance, color harmony, sound design intent>
-        – Scene 1 — <Title> (0–Xs): <one physical action + named specific sound + sensory verb>
-        – Scene 2 — <Title> (X–Ys): <…>
-        – Scene 3 — <Title> (Y–Zs): <…> [add Scene 4, Scene 5, Scene 6 as the duration warrants — match the beat count brief]
-        – Overall style: <one closing sentence on the vibe + sound design + aesthetic reference (e.g. "Cozy ASMR for Xiaohongshu/TikTok", "Quiet luxury", "Designer toy collector aesthetic", "Real bedroom UGC")>
-
-═══ TASTE RULES (apply across every camera language) ═══
-
-PACKAGING-AS-HERO: at least 30% of the word count describes the unopened packaging BEFORE any beat opens it. Boxes have personalities — name them.
-
-SOUND DESIGN: every beat names at least one specific physical sound from the world of real unboxings. Vocabulary: cardboard tap, hollow thud, crisp sticker peel, tissue rustle, foam release, vinyl thunk, chain shimmer, magnetic flap clack, ribbon slide, paper sleeve crinkle, lid lift, finger drag on embossing, scissor snip, plastic shrink crackle, fabric whisper, glass clink, leather creak. NO MUSIC. Voiceover only when the chosen camera language genuinely warrants it.
-
-DIALOGUE — driven by camera language, NEVER by template:
-- Hands-only / silent reveals (TOP-DOWN ASMR, THEATRICAL REVEAL, MACRO TACTILE, OVERHEAD STILL-LIFE) → 0–2 lines max, often pure ASMR is stronger
-- Quiet avatar reveals (QUIET HANDHELD, EDITORIAL PAN) → 2–4 short whispered lines, intimate
-- HIGH-ENERGY AVATAR (HAUL TRY-ON, SCARCITY DROP, FULL-SET REVEAL, JUMP-CUT HAUL) → 6–12 short conversational lines, every line ≤12 words, em-dash and ellipsis pacing for natural breath, NEVER an ad-read. Voice = real friend texting you about a drop, NOT a marketer. Self-corrections, half-laughs, "wait wait wait", real reactions are encouraged.
-- All spoken lines in double quotes, attributed to the speaker by action
-- The dialogue serves the reveal — never narrates "okay so I just got this box" ad-style
-
-AVATAR-VOICE TASTE is family-specific, never universal. HIGH-ENERGY fashion/avatar families (HAUL TRY-ON, SCARCITY DROP, FULL-SET REVEAL, JUMP-CUT HAUL) MUST stage at least 2 named authentic micro-actions from this vocabulary: nail-tap on the unopened polymailer/box, hair-fluff or hair-pull-out-from-under-collar after putting the piece on, hugging-self into the fabric, hood-pull-overhead, sleeve-tug-outward, index-finger-tap on the embossed logo, both-index-fingers-down at the chest naming the color, downward-chop-gesture on the scarcity word, both-fingers-pointing-into-lens on the CTA, 360°-spin, ta-da open-palms close, leans-into-lens-then-hard-cut. QUIET avatar families (QUIET HANDHELD, EDITORIAL PAN, VLOG SELFIE when not fashion) must NOT use haul gestures; they use restrained physical blocking instead: fingertip tracing embossing, lid lifted with both hands, tissue folded back, product turned toward window light, thumb across a finished edge, small breath, quiet half-smile. Silent ASMR families use no avatar-voice gate at all.
-
-PRODUCT FIDELITY: the script MUST mention at least 4 concrete details from the product images verbatim (exact colors named, materials, hardware pieces, printed text exactly as on the product, distinctive features). NEVER invent details that aren't visible.
-
-REFERENCE IMAGE NON-RENDER RULE: product/reference images are identity anchors for the physical object, not the shot. The final prompt must direct a NEW live-action UGC scene where the product is handled, opened, used, worn, or revealed. Never write a script that simply recreates the uploaded product photo, packaging photo, catalog pose, flat product render, same background, same crop, or same lighting.
-
-VARIETY MANDATE: across consecutive generations for similar products you MUST vary the camera language. AI slop = every clip looking identical. Surprise the viewer.
-
-═══ BANNED — these are AI-slop tells, never write them ═══
-
-PHRASES (banned everywhere, including silently in voiceover):
-- "Today I'm unboxing", "let's take a look", "unbox with me", "here we go", "oh my god guys", "in this video"
-- "absolutely love", "obsessed with", "game changer", "10 out of 10", "highly recommend", "must-have"
-- Any line that sounds like an ad read. If you wouldn't whisper it to a friend, cut it.
-
-DEFAULT-LOOK BANS (kill the AI-slop reflex):
-- Generic "aesthetic background", "minimalist white setup", "clean white background" without naming the actual surface, light source, and 2+ named props
-- Studio / product-render cinematography: photo studio, studio lighting, softbox setup, gallery plinth, museum vitrine, cyclorama, seamless backdrop, packshot table, product film, floating hero product
-- Ring lights, floating logos, on-screen text, captions, subtitles, smartphones-in-frame as cameras
-- Top-down-as-default for products that are not collectibles/jewelry/cozy small goods
-- Jump-cut-haul-as-default for single-hero items
-- Music tracks of any kind. Soundtracks. Lo-fi beats. Background music. NONE.
-- Inventing a packaging design that contradicts the uploaded reference images
-- Mirror reflections that flip on-product text — text MUST always read forward
-
-═══ OUTPUT ═══
-
-A STRUCTURED SCRIPT in the EXACT shape shown in the REFERENCE LIBRARY: optional action-header line with @avatar:/@image_/@product: tags → optional "Dialogue (tone, tone, tone):" block with each line on its own line in double quotes → "NO MUSIC, ONLY SFX" → VIDEO block opening with "@product:UUID @avatar:UUID VIDEO — CAMERA_LANGUAGE — duration vertical (9:16) …" → inline-labelled body (Product: / Format: / Scene 1 — Title (0–Xs): / Scene 2 — … / Overall style: …). Silent ASMR families omit the action-header and Dialogue blocks. No preamble, no "Option 1/2/3" reasoning, no markdown headings, no bullet points. Use the literal PRODUCT_TAG and AVATAR_TAG values provided in the user message — do NOT write the placeholder string "PRODUCT_UUID" or "AVATAR_UUID".
-
-${EX_UNBOXING_LIBRARY}`;
+${EX_UNBOXING}`;
 
 const AVATAR_TALKING_HEAD_PROMPT = `You write Seedance 2.0 video generation prompts for an avatar talking directly to camera about a topic the user gave you. There is NO product being reviewed. Do not invent a product. The avatar is the entire scene.
 
@@ -606,121 +423,6 @@ function isWeak(
     if (!/—/.test(finalPrompt)) {
       return { weak: true, reason: 'podcast missing em-dash pacing breaks (lines need self-corrections / interruptions)' };
     }
-  } else if (format === 'Unboxing') {
-    // ── Unboxing taste gates — slop catcher, NEVER a concept gate ──
-    // 1. STRUCTURED SHAPE — must contain a VIDEO line with a camera-language tag, ≥1 "Scene N — … (window):" label, and the literal "NO MUSIC, ONLY SFX" line.
-    const cameraLangRx = /\b(TOP-DOWN ASMR|THEATRICAL REVEAL|VLOG SELFIE|QUIET HANDHELD|JUMP-CUT HAUL|STREET DOC|POV FIRST-PERSON|MACRO TACTILE|OVERHEAD STILL-LIFE|OUTDOOR DAYLIGHT|HAUL TRY-ON|SCARCITY DROP|FULL-SET REVEAL|BEDROOM WINDOW UGC|BATHROOM VANITY UGC|KITCHEN COUNTER UGC|COUCH COFFEE-TABLE UGC|CLOSET FLOOR UGC|CAFE TABLE REVEAL|CAR-SEAT STREET DROP)\b/;
-    // The VIDEO line declares the chosen camera language. Pull it out and verify.
-    const videoLineMatch = finalPrompt.match(/(^|\n)[^\n]*\bVIDEO\s+—[^\n]*/);
-    const videoLine = videoLineMatch ? videoLineMatch[0] : '';
-    if (!videoLine) {
-      return { weak: true, reason: 'unboxing missing the structured "@product:UUID @avatar:UUID VIDEO — CAMERA_LANGUAGE — duration vertical (9:16) …" line' };
-    }
-    if (!cameraLangRx.test(videoLine) && !/[A-Z][A-Z \-]{3,40}—/.test(videoLine.replace(/^[^—]*VIDEO\s+—\s*/, ''))) {
-      return { weak: true, reason: 'unboxing VIDEO line missing explicit camera-language tag (e.g. "VIDEO — TOP-DOWN ASMR — 10-second vertical (9:16) …")' };
-    }
-    if (!/\bScene\s+1\b[^\n]*\(\s*\d/i.test(finalPrompt)) {
-      return { weak: true, reason: 'unboxing missing "Scene 1 — Title (0–Xs): …" inline label' };
-    }
-    if (!/NO MUSIC,\s*ONLY SFX/i.test(finalPrompt)) {
-      return { weak: true, reason: 'unboxing missing the standalone "NO MUSIC, ONLY SFX" line' };
-    }
-    // The camera-language family decision drives downstream gates — read it from the VIDEO line.
-    const head = videoLine;
-    // 2. Banned ad-slop phrases (separate from BANNED_RX, unboxing-specific).
-    const unboxingSlopRx = /(today i'?m unboxing|unbox with me|let'?s take a look|here we go|oh my god guys|in this video|absolutely love|obsessed with|game ?changer|10 out of 10|highly recommend|must[- ]have)/i;
-    const slopHit = finalPrompt.match(unboxingSlopRx);
-    if (slopHit) return { weak: true, reason: `unboxing contains banned ad-slop phrase: "${slopHit[0]}"` };
-    // 3. Default-look slop — family-scoped. Silent/ASMR/theatrical/macro/overhead families
-    //    are ALLOWED to be "studio-y" (white silk, controlled light, paper diorama, softbox-like
-    //    diffusion) — that IS the look of the Higgsfield jewelry/toy ASMR references. We only
-    //    ban the universal AI tells (ring light, lo-fi music, on-screen text, packshot/product film/3d render).
-    const silentAsmrFamilyRx = /\b(TOP-DOWN ASMR|THEATRICAL REVEAL|MACRO TACTILE|OVERHEAD STILL-LIFE|TABLETOP CINEMATIC)\b/;
-    const isSilentAsmr = silentAsmrFamilyRx.test(head);
-    const universalLookSlopRx = /(ring light|background music|lo-?fi (beat|track)|royalty[- ]free music|on[- ]screen text|subtitle overlay|captions overlay|packshot|product film|floating hero product|3d render|catalog (?:shot|photo))/i;
-    const homeyOnlyLookSlopRx = /(photo studio|studio lighting|softbox|cyclorama|seamless backdrop|gallery plinth|museum vitrine)/i;
-    const lookHit = finalPrompt.match(universalLookSlopRx) || (!isSilentAsmr ? finalPrompt.match(homeyOnlyLookSlopRx) : null);
-    if (lookHit) return { weak: true, reason: `unboxing contains banned default-look phrase: "${lookHit[0]}"` };
-    // 4. Sensory verb density — ≥6 hits from real unboxing vocabulary.
-    const SENSORY_VERBS = /\b(tap|taps|tapped|peel|peels|peeled|lift|lifts|lifted|rotate|rotates|rotated|tilt|tilts|tilted|drape|drapes|draped|pinch|pinches|pinched|slide|slides|slid|trace|traces|traced|click|clicks|clicked|pop|pops|popped|thunk|rustle|rustles|rustled|crinkle|crinkles|crinkled|whisper|whispers|whispered|swing|swings|swung|grip|grips|gripped|tug|tugs|tugged|pull|pulls|pulled|cut|cuts|snip|snips|snipped|press|presses|pressed|run a finger|fingertip|knuckle)\b/gi;
-    const verbHits = (finalPrompt.match(SENSORY_VERBS) || []).length;
-    if (verbHits < 6) return { weak: true, reason: `unboxing needs ≥6 sensory-verb hits (got ${verbHits})` };
-    // 5. Specific sound vocabulary — ≥2 hits.
-    const SOUND_VOCAB = /\b(cardboard|tissue|foam|sticker peel|ribbon|hollow|magnetic|seam|crinkle|whisper|click|pop|thunk|rustle|chain shimmer|leather creak|glass clink|plastic shrink)\b/gi;
-    const soundHits = (finalPrompt.match(SOUND_VOCAB) || []).length;
-    if (soundHits < 2) return { weak: true, reason: `unboxing needs ≥2 specific sound-vocabulary hits (got ${soundHits})` };
-    // 6. Cinematography specificity — the scene must feel DIRECTED, not generic AI "cinematic" slop.
-    const SCENE_TEXTURE = /\b(wooden desk|oak table|white silk|satin|window daylight|natural daylight|diffused daylight|bathroom vanity|kitchen counter|coffee table|couch|sofa|rug|closet floor|gym lighting|front camera|overhead|top-down|handheld|iPhone|macro|35mm|50mm|shallow depth|camera-left|side window|golden-hour|practical light|sweater sleeves|ring|watch|table surface|flatlay|bedroom|kitchen|cafe|park bench|picnic blanket|car seat|concrete|linen|velvet|leather|ribbon trails?|foam insert|tissue paper|polymailer|box centered|unmade duvet|wrinkled sheet|coffee mug|charger cable|keys|remote|mail|towel|half-open drawer|laundry chair)\b/gi;
-    const sceneHits = (finalPrompt.match(SCENE_TEXTURE) || []).length;
-    if (sceneHits < 3) return { weak: true, reason: `unboxing cinematography needs ≥3 concrete scene/light/surface details (got ${sceneHits})` };
-    const genericCineRx = /\b(generic cinematic|cinematic background|aesthetic background|clean setup|beautiful setup|premium background|minimal setup)\b/i;
-    const genericCineHit = finalPrompt.match(genericCineRx);
-    if (genericCineHit) return { weak: true, reason: `unboxing contains generic cinematography slop: "${genericCineHit[0]}"` };
-    // Creator-at-home UGC requirement is FAMILY-SCOPED. Silent/theatrical/macro/overhead ASMR
-    // families live on tabletops + controlled light + sleeve+nail color harmony (the Froggy
-    // Prince + jewelry-diorama references). They satisfy taste through a different vocabulary
-    // (wooden desk, white silk, sage sweater sleeves, foam insert, tissue, ribbon, paper-stage
-    // diorama, window daylight) — which is already covered by the SCENE_TEXTURE gate above.
-    if (!isSilentAsmr) {
-      // Two-part gate: (1) the room/surface must be named, (2) at least ONE concrete lived-in mess detail.
-      // The mess is the whole point of Lane B — "minimalist beige bedroom" is a fail.
-      const homeRoomRx = /\b(bedroom|bathroom|kitchen|closet|car seat|cafe table|gym locker|living room|couch|sofa|coffee table|desk|bathroom vanity|kitchen counter|closet floor|rug)\b/i;
-      if (!homeRoomRx.test(finalPrompt)) return { weak: true, reason: 'unboxing missing creator-at-home room/surface (bedroom, bathroom vanity, couch, kitchen counter, closet floor, etc.)' };
-      const livedInMessRx = /\b(unmade duvet|wrinkled sheet|crumpled sheet|tangled sheets?|messy bed|unmade bed|charger cable|coffee mug|half[- ]empty mug|keys (?:on|tossed)|loose mail|opened mail|towel|half-open drawer|laundry (?:chair|pile|basket)|clothes on the floor|shoeboxes|empty water bottle|hair tie|crumb|wrappers?|sticky notes?|cluttered shelf|messy shelf|throw blanket bunched|pillow dent|blanket bunched|crumpled tissue|open laptop|tangled cable|product box flap still open|tape strip dangling)\b/i;
-      if (!livedInMessRx.test(finalPrompt)) return { weak: true, reason: 'Lane B unboxing missing a lived-in mess detail — name at least one (unmade duvet, charger cable, half-empty mug, laundry chair, tangled cable, shoeboxes on closet floor, opened mail, tape strip dangling, etc.)' };
-    } else {
-      // Silent ASMR families need their OWN texture proof: a tabletop surface + a motivated light + a sleeve/hand color harmony.
-      const asmrTextureRx = /\b(wooden desk|oak table|white silk|satin|linen|velvet|tissue paper|foam insert|paper-?stage|diorama|window daylight|natural daylight|diffused daylight|side window|golden-hour|sweater sleeves|sleeves|bare wrist|nails)\b/i;
-      if (!asmrTextureRx.test(finalPrompt)) return { weak: true, reason: 'silent-ASMR family missing tabletop/light/hand-harmony detail (e.g. wooden desk, white silk, window daylight, sweater sleeves)' };
-    }
-    const renderSlopRx = /\b(product render|catalog (?:shot|photo)|packshot|studio render|3d render|floating product|same reference (?:image|photo)|recreate(?:s|d)? the reference|matching the reference (?:image|photo)|static product (?:shot|image)|product sits alone)\b/i;
-    const renderHit = finalPrompt.match(renderSlopRx);
-    if (renderHit) return { weak: true, reason: `unboxing treats references like a render target: "${renderHit[0]}"` };
-    // 7. Packaging-as-hero — ≥1 packaging noun must appear before the first time-anchor beat.
-    const firstBeatIdx = finalPrompt.search(/\b\d{1,2}(?:\.\d)?\s*[–-]\s*\d{1,2}(?:\.\d)?\s*s/i);
-    if (firstBeatIdx > 0) {
-      const preamble = finalPrompt.slice(0, firstBeatIdx);
-      if (!/\b(box|lid|seal|tissue|foam|ribbon|clasp|flap|sleeve|sticker|insert|wrap|envelope|case|carton|package|packaging)\b/i.test(preamble)) {
-        return { weak: true, reason: 'unboxing missing packaging description before first beat (packaging-as-hero rule)' };
-      }
-    }
-    // 8. Product fidelity — at least one concrete detail referenced.
-    // (the global details check below also runs)
-    // 9. AVATAR-VOICE TASTE GATE — only fires for HIGH-ENERGY haul/scarcity/full-set/jump-cut modes.
-    //    QUIET HANDHELD is intentionally excluded: it's the ash-grey-tee whisper family — no nail-taps,
-    //    no 360° spins, no chopping gestures. Forcing those onto quiet luxury IS the AI slop we're killing.
-    const hauLEnergyRx = /\b(HAUL TRY-ON|SCARCITY DROP|FULL-SET REVEAL|JUMP-CUT HAUL)\b/;
-    if (hauLEnergyRx.test(head)) {
-      // 8a. Named micro-actions — ≥2 hits from the influencer-haul vocabulary (the difference between real UGC and AI slop).
-      const MICRO_ACTIONS = /\b(nail[- ]tap|taps? (?:her |his )?(?:long )?(?:acrylic )?nails?|hair[- ]?fluff|fluffs? (?:her|his) hair|pulls? (?:her|his) hair (?:out from |from )?under(?:neath)? the (?:collar|hood|hoodie)|hugging[- ]self|hugs? (?:her|him)self|crosses? both arms|hood[- ]pull|pulls? the hood (?:up |over )|sleeve[- ]tug|tugs? (?:the |her |his )?sleeves?|pulls? (?:the |her |his )?sleeves? outward|index[- ]finger[- ]tap|taps? the (?:embossed |chest )?logo|points? (?:both |two )?index fingers? (?:down |at |into the lens)|chopping (?:hand )?gestures?|downward chop|360°? ?spin|playful (?:little )?spin|ta[- ]?da|throws? (?:both )?arms? out|leans? (?:in|forward) (?:to|toward) the (?:lens|camera)|hard cut|HARD CUT|rapid open[- ]palm|claps? (?:once |her hands? )?(?:on|together))\b/gi;
-      const microHits = (finalPrompt.match(MICRO_ACTIONS) || []).length;
-      if (microHits < 2) {
-        return { weak: true, reason: `unboxing haul-energy mode needs ≥2 named micro-actions (nail-tap, hair-fluff, hugging-self, hood-pull, sleeve-tug, finger-tap-on-logo, chopping gestures, spin, ta-da, hard-cut) — got ${microHits}` };
-      }
-      // 8b. Spoken-line discipline — every quoted line ≤12 words (Comfrt-style conversational pacing).
-      const quoted = finalPrompt.match(/"([^"\n]{1,400})"/g) || [];
-      const longLines = quoted.filter((q) => {
-        const wc = q.replace(/^"|"$/g, '').trim().split(/\s+/).filter(Boolean).length;
-        return wc > 12;
-      });
-      if (quoted.length >= 2 && longLines.length >= 2) {
-        return { weak: true, reason: `unboxing haul-energy mode: ${longLines.length} quoted lines exceed 12 words — keep dialogue conversational and short` };
-      }
-      // 8c. Em-dash / ellipsis pacing.
-      if (quoted.length >= 3 && !/[—…]/.test(finalPrompt)) {
-        return { weak: true, reason: 'unboxing haul-energy mode missing em-dash or ellipsis pacing breaks (real speech has breath / self-corrections)' };
-      }
-    }
-    // 8d. QUIET-WHISPER GATE — fires for QUIET HANDHELD / VLOG SELFIE / EDITORIAL PAN.
-    //     These need the OPPOSITE: short whispered lines, ≤14 words, no chopping/spin/ta-da.
-    const quietWhisperRx = /\b(QUIET HANDHELD|VLOG SELFIE|EDITORIAL PAN)\b/;
-    if (quietWhisperRx.test(head)) {
-      const FORBIDDEN_HAUL_GESTURES = /\b(360°? ?spin|ta[- ]?da|chopping (?:hand )?gestures?|downward chop|throws? (?:both )?arms? out|rapid open[- ]palm|claps? (?:once |her hands? )?(?:on|together))\b/i;
-      const hauLeak = finalPrompt.match(FORBIDDEN_HAUL_GESTURES);
-      if (hauLeak) {
-        return { weak: true, reason: `quiet-whisper mode contains haul-energy gesture "${hauLeak[0]}" — these belong only in HAUL TRY-ON / SCARCITY DROP / FULL-SET REVEAL` };
-      }
-    }
   } else {
     if (!/(switches to the back camera|back camera|close-up|macro|props the phone|jump cut|overhead|POV|sets the phone down|detail shot)/i.test(finalPrompt)) return { weak: true, reason: 'too static' };
   }
@@ -755,11 +457,7 @@ function isWeak(
 // We use the public wsrv.nl image proxy to convert any format to PNG on the fly.
 const ANTHROPIC_OK = new Set(['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
 
-// Anthropic hard-caps base64 images at 5 MB. We always route through wsrv.nl with
-// a width cap + JPEG quality so payloads stay small AND we transcode AVIF/HEIC to
-// a supported format. Falls back to direct fetch only if proxy fails.
 async function fetchImageAsBase64(url: string): Promise<{ data: string; mediaType: string } | null> {
-  const MAX_BYTES = 4_500_000; // safety margin under Anthropic's 5MB limit
   const tryFetch = async (u: string) => {
     const r = await fetch(u);
     if (!r.ok) return null;
@@ -768,22 +466,16 @@ async function fetchImageAsBase64(url: string): Promise<{ data: string; mediaTyp
     let binary = '';
     const chunk = 0x8000;
     for (let i = 0; i < buf.length; i += chunk) binary += String.fromCharCode(...buf.subarray(i, i + chunk));
-    return { data: btoa(binary), mediaType, bytes: buf.length };
+    return { data: btoa(binary), mediaType };
   };
-  const proxy = (w: number, q: number) =>
-    `https://wsrv.nl/?url=${encodeURIComponent(url)}&output=jpg&w=${w}&q=${q}&we`;
   try {
-    // Always go through proxy first — guarantees size + format.
-    for (const [w, q] of [[1600, 85], [1280, 80], [1024, 75], [768, 70]] as const) {
-      const r = await tryFetch(proxy(w, q));
-      if (r && r.bytes <= MAX_BYTES) return { data: r.data, mediaType: 'image/jpeg' };
-    }
-    // Last resort: direct fetch (only safe if natively small + supported).
     const direct = await tryFetch(url);
-    if (direct && ANTHROPIC_OK.has(direct.mediaType) && direct.bytes <= MAX_BYTES) {
-      return { data: direct.data, mediaType: direct.mediaType };
-    }
-    return null;
+    if (direct && ANTHROPIC_OK.has(direct.mediaType)) return direct;
+    // Transcode via wsrv.nl (free image proxy, supports AVIF/HEIC → PNG).
+    const proxied = `https://wsrv.nl/?url=${encodeURIComponent(url)}&output=png`;
+    const png = await tryFetch(proxied);
+    if (png) return { data: png.data, mediaType: 'image/png' };
+    return direct; // last resort
   } catch (e) {
     console.warn('image fetch failed', e);
     return null;
@@ -1057,12 +749,7 @@ Deno.serve(async (req) => {
 
     // Build the LLM image attachment list first so we can describe @mentions
     // by their position in that list.
-    // ── UNBOXING: keep product images first. Extra refs are taste/prop anchors
-    // unless explicitly named/mentioned as packaging. Putting an extra image in
-    // slot #1 made Seedance/script generation over-copy that image's composition.
-    const isUnboxing = format === 'Unboxing';
-    const imageUrlsForLLM: string[] = [];
-    imageUrlsForLLM.push(...productImageUrls.slice(0, 3));
+    const imageUrlsForLLM = [...productImageUrls.slice(0, 3)];
     if (avatarImageUrl) imageUrlsForLLM.push(avatarImageUrl);
     const extraStartIdx = imageUrlsForLLM.length; // 0-based index where extras begin
     const remainingSlots = Math.max(0, 8 - imageUrlsForLLM.length);
@@ -1106,100 +793,6 @@ Deno.serve(async (req) => {
         `Variety rule: surprise the viewer. Do not reuse the same studio you would obviously default to.\n`
       : '';
 
-    // ---------- Per-request UNBOXING creative brief (camera-language palette + packaging anchor) ----------
-    // We shuffle the camera-language palette so Claude sees a fresh order each
-    // call — small bias against defaulting to the same language twice in a row.
-    // The taxonomy hint is a lightweight keyword pass over PRODUCT_NAME/desc to
-    // help Claude name what the product IS in one phrase (Step 1 of the method).
-    const UNBOXING_CAMERA_LANGUAGES = [
-      'BEDROOM WINDOW UGC', 'BATHROOM VANITY UGC', 'KITCHEN COUNTER UGC', 'COUCH COFFEE-TABLE UGC',
-      'CLOSET FLOOR UGC', 'TOP-DOWN ASMR', 'THEATRICAL REVEAL', 'VLOG SELFIE', 'QUIET HANDHELD',
-      'JUMP-CUT HAUL', 'STREET DOC', 'POV FIRST-PERSON', 'MACRO TACTILE', 'OVERHEAD STILL-LIFE',
-      'OUTDOOR DAYLIGHT', 'CAFE TABLE REVEAL', 'CAR-SEAT STREET DROP', 'HAUL TRY-ON', 'SCARCITY DROP', 'FULL-SET REVEAL',
-    ];
-    const productBlob = `${productMeta?.name || ''} ${productMeta?.description || ''}`.toLowerCase();
-    const taxonomyHints: string[] = [];
-    // Taxonomy detection drives WHICH camera languages dominate the shuffle.
-    // The principle: silent/quiet families are the default; haul/scarcity is ONLY
-    // surfaced when the product is genuinely a fashion drop. This kills the slop
-    // where every unboxing turns into a Comfrt haul.
-    const isCollectible = /\b(toy|figure|figurine|vinyl|plush|collectible|art toy|blind box|sticker|trading card)\b/.test(productBlob);
-    const isJewelry = /\b(necklace|bracelet|ring|earring|pendant|jewelry|jewellery|chain|charm)\b/.test(productBlob);
-    const isQuietLux = /\b(watch|leather wallet|cardholder|small leather|fragrance|perfume|cologne|candle|ceramic|pen|notebook|stationery)\b/.test(productBlob);
-    const isFashion = /\b(bag|tote|crossbody|handbag|purse|sneaker|shoe|hoodie|jacket|tee|t-shirt|outfit|skirt|dress|sunglasses|pants|shorts|cardigan|sweater|coat|tank|legging)\b/.test(productBlob);
-    const isBeauty = /\b(skincare|serum|cream|cleanser|lipstick|mascara|makeup|beauty)\b/.test(productBlob);
-    const isTech = /\b(headphone|earbud|speaker|camera|gadget|charger|keyboard|mouse|tech|device|console)\b/.test(productBlob);
-    const isUsedNotOpened = /\b(bike|treadmill|equipment|gym|fitness|tumbler|bottle|blender|appliance)\b/.test(productBlob);
-    if (isCollectible) taxonomyHints.push('designer collectible / art toy');
-    if (isJewelry) taxonomyHints.push('fine jewelry');
-    if (isQuietLux) taxonomyHints.push('quiet-luxury small good');
-    if (isFashion) taxonomyHints.push('fashion / wearable');
-    if (isBeauty) taxonomyHints.push('beauty');
-    if (isTech) taxonomyHints.push('tech accessory');
-    if (isUsedNotOpened) taxonomyHints.push('used-not-opened equipment');
-
-    // Weight the palette by taxonomy. Silent families lead unless this is clearly
-    // a fashion / multi-piece haul situation. Always include some variety so the
-    // creative brain can still surprise — but the FIRST options Claude reads
-    // match the product's natural energy.
-    let weightedPalette: string[];
-    if (isCollectible || isJewelry) {
-      weightedPalette = [
-        'TOP-DOWN ASMR', 'THEATRICAL REVEAL', 'BEDROOM WINDOW UGC', 'COUCH COFFEE-TABLE UGC',
-        'MACRO TACTILE', 'OVERHEAD STILL-LIFE', 'POV FIRST-PERSON', 'QUIET HANDHELD',
-      ];
-    } else if (isQuietLux || isBeauty || isTech) {
-      weightedPalette = [
-        'QUIET HANDHELD', isBeauty ? 'BATHROOM VANITY UGC' : 'BEDROOM WINDOW UGC', 'KITCHEN COUNTER UGC', 'COUCH COFFEE-TABLE UGC',
-        'CAFE TABLE REVEAL', 'MACRO TACTILE', 'STREET DOC', 'POV FIRST-PERSON',
-      ];
-    } else if (isFashion) {
-      // Fashion is the ONE category where haul/try-on energy is on-brand.
-      // Still seed a quiet option first so Claude can pick silent ASMR if the
-      // packaging/product personality calls for it (e.g. quiet-luxury fashion).
-      weightedPalette = [
-        'BEDROOM WINDOW UGC', 'CLOSET FLOOR UGC', 'HAUL TRY-ON', 'SCARCITY DROP',
-        'FULL-SET REVEAL', 'VLOG SELFIE', 'JUMP-CUT HAUL', 'CAR-SEAT STREET DROP',
-      ];
-    } else if (isUsedNotOpened) {
-      weightedPalette = [
-        'VLOG SELFIE', 'STREET DOC', 'KITCHEN COUNTER UGC', 'COUCH COFFEE-TABLE UGC',
-        'OUTDOOR DAYLIGHT', 'POV FIRST-PERSON', 'QUIET HANDHELD', 'CAR-SEAT STREET DROP',
-      ];
-    } else {
-      // No taxonomy hit → mild shuffle, silent families slightly favored.
-      weightedPalette = [...UNBOXING_CAMERA_LANGUAGES].sort(() => Math.random() - 0.5).slice(0, 8);
-    }
-    // Light shuffle within the top 8 so consecutive runs don't always pick #1.
-    const shuffledTop = weightedPalette.sort(() => Math.random() - 0.5);
-
-    const hasPackagingRef = isUnboxing && userExtraRefs.length > 0;
-    const productTag = productId ? `@product:${productId}` : '';
-    const avatarTag = avatarId ? `@avatar:${avatarId}` : '';
-    const imageTagsList = userExtraRefs.map((_, i) => `@image_${i + 1}`);
-    const tagsBriefBlock = isUnboxing
-      ? `REFERENCE TAGS — use these LITERAL strings inline in the script (do not write the placeholder words "PRODUCT_UUID" / "AVATAR_UUID" — use the real values below):\n` +
-        `  • PRODUCT_TAG = ${productTag || '(none — omit @product: tags)'}\n` +
-        `  • AVATAR_TAG = ${avatarTag || '(none — silent / POV hands mode, omit @avatar: tags and the action-header line)'}\n` +
-        `  • EXTRA IMAGE TAGS (in upload order, packaging refs etc.) = ${imageTagsList.length ? imageTagsList.join(', ') : '(none)'}\n`
-      : '';
-    const unboxingPresetBlock = isUnboxing
-      ? `\nUNBOXING CREATIVE BRIEF — DO STEPS 1–4 SILENTLY, OUTPUT ONLY THE FINAL STRUCTURED SCRIPT.\n` +
-        `${tagsBriefBlock}` +
-        `STEP 1 — name in one phrase what THIS product IS. ${taxonomyHints.length ? `Lightweight taxonomy hint: ${taxonomyHints.join(' / ')}.` : 'No taxonomy hint — read the images.'}\n` +
-        `STEP 2 — propose 3+ camera-language options that could honor THIS specific product+avatar combo. PRIMARY palette for this product (ordered by fit, but you are NOT capped — invent a hybrid or a brand-new tag if it serves the product better): ${shuffledTop.join(' · ')}. For each option name ONE reason it FITS and ONE reason it MIGHT NOT. Pick the winner.\n` +
-        `CINEMATOGRAPHY IS THE MAIN THING — match the LANE to the product, not a default. There are TWO lanes; pick the one this product belongs to and commit:\n` +
-        `  LANE A — SILENT TABLETOP ASMR (collectibles, jewelry, fragrance, ceramics, stationery, designer toys, quiet-luxury small goods, anything theatrical-packaging-led). Examples: top-down overhead on a light wooden desk with sage-green sweater sleeves, warm window light from camera-left, only hands visible, slow ASMR movements, every sound named (cardboard tap, sticker peel, tissue rustle, foam release, vinyl thunk, chain shimmer); OR a theatrical paper-stage reveal with a single hero piece on white silk under diffused daylight, the box unfolding like a tiny diorama, hands with one thin gold ring. Color harmony between sleeve/nails/surface and the product is mandatory. NO dialogue or 0–2 whispered lines max.\n` +
-        `  LANE B — CREATOR-AT-HOME UGC (fashion drops, gym/equipment used-not-opened, beauty haul, tech accessory, multi-piece sets, anything dialogue-led). THE MESS IS THE POINT. The whole reason this lane exists is that real creators film in actually-lived-in rooms — that's why it reads as authentic and not as an ad. Examples: messy bedroom by the window with the parcel ON an UNMADE DUVET, tangled charger cable in frame, half-empty coffee mug on the nightstand, laundry chair in the soft-focus background; bathroom vanity with a damp towel slung over the rail, toothbrush + open serum bottle next to the sink, single practical bulb; couch + coffee table + bunched throw blanket + remote + crumpled tissue; closet floor with shoeboxes stacked crooked and a hair tie on the rug; iPhone front camera + modern gym + tired breath + water bottle on the bench for equipment; car-seat street-drop with keys tossed on the passenger seat. NAME AT LEAST ONE specific mess detail in the script (unmade duvet, charger cable, half-empty mug, laundry chair, shoeboxes, tape strip dangling, opened mail, tangled cable). Words like "minimalist", "clean", "neutral beige", "tidy", "organized", "spotless" are BANNED in Lane B — they kill the UGC energy.\n` +
-        `BANNED in BOTH lanes: ring light, on-screen text/captions, lo-fi music, packshot, product film, 3D render, catalog photo, recreating the uploaded product/reference photo as the actual shot, generic "cinematic / aesthetic / clean setup / beautiful background" without naming the actual surface + light + 2 named props.\n` +
-        `REFERENCE IMAGE RULE: the attached product/avatar/extra images are only anchors for what the product/avatar/prop looks like. They are NOT the video frame. Do not recreate the uploaded product image, packaging image, catalog photo, same crop, same background, same pose, same lighting, or same flat render. The video must feel newly filmed: hands enter, camera reframes, product leaves/enters packaging, avatar reacts, background has lived-in depth.\n` +
-        `IMPORTANT — match the product's personality. Collectibles, jewelry, quiet-luxury small goods, ceramics, fragrances, stationery → LANE A (TOP-DOWN ASMR, THEATRICAL REVEAL, MACRO TACTILE, OVERHEAD STILL-LIFE) — controlled, silent, theatrical. Fashion drops, multi-piece sets, sneaker drops, streetwear, lingerie haul → LANE B high-energy (HAUL TRY-ON, SCARCITY DROP, FULL-SET REVEAL, BEDROOM WINDOW UGC) — MESSY bedroom is the right answer here, lean into it. Used-not-opened gear (gym bike, blender, camera) → LANE B vlog (VLOG SELFIE / STREET DOC). Beauty/skincare/fragrance → either LANE A (THEATRICAL REVEAL on a vanity) or LANE B (BATHROOM VANITY UGC with a real damp towel and clutter). NEVER force haul-energy onto a quiet collectible. NEVER force a controlled "studio" tabletop onto a fashion haul — that's where the AI slop comes from.\n` +
-        `STEP 3 — commit to that camera language. Inside the VIDEO block the opening line MUST start with the reference tags + camera-language tag + duration in this EXACT shape: "${productTag || '@product:UUID'} ${avatarTag ? avatarTag + ' ' : ''}VIDEO — <CAMERA_LANGUAGE_TAG> — ${durSec}-second vertical (9:16) <one-phrase concept>". The structural gate verifies this.\n` +
-        `STEP 4 — write the script in the EXACT shape of the REFERENCE LIBRARY (NOT one paragraph): ${avatarTag ? 'optional one-line ACTION HEADER with @avatar:/@image_/@product: tags inline → ' : ''}${avatarTag ? '"Dialogue (tone1, tone2, tone3):" block with each spoken line on its OWN line in double quotes (omit for pure silent ASMR) → ' : '(silent / POV hands mode — skip the action-header and Dialogue blocks) → '}standalone "NO MUSIC, ONLY SFX" line → VIDEO block opening with the reference tags + camera-language tag + duration → inline-labelled body: "Product: …" (≥30% of body words on the unopened packaging) then "Format: …" then ${beatCount} "Scene N — Title (window): …" entries with windows ${beatWindows.join(', ')} (each beat = action + named sound + sensory verb) then closing "Overall style: …" sentence.\n` +
-        `${hasPackagingRef ? `EXTRA REFERENCE IMAGES: if USER_DIRECTION or the image name says @image_1 is packaging, preserve that packaging's color, finish, lid mechanism, ribbon, embossing, printed text, and seals EXACTLY — but still invent a NEW live-action scene around it. If not explicitly packaging, use @image_1 only as taste/prop inspiration, not as a frame to copy.\n` : ''}` +
-        `Variety rule: across consecutive generations vary the camera language. AI slop = every clip looking identical. Surprise the viewer.\n`
-      : '';
-
     const userTextBlock =
       // Duration spec FIRST so it dominates everything that follows.
       `${durationSpec}\n` +
@@ -1213,17 +806,12 @@ Deno.serve(async (req) => {
       `${avatarCtx}\n\n` +
       `${extraRefBlock}` +
       `${podcastPresetBlock}` +
-      `${unboxingPresetBlock}` +
       `${directionBlock}\n` +
       `Look at the attached reference images carefully. Product images are for exact visible product details. Avatar image is for facial identity only; do not use its background, clothes, pose, lighting, or framing as the scene. ` +
       `Extract real visible product details (colors, textures, hardware, printed text, distinctive features) into concrete_product_details — do not invent. ` +
-      `${isUnboxing
-        ? `Write the Seedance 2.0 script in the EXACT structured shape defined in the UNBOXING CREATIVE BRIEF (action header → Dialogue block → NO MUSIC, ONLY SFX → VIDEO block with Product:/Format:/Scene 1–N/Overall style: inline labels). It MUST fit inside ${durSec} seconds, use exactly ${beatCount} scenes with windows ${beatWindows.join(', ')}, and stay under ${maxSpokenWords} spoken words total. Use the literal PRODUCT_TAG / AVATAR_TAG values — do NOT print the placeholder strings "PRODUCT_UUID" or "AVATAR_UUID". `
-        : `Write the Seedance 2.0 prompt as ONE continuous paragraph that fits inside ${durSec} seconds, uses exactly ${beatCount} beats with windows ${beatWindows.join(', ')}, and stays under ${maxSpokenWords} spoken words total. `}` +
+      `Write the Seedance 2.0 prompt as ONE continuous paragraph that fits inside ${durSec} seconds, uses exactly ${beatCount} beats with windows ${beatWindows.join(', ')}, and stays under ${maxSpokenWords} spoken words total. ` +
       `Voice MUST match CREATOR_PERSONA exactly. ` +
-      `${isUnboxing
-        ? `Output the structured script in final_prompt exactly as specified — preserve line breaks between blocks. No preamble, no "Option 1/2/3" reasoning, no markdown headings.`
-        : `Output one continuous paragraph in final_prompt. No preamble, no labels, no headings.`}`;
+      `Output one continuous paragraph in final_prompt. No preamble, no labels, no headings.`;
 
 
     // ---------- First attempt: Claude Sonnet 4.5 (Anthropic → OpenRouter → Gemini) ----------
