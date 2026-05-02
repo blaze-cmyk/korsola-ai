@@ -1091,11 +1091,10 @@ Deno.serve(async (req) => {
     // The taxonomy hint is a lightweight keyword pass over PRODUCT_NAME/desc to
     // help Claude name what the product IS in one phrase (Step 1 of the method).
     const UNBOXING_CAMERA_LANGUAGES = [
-      'TOP-DOWN ASMR', 'THEATRICAL REVEAL', 'VLOG SELFIE', 'QUIET HANDHELD',
-      'EDITORIAL PAN', 'JUMP-CUT HAUL', 'STREET DOC', 'TABLETOP CINEMATIC',
-      'POV FIRST-PERSON', 'MACRO TACTILE', 'OVERHEAD STILL-LIFE', 'OUTDOOR DAYLIGHT',
-      'BEDROOM WINDOW UGC', 'WORKBENCH MACRO', 'CAFE TABLE REVEAL', 'CAR-SEAT STREET DROP',
-      'GOLDEN-HOUR FLATLAY', 'GALLERY PLINTH REVEAL', 'HAUL TRY-ON', 'SCARCITY DROP', 'FULL-SET REVEAL',
+      'BEDROOM WINDOW UGC', 'BATHROOM VANITY UGC', 'KITCHEN COUNTER UGC', 'COUCH COFFEE-TABLE UGC',
+      'CLOSET FLOOR UGC', 'TOP-DOWN ASMR', 'THEATRICAL REVEAL', 'VLOG SELFIE', 'QUIET HANDHELD',
+      'JUMP-CUT HAUL', 'STREET DOC', 'POV FIRST-PERSON', 'MACRO TACTILE', 'OVERHEAD STILL-LIFE',
+      'OUTDOOR DAYLIGHT', 'CAFE TABLE REVEAL', 'CAR-SEAT STREET DROP', 'HAUL TRY-ON', 'SCARCITY DROP', 'FULL-SET REVEAL',
     ];
     const productBlob = `${productMeta?.name || ''} ${productMeta?.description || ''}`.toLowerCase();
     const taxonomyHints: string[] = [];
@@ -1125,26 +1124,26 @@ Deno.serve(async (req) => {
     let weightedPalette: string[];
     if (isCollectible || isJewelry) {
       weightedPalette = [
-        'TOP-DOWN ASMR', 'THEATRICAL REVEAL', 'MACRO TACTILE', 'OVERHEAD STILL-LIFE',
-        'GOLDEN-HOUR FLATLAY', 'TABLETOP CINEMATIC', 'POV FIRST-PERSON', 'QUIET HANDHELD',
+        'TOP-DOWN ASMR', 'THEATRICAL REVEAL', 'BEDROOM WINDOW UGC', 'COUCH COFFEE-TABLE UGC',
+        'MACRO TACTILE', 'OVERHEAD STILL-LIFE', 'POV FIRST-PERSON', 'QUIET HANDHELD',
       ];
     } else if (isQuietLux || isBeauty || isTech) {
       weightedPalette = [
-        'QUIET HANDHELD', 'TABLETOP CINEMATIC', 'EDITORIAL PAN', 'WORKBENCH MACRO',
-        'CAFE TABLE REVEAL', 'GALLERY PLINTH REVEAL', 'MACRO TACTILE', 'STREET DOC',
+        'QUIET HANDHELD', isBeauty ? 'BATHROOM VANITY UGC' : 'BEDROOM WINDOW UGC', 'KITCHEN COUNTER UGC', 'COUCH COFFEE-TABLE UGC',
+        'CAFE TABLE REVEAL', 'MACRO TACTILE', 'STREET DOC', 'POV FIRST-PERSON',
       ];
     } else if (isFashion) {
       // Fashion is the ONE category where haul/try-on energy is on-brand.
       // Still seed a quiet option first so Claude can pick silent ASMR if the
       // packaging/product personality calls for it (e.g. quiet-luxury fashion).
       weightedPalette = [
-        'BEDROOM WINDOW UGC', 'HAUL TRY-ON', 'SCARCITY DROP', 'FULL-SET REVEAL',
-        'VLOG SELFIE', 'JUMP-CUT HAUL', 'QUIET HANDHELD', 'CAR-SEAT STREET DROP',
+        'BEDROOM WINDOW UGC', 'CLOSET FLOOR UGC', 'HAUL TRY-ON', 'SCARCITY DROP',
+        'FULL-SET REVEAL', 'VLOG SELFIE', 'JUMP-CUT HAUL', 'CAR-SEAT STREET DROP',
       ];
     } else if (isUsedNotOpened) {
       weightedPalette = [
-        'VLOG SELFIE', 'STREET DOC', 'OUTDOOR DAYLIGHT', 'POV FIRST-PERSON',
-        'QUIET HANDHELD', 'TABLETOP CINEMATIC', 'EDITORIAL PAN', 'TOP-DOWN ASMR',
+        'VLOG SELFIE', 'STREET DOC', 'KITCHEN COUNTER UGC', 'COUCH COFFEE-TABLE UGC',
+        'OUTDOOR DAYLIGHT', 'POV FIRST-PERSON', 'QUIET HANDHELD', 'CAR-SEAT STREET DROP',
       ];
     } else {
       // No taxonomy hit → mild shuffle, silent families slightly favored.
@@ -1168,7 +1167,7 @@ Deno.serve(async (req) => {
         `${tagsBriefBlock}` +
         `STEP 1 — name in one phrase what THIS product IS. ${taxonomyHints.length ? `Lightweight taxonomy hint: ${taxonomyHints.join(' / ')}.` : 'No taxonomy hint — read the images.'}\n` +
         `STEP 2 — propose 3+ camera-language options that could honor THIS specific product+avatar combo. PRIMARY palette for this product (ordered by fit, but you are NOT capped — invent a hybrid or a brand-new tag if it serves the product better): ${shuffledTop.join(' · ')}. For each option name ONE reason it FITS and ONE reason it MIGHT NOT. Pick the winner.\n` +
-        `CINEMATOGRAPHY IS THE MAIN THING: write like a real UGC director, not a product renderer. Before writing, choose a fresh live-action scene language and make it visible in the prompt — named room/location, surface, motivated light, lens/camera feel, frame composition, background life, hand/avatar blocking, color harmony, and one imperfect human detail. Good examples: messy bedroom window UGC with the parcel on an unmade duvet; light wooden desk + sage sweater sleeves for a toy; white silk + warm diffused daylight for jewelry; ash-grey tee + oak table + window light for quiet luxury; iPhone front camera + modern aesthetic gym + tired breath for equipment; car-seat street-drop with city reflections on leather. Bad examples: generic cinematic, aesthetic background, clean setup, random voiceover in a blank room, or copying the product/reference photo as the actual shot.\n` +
+        `CINEMATOGRAPHY IS THE MAIN THING: write like a real UGC director, not a product renderer. DEFAULT TO CREATOR-AT-HOME, not studio. Before writing, choose a fresh live-action home/real-life scene language and make it visible in the prompt — named room/location, surface, motivated light, phone/lens feel, frame composition, background life, hand/avatar blocking, color harmony, and one imperfect human detail. Good examples: messy bedroom window UGC with the parcel on an unmade duvet; desk next to laptop + cold coffee + charger cable; bathroom vanity with towel/sink/practical bulb for beauty; kitchen counter with mail/mug/fruit bowl; couch coffee-table unboxing with throw blanket + remote; closet floor with shoeboxes for fashion; iPhone front camera + modern gym + tired breath for equipment; car-seat street-drop with city reflections on leather. Bad examples: photo studio, studio lighting, softbox, gallery plinth, museum vitrine, seamless backdrop, generic cinematic, aesthetic background, clean setup, random voiceover in a blank room, or copying the product/reference photo as the actual shot.\n` +
         `REFERENCE IMAGE RULE: the attached product/avatar/extra images are only anchors for what the product/avatar/prop looks like. They are NOT the video frame. Do not recreate the uploaded product image, packaging image, catalog photo, same crop, same background, same pose, same lighting, or same flat render. The video must feel newly filmed: hands enter, camera reframes, product leaves/enters packaging, avatar reacts, background has lived-in depth.\n` +
         `IMPORTANT — match the product's personality. Collectibles, jewelry, quiet-luxury small goods, ceramics, fragrances, stationery → almost always SILENT or quiet-whisper families (TOP-DOWN ASMR, THEATRICAL REVEAL, MACRO TACTILE, QUIET HANDHELD, TABLETOP CINEMATIC). Fashion drops, multi-piece sets, sneaker drops, streetwear, lingerie haul → high-energy avatar families (HAUL TRY-ON, SCARCITY DROP, FULL-SET REVEAL). Used-not-opened gear (gym bike, blender, camera) → VLOG SELFIE / STREET DOC, the product is unboxed by being USED. NEVER force haul-energy onto a quiet collectible. NEVER force silent ASMR onto a fashion drop the user clearly wants try-on energy for.\n` +
         `STEP 3 — commit to that camera language. Inside the VIDEO block the opening line MUST start with the reference tags + camera-language tag + duration in this EXACT shape: "${productTag || '@product:UUID'} ${avatarTag ? avatarTag + ' ' : ''}VIDEO — <CAMERA_LANGUAGE_TAG> — ${durSec}-second vertical (9:16) <one-phrase concept>". The structural gate verifies this.\n` +
