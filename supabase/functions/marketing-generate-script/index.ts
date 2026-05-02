@@ -933,6 +933,7 @@ Deno.serve(async (req) => {
       'TOP-DOWN ASMR', 'THEATRICAL REVEAL', 'VLOG SELFIE', 'QUIET HANDHELD',
       'EDITORIAL PAN', 'JUMP-CUT HAUL', 'STREET DOC', 'TABLETOP CINEMATIC',
       'POV FIRST-PERSON', 'MACRO TACTILE', 'OVERHEAD STILL-LIFE', 'OUTDOOR DAYLIGHT',
+      'HAUL TRY-ON', 'SCARCITY DROP', 'FULL-SET REVEAL',
     ];
     const shuffledLangs = [...UNBOXING_CAMERA_LANGUAGES].sort(() => Math.random() - 0.5);
     const productBlob = `${productMeta?.name || ''} ${productMeta?.description || ''}`.toLowerCase();
