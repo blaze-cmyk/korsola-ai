@@ -438,6 +438,53 @@ async function submitToAtlas(opts: {
   return { ok: true, predictionId: result.predictionId, endpoint: opts.bundle.mode, raw: result.raw };
 }
 
+/**
+ * Submit + auto-retry once on Atlas moderation rejection ("real person" etc.).
+ * If the first attempt was image-to-video and got moderated, retry as
+ * reference-to-video using whatever references we have (or text-to-video
+ * if none).
+ */
+async function submitWithModerationFallback(opts: {
+  prompt: string;
+  bundle: ReferenceBundle;
+  duration: number;
+  resolution: string;
+  ratio: string;
+  generateAudio: boolean;
+}): Promise<SubmitOutcome> {
+  const first = await submitToAtlas(opts);
+  if (first.ok) return first;
+  if (!isModerationRealPersonError(first.error)) return first;
+
+  log('WARN', 'atlas moderation rejection — retrying with reference-to-video', {
+    originalEndpoint: first.endpoint,
+    err: first.error,
+  });
+
+  const refImages =
+    opts.bundle.referenceImages && opts.bundle.referenceImages.length > 0
+      ? opts.bundle.referenceImages
+      : opts.bundle.firstFrame
+        ? [opts.bundle.firstFrame]
+        : [];
+
+  if (refImages.length === 0) {
+    const textOnly: ReferenceBundle = { mode: 'text-to-video' };
+    const second = await submitToAtlas({ ...opts, bundle: textOnly });
+    if (!second.ok) return { ...second, error: `${first.error} | retry text: ${second.error}` };
+    return second;
+  }
+
+  const refBundle: ReferenceBundle = {
+    mode: 'reference-to-video',
+    referenceImages: refImages.slice(0, 9),
+    referenceAudios: opts.bundle.referenceAudios,
+  };
+  const second = await submitToAtlas({ ...opts, bundle: refBundle });
+  if (!second.ok) return { ...second, error: `${first.error} | retry ref: ${second.error}` };
+  return second;
+}
+
 // ──────────────────────────── HTTP handler ────────────────────────────
 
 Deno.serve(async (req) => {
