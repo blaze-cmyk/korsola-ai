@@ -29,18 +29,30 @@ export function PromptBar() {
   const [mentionOpen, setMentionOpen] = useState(false);
   const [mentionQuery, setMentionQuery] = useState('');
   const [mentionAnchor, setMentionAnchor] = useState<number>(0);
+  const [mentionLength, setMentionLength] = useState<number>(0);
+
+  // Selected reference chips (indices into referenceImages)
+  const [mentionedIdx, setMentionedIdx] = useState<number[]>([]);
+
+  // Keep mentionedIdx valid if refs are removed/reordered
+  useEffect(() => {
+    setMentionedIdx((prev) => prev.filter((i) => i < referenceImages.length));
+  }, [referenceImages.length]);
 
   const refNames = referenceImages.map((_, i) => `Image ${i + 1}`);
 
-  const insertMention = (name: string) => {
-    setPrompt(
-      (() => {
-        const p = prompt;
-        const sep = p.length === 0 || p.endsWith(' ') || p.endsWith('\n') ? '' : ' ';
-        return `${p}${sep}@${name} `;
-      })()
-    );
+  const addMentionChip = (idx: number) => {
+    setMentionedIdx((prev) => (prev.includes(idx) ? prev : [...prev, idx]));
+    // Strip the partial "@xyz" the user was typing
+    const before = prompt.slice(0, mentionAnchor);
+    const after = prompt.slice(mentionAnchor + mentionLength + 1); // +1 for '@'
+    setPrompt(`${before}${after.replace(/^\s+/, '')}`);
+    setMentionOpen(false);
     setTimeout(() => textareaRef.current?.focus(), 0);
+  };
+
+  const removeMentionChip = (idx: number) => {
+    setMentionedIdx((prev) => prev.filter((i) => i !== idx));
   };
 
   const selectedModel = MODELS.find((m) => m.id === model);
