@@ -544,6 +544,59 @@ Deno.serve(async (req) => {
         });
       }
       if (result.status === 'failed') {
+        if (canPollFallbackToFal(row, result)) {
+          const refs = await gatherFreshReferenceUrls(admin, {
+            productId: row.product_id,
+            avatarId: row.avatar_id,
+            keyframePath: row.keyframe_path,
+            keyframeUrl: row.keyframe_url,
+            fallbackUrls: row.reference_paths || [],
+          });
+          const audio_urls: string[] = [];
+          if (row.avatar_id) {
+            const { data: av } = await admin.from('ms_avatars').select('voice_sample_url').eq('id', row.avatar_id).maybeSingle();
+            if (isValidHttpUrl(av?.voice_sample_url)) audio_urls.push(String(av?.voice_sample_url).trim());
+          }
+          if (String(row.format).toLowerCase() === 'podcast') {
+            const secondVoice = await ensurePodcastSecondVoiceUrl(admin);
+            if (secondVoice && !audio_urls.includes(secondVoice)) audio_urls.push(secondVoice);
+          }
+          try {
+            const fallback = await submitFal({
+              prompt: row.prompt,
+              image_urls: refs,
+              audio_urls,
+              ratio: aspectToRatio(row.aspect),
+              duration: row.duration_seconds || 8,
+              resolution: normalizeRes(row.resolution),
+            });
+            if (fallback.ok && fallback.requestId) {
+              const endpoint = providerEndpoint('fal', refs.length > 0);
+              const { data: updated } = await admin
+                .from('ms_generations')
+                .update({
+                  status: 'queued',
+                  stage: 'videoing',
+                  provider: 'fal',
+                  provider_endpoint: endpoint,
+                  fal_request_id: fallback.requestId,
+                  fallback_attempted: true,
+                  reference_paths: refs,
+                  error: null,
+                })
+                .eq('id', row.id)
+                .select()
+                .single();
+              log('INFO', 'poll: atlas failed, submitted fal fallback', { jobId: row.id, endpoint, refs: refs.length });
+              return new Response(JSON.stringify(updated), {
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              });
+            }
+            log('WARN', 'poll: fal fallback rejected', { jobId: row.id, raw: fallback.raw });
+          } catch (e) {
+            log('ERROR', 'poll: fal fallback threw', { jobId: row.id, err: e instanceof Error ? e.message : String(e) });
+          }
+        }
         const { data: updated } = await admin
           .from('ms_generations')
           .update({ status: 'failed', stage: 'failed', error: result.error ?? 'failed' })
