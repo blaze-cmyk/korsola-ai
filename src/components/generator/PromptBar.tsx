@@ -17,6 +17,7 @@ export function PromptBar() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [modelOpen, setModelOpen] = useState(false);
+  const [aspectOpen, setAspectOpen] = useState(false);
   const [modelSearch, setModelSearch] = useState('');
   const [dragging, setDragging] = useState(false);
   const [freeGens, setFreeGens] = useState(false);
