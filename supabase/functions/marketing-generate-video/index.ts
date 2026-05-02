@@ -188,7 +188,8 @@ async function gatherFreshReferenceUrls(admin: any, opts: {
     }
   }
 
-  if (opts.avatarId) {
+  const hasComposedKeyframe = !!opts.keyframePath || isValidHttpUrl(opts.keyframeUrl);
+  if (opts.avatarId && !hasComposedKeyframe) {
     const { data: av } = await admin
       .from('ms_avatars')
       .select('public_url, storage_path')
