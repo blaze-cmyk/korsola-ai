@@ -32,7 +32,7 @@ export function ImageGrid() {
   }
 
   return (
-    <div className="columns-2 sm:columns-3 md:columns-4 xl:columns-5 2xl:columns-6 gap-2 [column-fill:_balance]">
+    <div className={`${ZOOM_COLUMNS[zoom]} gap-2 [column-fill:_balance]`}>
       {images.map((img) => (
         <div key={img.id} className="mb-2 break-inside-avoid">
           <ImageCard image={img} />
