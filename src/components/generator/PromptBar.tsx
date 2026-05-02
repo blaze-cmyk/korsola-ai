@@ -160,7 +160,7 @@ export function PromptBar() {
           <Popover open={modelOpen} onOpenChange={setModelOpen}>
             <PopoverTrigger asChild>
               <button className="ms-chip-glass flex items-center gap-1.5 px-3.5 h-9 rounded-full text-xs text-foreground transition-all">
-                <span className="w-4 h-4 rounded bg-white/10 grid place-items-center text-[8px] font-bold">G</span>
+                <span className="w-4 h-4 rounded bg-[#FF2D78]/15 grid place-items-center text-[9px] font-bold text-[#FF2D78]">G</span>
                 {selectedModel?.name || model}
                 <ChevronDownIcon className="size-3.5 text-muted-foreground/70" />
               </button>
@@ -183,7 +183,7 @@ export function PromptBar() {
           <Popover open={aspectOpen} onOpenChange={setAspectOpen}>
             <PopoverTrigger asChild>
               <button className="ms-chip-glass flex items-center gap-1.5 px-3.5 h-9 rounded-full text-xs text-foreground transition-all">
-                <AspectIcon ratio={aspectRatio} />
+                <AspectIcon ratio={aspectRatio} className="text-[#FF2D78]" />
                 {aspectRatio}
                 <ChevronDownIcon className="size-3.5 text-muted-foreground/70" />
               </button>
@@ -220,7 +220,7 @@ export function PromptBar() {
           <Popover open={qualityOpen} onOpenChange={setQualityOpen}>
             <PopoverTrigger asChild>
               <button className="ms-chip-glass flex items-center gap-1.5 px-3.5 h-9 rounded-full text-xs text-foreground transition-all">
-                <Heart className="w-3.5 h-3.5 text-muted-foreground" />
+                <Heart className="w-3.5 h-3.5 text-[#FF2D78] fill-[#FF2D78]" />
                 {quality}
                 <ChevronDownIcon className="size-3.5 text-muted-foreground/70" />
               </button>
@@ -332,7 +332,7 @@ function ModelRow({
       onClick={onClick}
       className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left hover:bg-white/5 transition-colors ${selected ? 'bg-white/10' : ''}`}
     >
-      <span className="w-8 h-8 rounded-lg bg-white/5 grid place-items-center text-xs font-bold text-foreground shrink-0">G</span>
+      <span className={`w-8 h-8 rounded-lg grid place-items-center text-xs font-bold shrink-0 ${selected ? 'bg-[#FF2D78]/15 text-[#FF2D78]' : 'bg-white/5 text-foreground'}`}>G</span>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
           <span className="text-sm text-foreground">{m.name}</span>
@@ -349,14 +349,14 @@ function ModelRow({
   );
 }
 
-function AspectIcon({ ratio }: { ratio: string }) {
-  if (ratio === 'Auto') return <span className="w-4 h-4 border border-current rounded-sm opacity-70" />;
+function AspectIcon({ ratio, className = '' }: { ratio: string; className?: string }) {
+  if (ratio === 'Auto') return <span className={`w-4 h-4 border border-current rounded-sm opacity-70 ${className}`} />;
   const [w, h] = ratio.split(':').map(Number);
   const maxSize = 14;
   const scale = maxSize / Math.max(w, h);
   return (
-    <span className="w-4 h-4 flex items-center justify-center">
-      <span className="border border-current rounded-sm opacity-70" style={{ width: w * scale, height: h * scale }} />
+    <span className={`w-4 h-4 flex items-center justify-center ${className}`}>
+      <span className="border border-current rounded-sm opacity-90" style={{ width: w * scale, height: h * scale }} />
     </span>
   );
 }
