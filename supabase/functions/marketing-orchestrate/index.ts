@@ -452,13 +452,12 @@ Deno.serve(async (req) => {
           })
           .eq('id', generationId);
 
-        let keyframeUrl: string | null = null;
-        if (productId && avatarId) {
-          const keyframeRes = await invokeFn('marketing-generate-keyframe', { generationId });
-          if (keyframeRes.ok && keyframeRes.json?.keyframeUrl) {
-            keyframeUrl = String(keyframeRes.json.keyframeUrl);
-          }
-        }
+        // Keyframe step is intentionally SKIPPED for avatar jobs.
+        // Atlas Cloud Seedance image-to-video moderates the first-frame image
+        // and rejects anything containing a real person — which is exactly what
+        // an avatar+product keyframe is. We route avatar jobs through
+        // reference-to-video instead (handled inside marketing-generate-video).
+        const keyframeUrl: string | null = null;
 
         // 4e) Submit to the video function (still synchronous from its own POV
         // but we're already in the background).
