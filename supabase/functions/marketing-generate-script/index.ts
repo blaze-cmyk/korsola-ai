@@ -396,7 +396,7 @@ DEFAULT-LOOK BANS (kill the AI-slop reflex):
 
 ═══ OUTPUT ═══
 
-ONE continuous paragraph. The opening line MUST explicitly name the chosen camera language. No preamble, no labels, no "Option 1/2/3" reasoning, no headings, no bullets. Just the final Seedance 2.0 prompt, polished, in the reference structure.
+A STRUCTURED SCRIPT in the EXACT shape shown in the REFERENCE LIBRARY: optional action-header line with @avatar:/@image_/@product: tags → optional "Dialogue (tone, tone, tone):" block with each line on its own line in double quotes → "NO MUSIC, ONLY SFX" → VIDEO block opening with "@product:UUID @avatar:UUID VIDEO — CAMERA_LANGUAGE — duration vertical (9:16) …" → inline-labelled body (Product: / Format: / Scene 1 — Title (0–Xs): / Scene 2 — … / Overall style: …). Silent ASMR families omit the action-header and Dialogue blocks. No preamble, no "Option 1/2/3" reasoning, no markdown headings, no bullet points. Use the literal PRODUCT_TAG and AVATAR_TAG values provided in the user message — do NOT write the placeholder string "PRODUCT_UUID" or "AVATAR_UUID".
 
 ${EX_UNBOXING_LIBRARY}`;
 
