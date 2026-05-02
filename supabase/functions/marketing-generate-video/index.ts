@@ -544,6 +544,7 @@ Deno.serve(async (req) => {
         });
       }
       if (result.status === 'failed') {
+        let fallbackError: string | null = null;
         if (canPollFallbackToFal(row, result)) {
           const refs = await gatherFreshReferenceUrls(admin, {
             productId: row.product_id,
@@ -592,14 +593,22 @@ Deno.serve(async (req) => {
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
               });
             }
+            const raw: any = fallback.raw;
+            fallbackError = raw?.detail || raw?.message || raw?.msg || JSON.stringify(raw);
             log('WARN', 'poll: fal fallback rejected', { jobId: row.id, raw: fallback.raw });
           } catch (e) {
+            fallbackError = e instanceof Error ? e.message : String(e);
             log('ERROR', 'poll: fal fallback threw', { jobId: row.id, err: e instanceof Error ? e.message : String(e) });
           }
         }
         const { data: updated } = await admin
           .from('ms_generations')
-          .update({ status: 'failed', stage: 'failed', error: result.error ?? 'failed' })
+          .update({
+            status: 'failed',
+            stage: 'failed',
+            fallback_attempted: !!fallbackError || row.fallback_attempted,
+            error: fallbackError ? `${result.error ?? 'AtlasCloud failed'} | fal fallback failed: ${fallbackError}` : result.error ?? 'failed',
+          })
           .eq('id', row.id)
           .select()
           .single();
