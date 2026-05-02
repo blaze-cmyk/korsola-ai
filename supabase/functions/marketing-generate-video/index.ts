@@ -122,12 +122,26 @@ function uniqueValidUrls(urls: unknown[], limit = 9) {
   for (const raw of urls) {
     if (!isValidHttpUrl(raw)) continue;
     const url = String(raw).trim();
-    if (seen.has(url)) continue;
-    seen.add(url);
+    const key = canonicalReferenceKey(url);
+    if (seen.has(key)) continue;
+    seen.add(key);
     out.push(url);
     if (out.length >= limit) break;
   }
   return out;
+}
+
+function canonicalReferenceKey(url: string) {
+  try {
+    const parsed = new URL(url);
+    const wrapped = parsed.hostname === 'wsrv.nl' ? parsed.searchParams.get('url') : null;
+    const target = wrapped ? new URL(wrapped) : parsed;
+    const signIdx = target.pathname.indexOf('/storage/v1/object/sign/');
+    if (signIdx >= 0) return decodeURIComponent(target.pathname.slice(signIdx));
+    return `${target.hostname}${target.pathname}`;
+  } catch {
+    return url;
+  }
 }
 
 function avatarIdentityCropUrl(url: string) {
@@ -184,8 +198,8 @@ async function gatherFreshReferenceUrls(admin: any, opts: {
     if (typeof avatarUrl === 'string') refs.push(avatarIdentityCropUrl(avatarUrl));
   }
 
-  // Keep the core product/avatar refs first, but DO NOT drop user-added prompt
-  // reference images. Seedance 2.0 accepts up to 9 reference_images per Atlas docs.
+  // Keep the core product/avatar refs first and preserve truly extra prompt refs,
+  // but dedupe re-signed storage URLs so retries don't send raw duplicate avatars.
   return uniqueValidUrls([...refs, ...(opts.fallbackUrls ?? [])], opts.maxReferenceImages ?? 9);
 }
 
