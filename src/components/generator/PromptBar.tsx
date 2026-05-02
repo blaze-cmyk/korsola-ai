@@ -160,7 +160,7 @@ export function PromptBar() {
           <Popover open={modelOpen} onOpenChange={setModelOpen}>
             <PopoverTrigger asChild>
               <button className="ms-chip-glass flex items-center gap-1.5 px-3.5 h-9 rounded-full text-xs text-foreground transition-all">
-                <span className="w-4 h-4 rounded bg-white/10 grid place-items-center text-[8px] font-bold">G</span>
+                <span className="w-4 h-4 rounded bg-[#FF2D78]/15 grid place-items-center text-[9px] font-bold text-[#FF2D78]">G</span>
                 {selectedModel?.name || model}
                 <ChevronDownIcon className="size-3.5 text-muted-foreground/70" />
               </button>
