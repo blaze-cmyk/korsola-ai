@@ -147,7 +147,7 @@ serve(async (req) => {
     const referenceImages = Array.isArray(body?.referenceImages)
       ? body.referenceImages.filter((img: unknown): img is string => typeof img === "string")
       : [];
-    const model = typeof body?.model === "string" ? body.model : "gemini-3.1-flash-image";
+    const model = typeof body?.model === "string" ? body.model : "nano-banana-pro";
     const quality = typeof body?.quality === "string" ? body.quality : "2K";
     const aspectRatio = typeof body?.aspectRatio === "string" ? body.aspectRatio : "1:1";
 
