@@ -1138,15 +1138,25 @@ Deno.serve(async (req) => {
     const shuffledTop = weightedPalette.sort(() => Math.random() - 0.5);
 
     const hasPackagingRef = isUnboxing && userExtraRefs.length > 0;
+    const productTag = productId ? `@product:${productId}` : '';
+    const avatarTag = avatarId ? `@avatar:${avatarId}` : '';
+    const imageTagsList = userExtraRefs.map((_, i) => `@image_${i + 1}`);
+    const tagsBriefBlock = isUnboxing
+      ? `REFERENCE TAGS — use these LITERAL strings inline in the script (do not write the placeholder words "PRODUCT_UUID" / "AVATAR_UUID" — use the real values below):\n` +
+        `  • PRODUCT_TAG = ${productTag || '(none — omit @product: tags)'}\n` +
+        `  • AVATAR_TAG = ${avatarTag || '(none — silent / POV hands mode, omit @avatar: tags and the action-header line)'}\n` +
+        `  • EXTRA IMAGE TAGS (in upload order, packaging refs etc.) = ${imageTagsList.length ? imageTagsList.join(', ') : '(none)'}\n`
+      : '';
     const unboxingPresetBlock = isUnboxing
-      ? `\nUNBOXING CREATIVE BRIEF — DO STEPS 1–4 SILENTLY, OUTPUT ONLY THE FINAL PARAGRAPH.\n` +
+      ? `\nUNBOXING CREATIVE BRIEF — DO STEPS 1–4 SILENTLY, OUTPUT ONLY THE FINAL STRUCTURED SCRIPT.\n` +
+        `${tagsBriefBlock}` +
         `STEP 1 — name in one phrase what THIS product IS. ${taxonomyHints.length ? `Lightweight taxonomy hint: ${taxonomyHints.join(' / ')}.` : 'No taxonomy hint — read the images.'}\n` +
         `STEP 2 — propose 3+ camera-language options that could honor THIS specific product+avatar combo. PRIMARY palette for this product (ordered by fit, but you are NOT capped — invent a hybrid or a brand-new tag if it serves the product better): ${shuffledTop.join(' · ')}. For each option name ONE reason it FITS and ONE reason it MIGHT NOT. Pick the winner.\n` +
         `CINEMATOGRAPHY IS THE MAIN THING: before writing, choose a real scene language and make it visible in the prompt — surface, motivated light, lens/camera feel, frame composition, background life, hand/avatar blocking, color harmony. Good examples: light wooden desk + sage sweater sleeves for a toy; white silk + warm diffused daylight for jewelry; ash-grey tee + oak table + window light for quiet luxury; iPhone front camera + modern aesthetic gym + tired breath for equipment; lived-in bedroom window UGC only when fashion needs it. Bad examples: generic cinematic, aesthetic background, clean setup, random voiceover in a blank room.\n` +
         `IMPORTANT — match the product's personality. Collectibles, jewelry, quiet-luxury small goods, ceramics, fragrances, stationery → almost always SILENT or quiet-whisper families (TOP-DOWN ASMR, THEATRICAL REVEAL, MACRO TACTILE, QUIET HANDHELD, TABLETOP CINEMATIC). Fashion drops, multi-piece sets, sneaker drops, streetwear, lingerie haul → high-energy avatar families (HAUL TRY-ON, SCARCITY DROP, FULL-SET REVEAL). Used-not-opened gear (gym bike, blender, camera) → VLOG SELFIE / STREET DOC, the product is unboxed by being USED. NEVER force haul-energy onto a quiet collectible. NEVER force silent ASMR onto a fashion drop the user clearly wants try-on energy for.\n` +
-        `STEP 3 — commit to that camera language. The opening line of your final paragraph MUST start with the camera-language tag in caps, an em-dash, then the duration ("TOP-DOWN ASMR — 10-second vertical 9:16…"). The structural gate verifies this.\n` +
-        `STEP 4 — write the script in the exact shape of the REFERENCE LIBRARY: one-line camera/style header → setting+packaging+product paragraph (≥30% of words on the unopened packaging) → ${beatCount} timestamped beats with windows ${beatWindows.join(', ')}, each beat = action + named sound + sensory verb → closing style line.\n` +
-        `${hasPackagingRef ? `PACKAGING ANCHOR: attached reference image #1 IS the packaging — preserve its color, finish, lid mechanism, ribbon, embossing, printed text, and seals EXACTLY. Do NOT invent a different box.\n` : ''}` +
+        `STEP 3 — commit to that camera language. Inside the VIDEO block the opening line MUST start with the reference tags + camera-language tag + duration in this EXACT shape: "${productTag || '@product:UUID'} ${avatarTag ? avatarTag + ' ' : ''}VIDEO — <CAMERA_LANGUAGE_TAG> — ${durSec}-second vertical (9:16) <one-phrase concept>". The structural gate verifies this.\n` +
+        `STEP 4 — write the script in the EXACT shape of the REFERENCE LIBRARY (NOT one paragraph): ${avatarTag ? 'optional one-line ACTION HEADER with @avatar:/@image_/@product: tags inline → ' : ''}${avatarTag ? '"Dialogue (tone1, tone2, tone3):" block with each spoken line on its OWN line in double quotes (omit for pure silent ASMR) → ' : '(silent / POV hands mode — skip the action-header and Dialogue blocks) → '}standalone "NO MUSIC, ONLY SFX" line → VIDEO block opening with the reference tags + camera-language tag + duration → inline-labelled body: "Product: …" (≥30% of body words on the unopened packaging) then "Format: …" then ${beatCount} "Scene N — Title (window): …" entries with windows ${beatWindows.join(', ')} (each beat = action + named sound + sensory verb) then closing "Overall style: …" sentence.\n` +
+        `${hasPackagingRef ? `PACKAGING ANCHOR: attached reference image #1 (${imageTagsList[0] || '@image_1'}) IS the packaging — preserve its color, finish, lid mechanism, ribbon, embossing, printed text, and seals EXACTLY. Do NOT invent a different box. Reference it inline as @image_1 in the action-header line when there is one.\n` : ''}` +
         `Variety rule: across consecutive generations vary the camera language. AI slop = every clip looking identical. Surprise the viewer.\n`
       : '';
 
