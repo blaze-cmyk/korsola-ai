@@ -271,7 +271,13 @@ function withReferenceMap(prompt: string, bundle: ReferenceBundle) {
   const lines: string[] = [];
   const productCount = bundle.hasProduct ? Math.max(1, bundle.referenceImages.length - (bundle.hasAvatar ? 1 : 0)) : 0;
   if (bundle.hasProduct && bundle.hasAvatar) {
-    lines.push(`Reference map: images 1${productCount > 1 ? `–${productCount}` : ''} are product references — preserve product shape, color, material, packaging, and visible details exactly. Image ${productCount + 1} is the creator/avatar identity — preserve facial likeness only; do not copy the uploaded photo composition, background, pose, lighting, or wardrobe.`);
+    const avatarIndex = bundle.referenceImages.findIndex((url) => url.includes('wsrv.nl') && url.includes('ms-avatars')) + 1;
+    const productIndexes = bundle.referenceImages
+      .map((url, idx) => ({ url, idx: idx + 1 }))
+      .filter(({ idx }) => idx !== avatarIndex)
+      .map(({ idx }) => idx)
+      .join(', ');
+    lines.push(`Reference map: images ${productIndexes || '1'} are product references — preserve product shape, color, material, packaging, and visible details exactly. Image ${avatarIndex || productCount + 1} is the creator/avatar identity — preserve facial likeness only; do not copy the uploaded photo composition, background, pose, lighting, or wardrobe.`);
   } else if (bundle.hasProduct) {
     lines.push('Reference map: all images are product references. Preserve product shape, color, material, packaging, and visible details exactly.');
   } else if (bundle.hasAvatar) {
