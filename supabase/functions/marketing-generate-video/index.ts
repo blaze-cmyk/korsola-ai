@@ -675,6 +675,8 @@ Deno.serve(async (req) => {
           provider: result.provider,
           provider_endpoint: result.endpoint,
           fal_request_id: result.requestId,
+          fallback_attempted: false,
+          reference_paths: refs,
           error: null,
           video_url: null,
         })
