@@ -662,8 +662,12 @@ function isWeak(
     // (wooden desk, white silk, sage sweater sleeves, foam insert, tissue, ribbon, paper-stage
     // diorama, window daylight) — which is already covered by the SCENE_TEXTURE gate above.
     if (!isSilentAsmr) {
-      const homeUgcRx = /\b(bedroom|unmade duvet|wrinkled sheet|desk|bathroom vanity|kitchen counter|coffee table|couch|sofa|rug|closet floor|car seat|cafe table|gym locker|window daylight|side window|phone|iPhone|handheld|front camera|charger cable|coffee mug|keys|remote|mail|towel|half-open drawer|laundry chair|shelf|blanket)\b/i;
-      if (!homeUgcRx.test(finalPrompt)) return { weak: true, reason: 'unboxing missing creator-at-home UGC environment details' };
+      // Two-part gate: (1) the room/surface must be named, (2) at least ONE concrete lived-in mess detail.
+      // The mess is the whole point of Lane B — "minimalist beige bedroom" is a fail.
+      const homeRoomRx = /\b(bedroom|bathroom|kitchen|closet|car seat|cafe table|gym locker|living room|couch|sofa|coffee table|desk|bathroom vanity|kitchen counter|closet floor|rug)\b/i;
+      if (!homeRoomRx.test(finalPrompt)) return { weak: true, reason: 'unboxing missing creator-at-home room/surface (bedroom, bathroom vanity, couch, kitchen counter, closet floor, etc.)' };
+      const livedInMessRx = /\b(unmade duvet|wrinkled sheet|crumpled sheet|tangled sheets?|messy bed|unmade bed|charger cable|coffee mug|half[- ]empty mug|keys (?:on|tossed)|loose mail|opened mail|towel|half-open drawer|laundry (?:chair|pile|basket)|clothes on the floor|shoeboxes|empty water bottle|hair tie|crumb|wrappers?|sticky notes?|cluttered shelf|messy shelf|throw blanket bunched|pillow dent|blanket bunched|crumpled tissue|open laptop|tangled cable|product box flap still open|tape strip dangling)\b/i;
+      if (!livedInMessRx.test(finalPrompt)) return { weak: true, reason: 'Lane B unboxing missing a lived-in mess detail — name at least one (unmade duvet, charger cable, half-empty mug, laundry chair, tangled cable, shoeboxes on closet floor, opened mail, tape strip dangling, etc.)' };
     } else {
       // Silent ASMR families need their OWN texture proof: a tabletop surface + a motivated light + a sleeve/hand color harmony.
       const asmrTextureRx = /\b(wooden desk|oak table|white silk|satin|linen|velvet|tissue paper|foam insert|paper-?stage|diorama|window daylight|natural daylight|diffused daylight|side window|golden-hour|sweater sleeves|sleeves|bare wrist|nails)\b/i;
