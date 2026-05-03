@@ -487,6 +487,27 @@ function ImageCard({ image }: {
   );
 }
 
+function HoverIconBtn({ label, svg, onClick }: {
+  label: string;
+  svg: React.ReactNode;
+  onClick: (e: React.MouseEvent) => void;
+}) {
+  return (
+    <div className="relative group/hib">
+      <button
+        onClick={onClick}
+        className="flex items-center justify-center w-9 h-9 rounded-full bg-black/55 text-white hover:bg-black/75 backdrop-blur-md ring-1 ring-white/10 transition-colors"
+        aria-label={label}
+      >
+        {svg}
+      </button>
+      <span className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-md bg-black/85 text-white text-[11px] font-medium whitespace-nowrap opacity-0 group-hover/hib:opacity-100 transition-opacity duration-150">
+        {label}
+      </span>
+    </div>
+  );
+}
+
 function MenuItem({ icon, label, onClick, destructive }: {
   icon: React.ReactNode;
   label: string;
