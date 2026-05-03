@@ -161,28 +161,54 @@ export function VideoPromptBarInline() {
                     return null;
                   }
 
-                  // Edit Video / Motion Control — existing behavior
-                  const labels = isVideoEdit
-                    ? (editSupportsImageRefs
-                        ? ['Source video', 'Image 1', 'Image 2', 'Image 3', 'Image 4']
-                        : ['Source video'])
-                    : isMotion
-                      ? ['Driving video', 'Character image']
-                      : ['Image'];
-                  return labels.map((label, idx) => {
-                    const img = referenceImages[idx];
-                    const isOptional = isVideoEdit && idx > 0;
-                    return (
+                  // Edit Video — existing behavior
+                  if (isVideoEdit) {
+                    const labels = editSupportsImageRefs
+                      ? ['Source video', 'Image 1', 'Image 2', 'Image 3', 'Image 4']
+                      : ['Source video'];
+                    return labels.map((label, idx) => (
                       <FrameSlot
                         key={label}
                         label={label}
-                        optional={isOptional}
-                        url={img}
+                        optional={idx > 0}
+                        url={referenceImages[idx]}
                         onUpload={() => onUploadAt(idx)}
                         onRemove={() => removeReferenceImage(idx)}
                       />
+                    ));
+                  }
+                  // Motion Control — two rich tiles (video + character)
+                  if (isMotion) {
+                    return (
+                      <>
+                        <MotionSlot
+                          kind="video"
+                          title="Add motion to copy"
+                          subtitle={<>Video duration:<br/>3–30 seconds</>}
+                          url={referenceImages[0]}
+                          onUpload={() => onUploadAt(0)}
+                          onRemove={() => removeReferenceImage(0)}
+                        />
+                        <MotionSlot
+                          kind="character"
+                          title="Add your character"
+                          subtitle={<>Image with visible<br/>face and body</>}
+                          url={referenceImages[1]}
+                          onUpload={() => onUploadAt(1)}
+                          onRemove={() => removeReferenceImage(1)}
+                        />
+                      </>
                     );
-                  });
+                  }
+                  return (
+                    <FrameSlot
+                      label="Image"
+                      url={referenceImages[0]}
+                      onUpload={() => onUploadAt(0)}
+                      onRemove={() => removeReferenceImage(0)}
+                    />
+                  );
+
                 })()}
               </div>
             </motion.div>
