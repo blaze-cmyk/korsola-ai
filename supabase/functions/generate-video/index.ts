@@ -426,6 +426,7 @@ async function handleSubmit(body: Record<string, unknown>) {
     if (!RUNWARE_API_KEY) return jsonResp({ error: "RUNWARE_API_KEY not configured" }, 500);
 
     const isMotionControl = mode === "motion-control";
+    const isVideoEdit = mode === "video-edit";
     const reqResolution = (body?.resolution as string) || "720p";
 
     // Models that accept the `resolution` preset directly (Runware docs).
