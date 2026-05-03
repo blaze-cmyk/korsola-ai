@@ -177,7 +177,27 @@ export function CreateSidebar({ onClose }: { onClose?: () => void }) {
                 </div>
                 {!collapsed && (
                   <>
-                    <span className="text-sm text-foreground truncate flex-1">{p.name}</span>
+                    {renamingId === p.id ? (
+                      <input
+                        autoFocus
+                        value={renameValue}
+                        onChange={(e) => setRenameValue(e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                        onBlur={commitRename}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') commitRename();
+                          if (e.key === 'Escape') setRenamingId(null);
+                        }}
+                        className="text-sm bg-transparent border border-ms-border rounded px-1.5 py-0.5 flex-1 min-w-0 text-foreground focus:outline-none focus:ring-1 focus:ring-foreground/30"
+                      />
+                    ) : (
+                      <span
+                        className="text-sm text-foreground truncate flex-1"
+                        onDoubleClick={(e) => { e.stopPropagation(); startRename(p.id, p.name); }}
+                      >
+                        {p.name}
+                      </span>
+                    )}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button
@@ -192,10 +212,19 @@ export function CreateSidebar({ onClose }: { onClose?: () => void }) {
                         className="bg-ms-surface-2 border-ms-border"
                       >
                         <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            startRename(p.id, p.name);
+                          }}
+                        >
+                          <Pencil className="w-3.5 h-3.5 mr-2" />
+                          Rename
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
                           className="text-destructive focus:text-destructive"
                           onClick={(e) => {
                             e.stopPropagation();
-                            deleteProject(p.id);
+                            setConfirmDeleteId(p.id);
                           }}
                         >
                           <Trash2 className="w-3.5 h-3.5 mr-2" />
