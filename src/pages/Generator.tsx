@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { PromptBar } from '@/components/generator/PromptBar';
 import { VideoPromptBarInline } from '@/components/generator/VideoPromptBarInline';
 import { PromptNavBar } from '@/components/PromptNavBar';
