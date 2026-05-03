@@ -88,6 +88,7 @@ export function VideoSidebar() {
             removeReferenceImage={removeReferenceImage}
             fileInputRef={fileInputRef}
             selectedModelName={selectedModel?.name}
+            selectedModelId={selectedModel?.id}
           />
         )}
 
