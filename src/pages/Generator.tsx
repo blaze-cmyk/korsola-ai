@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { PromptBar } from '@/components/generator/PromptBar';
+import { PromptNavBar } from '@/components/PromptNavBar';
 import { ImageGrid } from '@/components/generator/ImageGrid';
 import { ImageDetailModal } from '@/components/generator/ImageDetailModal';
 import { useGeneratorStore } from '@/store/generatorStore';
