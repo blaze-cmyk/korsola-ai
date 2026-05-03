@@ -267,7 +267,7 @@ export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
         .from('generations')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(100) as any;
+        .limit(500) as any;
 
       if (error) {
         console.error('Load history error:', error);
@@ -286,9 +286,9 @@ export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
           imageUrl: row.image_url,
           createdAt: new Date(row.created_at).getTime(),
           error: row.error,
+          projectId: row.project_id ?? null,
         }));
 
-        // Merge: keep any in-progress images, append loaded history
         const current = get().images;
         const currentIds = new Set(current.map((i) => i.id));
         const newFromDb = loaded.filter((i) => !currentIds.has(i.id));
