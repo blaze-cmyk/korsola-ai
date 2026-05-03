@@ -121,20 +121,31 @@ export function VideoPromptBarInline() {
               className="overflow-hidden"
             >
               <div className="flex gap-2 px-1 pt-1">
-                {(supportsStartEnd ? ['Start frame', 'End frame'] : isMotion ? ['Driving video', 'Character image'] : ['Image']).map((label, idx) => {
-                  const img = referenceImages[idx];
-                  const isOptionalEnd = supportsStartEnd && idx === 1;
-                  return (
-                    <FrameSlot
-                      key={label}
-                      label={label}
-                      optional={isOptionalEnd}
-                      url={img}
-                      onUpload={() => onUploadAt(idx)}
-                      onRemove={() => removeReferenceImage(idx)}
-                    />
-                  );
-                })}
+                {(() => {
+                  const labels = isVideoEdit
+                    ? (editSupportsImageRefs
+                        ? ['Source video', 'Image 1', 'Image 2', 'Image 3', 'Image 4']
+                        : ['Source video'])
+                    : supportsStartEnd
+                      ? ['Start frame', 'End frame']
+                      : isMotion
+                        ? ['Driving video', 'Character image']
+                        : ['Image'];
+                  return labels.map((label, idx) => {
+                    const img = referenceImages[idx];
+                    const isOptional = (supportsStartEnd && idx === 1) || (isVideoEdit && idx > 0);
+                    return (
+                      <FrameSlot
+                        key={label}
+                        label={label}
+                        optional={isOptional}
+                        url={img}
+                        onUpload={() => onUploadAt(idx)}
+                        onRemove={() => removeReferenceImage(idx)}
+                      />
+                    );
+                  });
+                })()}
               </div>
             </motion.div>
           )}
