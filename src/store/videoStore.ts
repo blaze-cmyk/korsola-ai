@@ -17,6 +17,7 @@ export type GeneratedVideo = {
   mode: 'text-to-video' | 'image-to-video' | 'motion-control' | 'video-edit';
   aspectRatio: string;
   duration: string;
+  resolution?: string;
   status: 'generating' | 'complete' | 'failed' | 'nsfw';
   videoUrl?: string;
   thumbnailUrl?: string;
@@ -448,7 +449,7 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
       mode: video.mode,
       aspectRatio: video.aspectRatio,
       duration: video.duration,
-      resolution: video.resolution ?? resolution,
+      resolution: video.resolution ?? get().resolution,
       characterOrientation: video.characterOrientation ?? 'video',
     }, id, get, set);
   },
