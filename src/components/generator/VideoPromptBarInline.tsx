@@ -475,6 +475,49 @@ function FrameSlot({
   );
 }
 
+function MotionSlot({
+  kind, title, subtitle, url, onUpload, onRemove,
+}: {
+  kind: 'video' | 'character';
+  title: string;
+  subtitle: React.ReactNode;
+  url?: string;
+  onUpload: () => void;
+  onRemove: () => void;
+}) {
+  const isVideo = !!url && (url.startsWith('data:video') || /\.(mp4|mov|webm)(\?|$)/i.test(url));
+  if (url) {
+    return (
+      <div className="relative flex-1 max-w-[180px] rounded-xl overflow-hidden border border-white/10 aspect-[3/4] bg-black/40">
+        {isVideo ? (
+          <video src={url} className="w-full h-full object-cover" muted autoPlay loop playsInline />
+        ) : (
+          <img src={url} alt="" className="w-full h-full object-cover" />
+        )}
+        <button
+          onClick={onRemove}
+          className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 text-white grid place-items-center hover:bg-black/90 transition"
+        >
+          <X className="w-3 h-3" />
+        </button>
+      </div>
+    );
+  }
+  const Icon = kind === 'video' ? VideoIcon : Plus;
+  return (
+    <button
+      onClick={onUpload}
+      className="relative flex-1 max-w-[180px] aspect-[3/4] rounded-xl bg-white/[0.03] border border-dashed border-white/15 hover:border-white/30 hover:bg-white/[0.06] transition-colors flex flex-col items-center justify-center gap-2 px-3 text-muted-foreground"
+    >
+      <div className="w-9 h-9 rounded-full bg-white/5 grid place-items-center">
+        <Icon className="w-4 h-4" />
+      </div>
+      <span className="text-[12px] font-semibold text-foreground text-center leading-tight">{title}</span>
+      <span className="text-[10px] text-muted-foreground/70 text-center leading-tight">{subtitle}</span>
+    </button>
+  );
+}
+
 function AspectIcon({ ratio, className = '' }: { ratio: string; className?: string }) {
   const [w, h] = ratio.split(':').map(Number);
   const max = 14;
