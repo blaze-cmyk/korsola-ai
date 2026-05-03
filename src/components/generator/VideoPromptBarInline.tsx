@@ -10,7 +10,7 @@ import {
 
 const SUB_MODES: { id: VideoSubMode; label: string; Icon: any; desc: string }[] = [
   { id: 'text-to-video', label: 'Create Video', Icon: Film, desc: 'Generate video from prompt' },
-  { id: 'image-to-video', label: 'Edit Video', Icon: Wand2, desc: 'Animate or edit existing footage' },
+  { id: 'video-edit', label: 'Edit Video', Icon: Wand2, desc: 'Edit existing video with prompts' },
   { id: 'motion-control', label: 'Motion Control', Icon: Move3d, desc: 'Transfer motion from a reference' },
 ];
 
