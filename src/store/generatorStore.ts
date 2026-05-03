@@ -42,6 +42,7 @@ type GeneratorState = {
   deleteImage: (id: string) => void;
   useAsReference: (imageUrl: string) => void;
   loadHistory: () => Promise<void>;
+  moveImageToProject: (id: string, projectId: string | null) => Promise<void>;
 };
 
 export const MODELS = [
