@@ -331,6 +331,7 @@ Deno.serve(async (req) => {
       .insert({
         user_id: null,
         project_id: projectId ?? null,
+        create_project_id: createProjectId ?? null,
         product_id: productId ?? null,
         avatar_id: avatarId ?? null,
         format: effectiveFormat,
