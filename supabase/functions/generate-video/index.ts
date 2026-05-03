@@ -18,6 +18,7 @@ type VideoModelConfig = {
   textToVideo?: string;
   imageToVideo?: string;
   motionControl?: string;
+  videoEdit?: string;
   runwareModel?: string;
   evolinkModel?: string;
   durationFormat?: DurationFormat;
