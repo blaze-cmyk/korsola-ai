@@ -1,12 +1,26 @@
-import { useGeneratorStore, MODELS } from '@/store/generatorStore';
-import { useVideoStore } from '@/store/videoStore';
+import { useGeneratorStore, MODELS, GeneratedImage } from '@/store/generatorStore';
+import { useVideoStore, GeneratedVideo } from '@/store/videoStore';
 import { usePromptModeStore } from '@/store/promptModeStore';
 import { useCreateProjectsStore } from '@/store/createProjectsStore';
 import { useGridFilterStore } from '@/store/gridFilterStore';
 import { useLayoutStore, ZOOM_ROW_HEIGHTS } from '@/store/layoutStore';
-import { AlertCircle, Eye, RefreshCw, Trash2, Loader2, Download, Link2, Heart, MoreHorizontal, Maximize2, Search, X, ImageIcon, FolderInput, Image as ImageLucide, Check } from 'lucide-react';
+import { AlertCircle, Eye, RefreshCw, Trash2, Loader2, Download, Link2, Heart, MoreHorizontal, Maximize2, Search, X, ImageIcon, FolderInput, Image as ImageLucide, Check, Play } from 'lucide-react';
 import { useGridSelectionStore } from '@/store/gridSelectionStore';
 import { useState, useRef, useEffect, useLayoutEffect, useMemo } from 'react';
+import { create } from 'zustand';
+
+// Local UI store for the All / Liked tab on the /create grid.
+type GridTab = 'all' | 'liked';
+const useGridTabStore = create<{ tab: GridTab; setTab: (t: GridTab) => void }>((set) => ({
+  tab: 'all',
+  setTab: (tab) => set({ tab }),
+}));
+
+// Unified media item used by the justified-rows layout.
+type MediaItem =
+  | ({ kind: 'image' } & GeneratedImage)
+  | ({ kind: 'video' } & GeneratedVideo);
+
 import {
   DropdownMenu,
   DropdownMenuContent,
