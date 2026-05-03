@@ -4,6 +4,7 @@ import { VideoPromptBar } from '@/components/video/VideoPromptBar';
 import { VideoSidebar } from '@/components/video/VideoSidebar';
 import { VideoGrid } from '@/components/video/VideoGrid';
 import { VideoDetailModal } from '@/components/video/VideoDetailModal';
+import { PromptNavBar } from '@/components/PromptNavBar';
 import { useVideoStore } from '@/store/videoStore';
 
 export default function Video() {
