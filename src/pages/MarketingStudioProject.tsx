@@ -14,6 +14,15 @@ const minProviderTimeoutMs = (duration?: string) => {
   return Math.max(8 * 60 * 1000, Math.min(15 * 60 * 1000, (6 * 60 + seconds * 30) * 1000));
 };
 
+const isGenerationActive = (g: MSGeneration): boolean =>
+  g.status === 'queued' ||
+  g.status === 'queued_pending_persist' ||
+  g.status === 'running' ||
+  (g.status as string) === 'processing';
+
+const isGenerationPending = (g: MSGeneration): boolean =>
+  isGenerationActive(g) || (!g.videoUrl && g.status !== 'failed' && g.stage !== 'done');
+
 function stageLabel(g: MSGeneration): string {
   if (g.status === 'failed') return 'Failed';
   if (g.status === 'done') return 'Ready';
@@ -86,6 +95,7 @@ export default function MarketingStudioProject() {
   // already know about, so newly-created server rows (e.g. from orchestrator) appear.
   useEffect(() => {
     if (!project) return;
+    const projectId = project.id;
     // One-time cleanup: remove any non-UUID placeholder generations left in
     // localStorage by previous (buggy) versions of the prompt bar — these caused
     // duplicate cards alongside DB-hydrated rows.
@@ -106,14 +116,15 @@ export default function MarketingStudioProject() {
         .select(
           'id, status, stage, video_url, thumb_url, error, fal_request_id, prompt, format, surface, aspect, resolution, duration_seconds, product_id, avatar_id, created_at, updated_at, keyframe_url',
         )
-        .eq('project_id', project.id)
+        .eq('project_id', projectId)
         .order('created_at', { ascending: false })
         .limit(100);
       if (cancelled || error || !data) return;
-      const known = new Set(project.generations.map((g) => g.id));
+      const currentProject = useMarketingStudioStore.getState().projects.find((p) => p.id === projectId);
+      const known = new Set((currentProject?.generations ?? []).map((g) => g.id));
       for (const row of data) {
         if (known.has(row.id)) {
-          updateGeneration(project.id, row.id, {
+          updateGeneration(projectId, row.id, {
             status: row.status as MSGeneration['status'],
             stage: (row as any).stage as MSGeneration['stage'],
             videoUrl: row.video_url ?? undefined,
@@ -126,7 +137,7 @@ export default function MarketingStudioProject() {
                 : undefined,
           });
         } else {
-          addGeneration(project.id, {
+          addGeneration(projectId, {
             id: row.id,
             thumbUrl: row.thumb_url ?? (row as any).keyframe_url ?? '',
             videoUrl: row.video_url ?? undefined,
@@ -149,7 +160,11 @@ export default function MarketingStudioProject() {
       }
     };
     sync();
-    const t = setInterval(sync, 5000);
+    const hasActiveJobs = () => {
+      const currentProject = useMarketingStudioStore.getState().projects.find((p) => p.id === projectId);
+      return (currentProject?.generations ?? []).some(isGenerationActive);
+    };
+    const t = setInterval(sync, hasActiveJobs() ? 10000 : 30000);
     return () => {
       cancelled = true;
       clearInterval(t);
@@ -161,14 +176,11 @@ export default function MarketingStudioProject() {
   useEffect(() => {
     if (!project) return;
     const interval = setInterval(async () => {
-      const active = project.generations.filter(
-        (g) =>
-          (g.status === 'queued' ||
-            g.status === 'queued_pending_persist' ||
-            g.status === 'running' ||
-            (g.status as string) === 'processing') &&
-          /^[0-9a-f-]{36}$/i.test(g.id),
-      );
+      const currentProject = useMarketingStudioStore.getState().projects.find((p) => p.id === project.id);
+      const active = (currentProject?.generations ?? [])
+        .filter((g) => isGenerationActive(g) && /^[0-9a-f-]{36}$/i.test(g.id))
+        .sort((a, b) => (a.submittedAt || a.createdAt) - (b.submittedAt || b.createdAt))
+        .slice(0, 3);
 
       for (const g of active) {
         // Client-side timeout
@@ -234,7 +246,7 @@ export default function MarketingStudioProject() {
           /* swallow transient network errors */
         }
       }
-    }, 4000);
+    }, 12000);
     return () => clearInterval(interval);
   }, [project, updateGeneration]);
 
@@ -317,13 +329,7 @@ export default function MarketingStudioProject() {
   );
 
   // Active jobs panel summary
-  const activeJobs = project.generations.filter(
-    (g) =>
-      g.status === 'queued' ||
-      g.status === 'queued_pending_persist' ||
-      g.status === 'running' ||
-      (g.status as string) === 'processing',
-  );
+  const activeJobs = project.generations.filter(isGenerationActive);
 
   return (
     <MarketingStudioLayout showBack title={project.name} rightSlot={tabsRight}>
@@ -353,12 +359,7 @@ export default function MarketingStudioProject() {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
             {items.map((g) => {
-              const isPending =
-                g.status === 'queued' ||
-                g.status === 'queued_pending_persist' ||
-                g.status === 'running' ||
-                (g.status as string) === 'processing' ||
-                (!g.videoUrl && g.status !== 'failed' && g.stage !== 'done');
+              const isPending = isGenerationPending(g);
               const isFailed = g.status === 'failed';
               const elapsed = Math.floor((Date.now() - (g.submittedAt || g.createdAt)) / 1000);
               const pct = Math.min(95, Math.floor((elapsed / 120) * 100)); // fake progress to 95% over 2min
@@ -450,15 +451,24 @@ export default function MarketingStudioProject() {
                     </div>
                   )}
 
-                  <button
+                  <span
                     onClick={(e) => {
                       e.stopPropagation();
                       toggleLike(project.id, g.id);
                     }}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toggleLike(project.id, g.id);
+                      }
+                    }}
                     className="absolute bottom-2 right-2 grid place-items-center w-8 h-8 rounded-full bg-black/40 text-white hover:bg-black/60"
                   >
                     <Heart className={`w-3.5 h-3.5 ${g.liked ? 'fill-ms-cta text-ms-cta' : ''}`} />
-                  </button>
+                  </span>
                 </button>
               );
             })}
