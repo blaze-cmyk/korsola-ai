@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import logoWhite from '@/assets/korsola-logo-white.png';
-import logoHover from '@/assets/logo-hover.mp4';
+import logoPink from '@/assets/korsola-logo-pink.png';
 
 export function Logo({ collapsed = false }: { collapsed?: boolean }) {
   return (
@@ -9,14 +9,12 @@ export function Logo({ collapsed = false }: { collapsed?: boolean }) {
         <img
           src={logoWhite}
           alt="Korsola"
-          className="absolute inset-0 w-full h-full object-contain p-1.5 z-10 transition-opacity duration-200 group-hover:opacity-0"
+          className="absolute inset-0 w-full h-full object-contain transition-opacity duration-200 group-hover:opacity-0"
         />
-        <video
-          src={logoHover}
-          autoPlay
-          loop
-          muted
-          playsInline
+        <img
+          src={logoPink}
+          alt=""
+          aria-hidden
           className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-200 group-hover:opacity-100"
         />
       </span>
