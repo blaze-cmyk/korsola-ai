@@ -351,7 +351,9 @@ async function handleSubmit(body: Record<string, unknown>) {
         input.duration = String(durNum);
       }
 
-      if (durFormat !== "ltx-frames" && durFormat !== "minimax-none") {
+      // aspect_ratio: only applies when no image is provided.
+      // Veo i2v ignores aspect_ratio (derived from image); Kling i2v accepts it but the start image already constrains it.
+      if (durFormat !== "ltx-frames" && durFormat !== "minimax-none" && !isImageMode) {
         input.aspect_ratio = aspectRatio;
       }
 
@@ -361,9 +363,11 @@ async function handleSubmit(body: Record<string, unknown>) {
 
       if (isImageMode) {
         input[imgField] = referenceImages[0];
-        if (referenceImages.length > 1) {
-          const endField = imgField === "start_image_url" ? "end_image_url" : "tail_image_url";
-          input[endField] = referenceImages[1];
+        // Only Kling v3/2.6 i2v support a paired end frame (end_image_url).
+        // Veo / PixVerse / Hailuo / LTX do not — silently drop the second image.
+        const supportsEndFrame = activeModel?.startsWith("kling-v3") || activeModel?.startsWith("kling-v2.6");
+        if (referenceImages.length > 1 && supportsEndFrame && imgField === "start_image_url") {
+          input.end_image_url = referenceImages[1];
         }
       }
     }
