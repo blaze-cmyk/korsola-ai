@@ -66,19 +66,27 @@ export function VideoPromptBarInline() {
   const supportsStartEnd =
     videoSubMode === 'image-to-video' ||
     (videoSubMode === 'text-to-video' && selectedModel && START_END_FRAME_MODELS.has(selectedModel.id));
+  const isVideoEdit = videoSubMode === 'video-edit';
+  const isMotion = videoSubMode === 'motion-control';
+  const isGrokEdit = isVideoEdit && model === 'grok-imagine-edit';
+  const editSupportsImageRefs = isVideoEdit && (model === 'kling-omni-edit' || model === 'kling-o1-edit-pro');
+
   const showFrames =
     (videoSubMode === 'text-to-video' && supportsStartEnd) ||
     videoSubMode === 'image-to-video' ||
-    videoSubMode === 'motion-control';
-
-  const isMotion = videoSubMode === 'motion-control';
+    isMotion ||
+    isVideoEdit;
 
   const handleSubmit = () => generate();
 
   const onUploadAt = (idx: number) => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = idx === 0 && isMotion ? 'video/*,image/*' : 'image/*';
+    if (isVideoEdit) {
+      input.accept = idx === 0 ? 'video/*' : 'image/*';
+    } else {
+      input.accept = idx === 0 && isMotion ? 'video/*,image/*' : 'image/*';
+    }
     input.onchange = async (e) => {
       const f = (e.target as HTMLInputElement).files?.[0];
       if (f) {
