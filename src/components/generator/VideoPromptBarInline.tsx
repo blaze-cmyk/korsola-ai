@@ -491,11 +491,21 @@ export function VideoPromptBarInline() {
 }
 
 function FrameSlot({
-  label, optional, url, onUpload, onRemove,
-}: { label: string; optional?: boolean; url?: string; onUpload: () => void; onRemove: () => void }) {
+  label, optional, url, onUpload, onRemove, onDropFile,
+}: { label: string; optional?: boolean; url?: string; onUpload: () => void; onRemove: () => void; onDropFile?: (f: File) => void }) {
+  const [over, setOver] = useState(false);
+  const dropProps = {
+    onDragOver: (e: React.DragEvent) => { e.preventDefault(); setOver(true); },
+    onDragLeave: () => setOver(false),
+    onDrop: (e: React.DragEvent) => {
+      e.preventDefault(); setOver(false);
+      const f = e.dataTransfer.files?.[0];
+      if (f && onDropFile) onDropFile(f);
+    },
+  };
   if (url) {
     return (
-      <div className="relative flex-1 max-w-[180px] rounded-xl overflow-hidden border border-white/10 aspect-video bg-black/40">
+      <div {...dropProps} className={`relative flex-1 max-w-[180px] rounded-xl overflow-hidden border aspect-video bg-black/40 ${over ? 'border-[#FF2D78]' : 'border-white/10'}`}>
         {url.startsWith('data:video') || url.match(/\.(mp4|mov|webm)$/i) ? (
           <video src={url} className="w-full h-full object-cover" muted />
         ) : (
@@ -514,7 +524,8 @@ function FrameSlot({
   return (
     <button
       onClick={onUpload}
-      className="relative flex-1 max-w-[180px] aspect-video rounded-xl bg-white/[0.03] border border-dashed border-white/15 hover:border-white/30 hover:bg-white/[0.06] transition-colors flex flex-col items-center justify-center gap-1 text-muted-foreground"
+      {...dropProps}
+      className={`relative flex-1 max-w-[180px] aspect-video rounded-xl bg-white/[0.03] border border-dashed transition-colors flex flex-col items-center justify-center gap-1 text-muted-foreground ${over ? 'border-[#FF2D78] bg-white/[0.08]' : 'border-white/15 hover:border-white/30 hover:bg-white/[0.06]'}`}
     >
       {optional && (
         <span className="absolute top-1.5 right-2 text-[9px] text-muted-foreground/70 bg-white/5 rounded-full px-1.5 py-0.5">Optional</span>
