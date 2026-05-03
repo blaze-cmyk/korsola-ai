@@ -14,7 +14,7 @@ export type GeneratedVideo = {
   prompt: string;
   referenceImages: string[];
   model: string;
-  mode: 'text-to-video' | 'image-to-video' | 'motion-control';
+  mode: 'text-to-video' | 'image-to-video' | 'motion-control' | 'video-edit';
   aspectRatio: string;
   duration: string;
   status: 'generating' | 'complete' | 'failed' | 'nsfw';
@@ -42,6 +42,10 @@ export const VIDEO_MODELS = [
   { id: 'pixverse-v6', name: 'PixVerse V6', desc: 'Lifelike physics and striking visuals', featured: true, badge: 'NEW' as const, provider: 'fal', modes: ['text-to-video', 'image-to-video'] as const },
   { id: 'ltx-2-19b', name: 'LTX-2 19B', desc: 'Video with audio from images', featured: false, provider: 'fal', modes: ['text-to-video', 'image-to-video'] as const },
   { id: 'rw-seedance-1.5-pro', name: 'Seedance 1.5 Pro', desc: 'ByteDance motion control video', featured: true, badge: 'NEW' as const, provider: 'runware', modes: ['text-to-video', 'image-to-video', 'motion-control'] as const },
+  // Video edit (video-to-video) — fal.ai Kling
+  { id: 'kling-o1-edit-pro', name: 'Kling O1 Video Edit', desc: 'Generate with elements and references', featured: true, badge: 'EDIT' as const, provider: 'fal', modes: ['video-edit'] as const },
+  { id: 'kling-o3-edit-std', name: 'Kling O3 Video Edit (Std)', desc: 'Edit videos with text prompts — standard', featured: true, badge: 'NEW' as const, provider: 'fal', modes: ['video-edit'] as const },
+  { id: 'kling-o3-edit-pro', name: 'Kling O3 Video Edit (Pro)', desc: 'Edit videos with text prompts — pro quality', featured: true, badge: 'PRO' as const, provider: 'fal', modes: ['video-edit'] as const },
   { id: 'rw-runway-gen4.5', name: 'Runway Gen-4.5', desc: 'Advanced multimodal video generation', featured: true, provider: 'runware', modes: ['text-to-video', 'image-to-video'] as const },
   { id: 'rw-sora-2', name: 'Sora 2', desc: 'OpenAI video generation', featured: true, provider: 'runware', modes: ['text-to-video', 'image-to-video'] as const },
   { id: 'rw-kling-2.5', name: 'RW Kling 2.5 Turbo Pro', desc: 'Kling via Runware, no filter', featured: false, provider: 'runware', modes: ['text-to-video', 'image-to-video'] as const },
@@ -58,10 +62,11 @@ type VideoState = {
   referenceImages: string[];
   motionVideo: string | null;
   model: string;
-  mode: 'text-to-video' | 'image-to-video' | 'motion-control';
+  mode: 'text-to-video' | 'image-to-video' | 'motion-control' | 'video-edit';
   aspectRatio: string;
   duration: string;
   characterOrientation: 'video' | 'image';
+  keepAudio: boolean;
   videos: GeneratedVideo[];
   selectedVideoId: string | null;
   setPrompt: (p: string) => void;
@@ -71,10 +76,11 @@ type VideoState = {
   removeReferenceImage: (idx: number) => void;
   setMotionVideo: (v: string | null) => void;
   setModel: (m: string) => void;
-  setMode: (m: 'text-to-video' | 'image-to-video' | 'motion-control') => void;
+  setMode: (m: 'text-to-video' | 'image-to-video' | 'motion-control' | 'video-edit') => void;
   setAspectRatio: (ar: string) => void;
   setDuration: (d: string) => void;
   setCharacterOrientation: (value: 'video' | 'image') => void;
+  setKeepAudio: (v: boolean) => void;
   setSelectedVideoId: (id: string | null) => void;
   generate: () => void;
   retryVideo: (id: string) => void;
@@ -215,6 +221,7 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
   aspectRatio: '16:9',
   duration: '5',
   characterOrientation: 'video',
+  keepAudio: false,
   videos: [],
   selectedVideoId: null,
   _historyLoaded: false,
@@ -223,7 +230,7 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
   setMotionPrompt: (motionPrompt) => set({ motionPrompt }),
   addReferenceImage: (img) => {
     const refs = get().referenceImages;
-    if (refs.length < 3) set({ referenceImages: [...refs, img] });
+    if (refs.length < 5) set({ referenceImages: [...refs, img] });
   },
   setReferenceImageAt: (idx, img) => {
     const refs = [...get().referenceImages];
@@ -253,15 +260,17 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
   setAspectRatio: (aspectRatio) => set({ aspectRatio }),
   setDuration: (duration) => set({ duration }),
   setCharacterOrientation: (characterOrientation) => set({ characterOrientation }),
+  setKeepAudio: (keepAudio) => set({ keepAudio }),
   setSelectedVideoId: (selectedVideoId) => set({ selectedVideoId }),
 
   generate: () => {
-    const { prompt, motionPrompt, referenceImages, model, mode, aspectRatio, duration, characterOrientation } = get();
+    const { prompt, motionPrompt, referenceImages, model, mode, aspectRatio, duration, characterOrientation, keepAudio } = get();
     const effectivePrompt = mode === 'motion-control' ? motionPrompt.trim() : prompt.trim();
 
     if (!effectivePrompt && mode === 'text-to-video') return;
     if (mode === 'image-to-video' && referenceImages.length === 0) return;
     if (mode === 'motion-control' && (!referenceImages[0] || !referenceImages[1])) return;
+    if (mode === 'video-edit' && (!referenceImages[0] || !effectivePrompt)) return;
 
     const newVideo: GeneratedVideo = {
       id: crypto.randomUUID(),
@@ -286,6 +295,7 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
       aspectRatio,
       duration,
       characterOrientation,
+      keepAudio,
     }, newVideo.id, get, set);
   },
 

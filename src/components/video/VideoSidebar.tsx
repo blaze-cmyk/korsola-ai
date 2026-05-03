@@ -36,7 +36,7 @@ export function VideoSidebar() {
 
   const tabs = [
     { id: 'text-to-video' as const, label: 'Create Video' },
-    { id: 'image-to-video' as const, label: 'Edit Video' },
+    { id: 'video-edit' as const, label: 'Edit Video' },
     { id: 'motion-control' as const, label: 'Motion Control' },
   ];
 
@@ -77,15 +77,17 @@ export function VideoSidebar() {
           />
         )}
 
-        {/* === EDIT VIDEO === */}
-        {mode === 'image-to-video' && (
+        {/* === EDIT VIDEO (video-to-video) === */}
+        {mode === 'video-edit' && (
           <EditVideoPanel
             prompt={prompt}
             setPrompt={setPrompt}
             referenceImages={referenceImages}
             addReferenceImage={addReferenceImage}
+            setReferenceImageAt={setReferenceImageAt}
             removeReferenceImage={removeReferenceImage}
             fileInputRef={fileInputRef}
+            selectedModelName={selectedModel?.name}
           />
         )}
 

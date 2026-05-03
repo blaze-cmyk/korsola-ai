@@ -18,6 +18,7 @@ type VideoModelConfig = {
   textToVideo?: string;
   imageToVideo?: string;
   motionControl?: string;
+  videoEdit?: string;
   runwareModel?: string;
   evolinkModel?: string;
   durationFormat?: DurationFormat;
@@ -45,6 +46,10 @@ const VIDEO_MODEL_MAP: Record<string, VideoModelConfig> = {
   "rw-kling-2.5": { type: "runware", runwareModel: "klingai:6@1" },
   "rw-veo-3.1": { type: "runware", runwareModel: "google:3@2" },
   "rw-veo-3.1-fast": { type: "runware", runwareModel: "google:3@3" },
+  // Video edit (video-to-video) — fal only
+  "kling-o1-edit-pro": { type: "fal", videoEdit: "fal-ai/kling-video/o1/video-to-video/edit" },
+  "kling-o3-edit-std": { type: "fal", videoEdit: "fal-ai/kling-video/o3/standard/video-to-video/edit" },
+  "kling-o3-edit-pro": { type: "fal", videoEdit: "fal-ai/kling-video/o3/pro/video-to-video/edit" },
 };
 
 function jsonResp(data: unknown, status = 200) {
@@ -269,12 +274,16 @@ async function handleSubmit(body: Record<string, unknown>) {
     if (!FAL_KEY) return jsonResp({ error: "FAL_KEY not configured" }, 500);
 
     const isMotionControl = mode === "motion-control";
+    const isVideoEdit = mode === "video-edit";
     const isImageMode = mode === "image-to-video" && referenceImages.length > 0;
 
     let endpoint: string | undefined;
     if (isMotionControl) {
       endpoint = config.motionControl;
       if (!endpoint) return jsonResp({ error: `Model ${model} does not support motion control` }, 400);
+    } else if (isVideoEdit) {
+      endpoint = config.videoEdit;
+      if (!endpoint) return jsonResp({ error: `Model ${model} does not support video editing` }, 400);
     } else if (isImageMode) {
       endpoint = config.imageToVideo;
       if (!endpoint) return jsonResp({ error: `Model ${model} does not support image to video` }, 400);
@@ -299,6 +308,19 @@ async function handleSubmit(body: Record<string, unknown>) {
       input.character_orientation = body?.characterOrientation === "image" ? "image" : "video";
       input.keep_original_sound = body?.keepOriginalSound !== false;
       if (prompt) input.prompt = prompt;
+    } else if (isVideoEdit) {
+      const sourceVideo = referenceImages[0];
+      if (!sourceVideo) {
+        return jsonResp({ error: "Video edit requires a reference video in slot 0" }, 400);
+      }
+      if (!prompt) {
+        return jsonResp({ error: "Video edit requires a text prompt" }, 400);
+      }
+      input.video_url = sourceVideo;
+      input.prompt = prompt;
+      const extras = referenceImages.slice(1).filter(Boolean).slice(0, 4);
+      if (extras.length > 0) input.image_urls = extras;
+      input.keep_audio = body?.keepAudio === true;
     } else {
       input.prompt = prompt;
 
