@@ -28,10 +28,10 @@ export type GeneratedVideo = {
 
 export const VIDEO_MODELS = [
   { id: 'kling-v3-pro', name: 'Kling 3.0 Pro', desc: 'Top-tier cinematic visuals, fluid motion, audio', featured: true, badge: 'NEW' as const, provider: 'fal', modes: ['text-to-video', 'image-to-video'] as const },
-  { id: 'ev-kling-v3-motion', name: 'Kling 3.0 Motion (Evolink)', desc: 'Cheapest & fastest motion control — recommended', featured: true, badge: 'TOP' as const, provider: 'evolink', modes: ['motion-control'] as const },
-  { id: 'kling-v3-motion', name: 'Kling 3.0 Motion (fal.ai)', desc: 'Motion control via fal.ai (fallback)', featured: true, provider: 'fal', modes: ['motion-control'] as const },
-  { id: 'kling-v2.6-motion-pro', name: 'Kling 2.6 Motion Pro', desc: 'Pro-quality motion transfer via fal.ai', featured: true, provider: 'fal', modes: ['motion-control'] as const },
-  { id: 'kling-v2.6-motion-std', name: 'Kling 2.6 Motion Std', desc: 'Standard motion control via fal.ai', featured: false, provider: 'fal', modes: ['motion-control'] as const },
+  { id: 'ev-kling-v3-motion', name: 'Kling 3.0 Motion', desc: 'Cheapest & fastest motion control — recommended', featured: true, badge: 'TOP' as const, provider: 'evolink', modes: ['motion-control'] as const },
+  { id: 'kling-v3-motion', name: 'Kling 3.0 Motion Pro', desc: 'High-fidelity motion transfer', featured: true, provider: 'fal', modes: ['motion-control'] as const },
+  { id: 'kling-v2.6-motion-pro', name: 'Kling 2.6 Motion Pro', desc: 'Pro-quality motion transfer', featured: true, provider: 'fal', modes: ['motion-control'] as const },
+  { id: 'kling-v2.6-motion-std', name: 'Kling 2.6 Motion Std', desc: 'Standard motion control', featured: false, provider: 'fal', modes: ['motion-control'] as const },
   { id: 'kling-o3-pro', name: 'Kling O3 Pro', desc: 'Start+end frame animation with style guidance', featured: true, badge: 'NEW' as const, provider: 'fal', modes: ['image-to-video'] as const },
   { id: 'kling-v2.5-turbo-pro', name: 'Kling 2.5 Turbo Pro', desc: 'Fast cinematic video, great prompt precision', featured: true, provider: 'fal', modes: ['text-to-video', 'image-to-video'] as const },
   { id: 'kling-v2.6-pro', name: 'Kling 2.6 Pro', desc: 'High-quality image-to-video with audio', featured: false, provider: 'fal', modes: ['image-to-video'] as const },
