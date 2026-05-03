@@ -11,15 +11,14 @@ import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { useGeneratorStore } from '@/store/generatorStore';
 import { useVideoStore } from '@/store/videoStore';
 import { usePromptModeStore } from '@/store/promptModeStore';
-import { useMarketingStudioStore } from '@/store/marketingStudioStore';
-import { hydrateMarketingStudio } from '@/lib/marketingStudioSync';
+import { useCreateProjectsStore } from '@/store/createProjectsStore';
 
 export default function Generator() {
   const selectedImageId = useGeneratorStore((s) => s.selectedImageId);
   const loadHistory = useGeneratorStore((s) => s.loadHistory);
   const loadVideoHistory = useVideoStore((s) => s.loadHistory);
   const mode = usePromptModeStore((s) => s.mode);
-  const sidebarCollapsed = useMarketingStudioStore((s) => s.sidebarCollapsed);
+  const sidebarCollapsed = useCreateProjectsStore((s) => s.sidebarCollapsed);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
