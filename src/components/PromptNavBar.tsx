@@ -18,7 +18,7 @@ export function PromptNavBar() {
       label: 'Image',
       Icon: ImageIcon,
       active: onImageRoute && mode === 'image',
-      onClick: () => { setMode('image'); if (!onImageRoute) navigate('/image'); },
+      onClick: () => { setMode('image'); if (!onImageRoute) navigate('/create'); },
     },
     {
       key: 'video',
@@ -28,7 +28,7 @@ export function PromptNavBar() {
       onClick: () => {
         setMode('video');
         if (videoSubMode === 'motion-control') setVideoSubMode('text-to-video');
-        if (!onImageRoute && !pathname.startsWith('/video')) navigate('/image');
+        if (!onImageRoute && !pathname.startsWith('/video')) navigate('/create');
       },
     },
     {
@@ -38,7 +38,7 @@ export function PromptNavBar() {
       active: ((onImageRoute && mode === 'video') || pathname.startsWith('/video')) && videoSubMode === 'motion-control',
       onClick: () => {
         setVideoSubMode('motion-control');
-        if (!onImageRoute && !pathname.startsWith('/video')) navigate('/image');
+        if (!onImageRoute && !pathname.startsWith('/video')) navigate('/create');
       },
     },
     {
@@ -46,7 +46,7 @@ export function PromptNavBar() {
       label: 'Marketing Studio',
       Icon: Megaphone,
       active: onImageRoute && mode === 'marketing',
-      onClick: () => { setMode('marketing'); if (!onImageRoute) navigate('/image'); },
+      onClick: () => { setMode('marketing'); if (!onImageRoute) navigate('/create'); },
     },
   ];
 
