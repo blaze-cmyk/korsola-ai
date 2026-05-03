@@ -146,6 +146,7 @@ export type Database = {
         Row: {
           aspect: string | null
           avatar_id: string | null
+          create_project_id: string | null
           created_at: string
           duration_seconds: number | null
           error: string | null
@@ -155,6 +156,7 @@ export type Database = {
           id: string
           keyframe_path: string | null
           keyframe_url: string | null
+          liked: boolean
           product_id: string | null
           project_id: string | null
           prompt: string
@@ -176,6 +178,7 @@ export type Database = {
         Insert: {
           aspect?: string | null
           avatar_id?: string | null
+          create_project_id?: string | null
           created_at?: string
           duration_seconds?: number | null
           error?: string | null
@@ -185,6 +188,7 @@ export type Database = {
           id?: string
           keyframe_path?: string | null
           keyframe_url?: string | null
+          liked?: boolean
           product_id?: string | null
           project_id?: string | null
           prompt: string
@@ -206,6 +210,7 @@ export type Database = {
         Update: {
           aspect?: string | null
           avatar_id?: string | null
+          create_project_id?: string | null
           created_at?: string
           duration_seconds?: number | null
           error?: string | null
@@ -215,6 +220,7 @@ export type Database = {
           id?: string
           keyframe_path?: string | null
           keyframe_url?: string | null
+          liked?: boolean
           product_id?: string | null
           project_id?: string | null
           prompt?: string

@@ -26,6 +26,7 @@ const App = () => (
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="/home" element={<Home />} />
           <Route path="/create" element={<Generator />} />
+          <Route path="/create/:slug" element={<Generator />} />
           <Route path="/image" element={<Navigate to="/create" replace />} />
           <Route path="/generator" element={<Navigate to="/create" replace />} />
           <Route path="/video" element={<Video />} />

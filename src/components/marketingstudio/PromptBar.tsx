@@ -60,9 +60,14 @@ function modeIcon(mode: MSMode) {
 interface Props {
   projectId?: string;
   projectName?: string;
+  /** When set, this generation belongs to a /create project (not an ms_project).
+   *  No redirect happens, no ms_project is created. */
+  createProjectId?: string;
+  /** Lazy-create a /create project if the user generates without one selected. */
+  ensureCreateProject?: () => Promise<string>;
 }
 
-export function PromptBar({ projectId }: Props) {
+export function PromptBar({ projectId, createProjectId, ensureCreateProject }: Props) {
   const [surface, setSurface] = useState<MSSurface>('Product');
   const [prompt, setPrompt] = useState('');
   const [mode, setMode] = useState<MSMode>('UGC');
@@ -194,10 +199,24 @@ export function PromptBar({ projectId }: Props) {
     }
     setGenerating(true);
 
-    // 1. Resolve / create project (in DB so it survives refresh)
+    // Embedded mode (/create): we attach to a create_project, not an ms_project.
+    const embedded = createProjectId !== undefined || !!ensureCreateProject;
+    let createPid: string | undefined = createProjectId;
+
+    // 1. Resolve / create project.
     let pid = projectId;
     let pslug: string | undefined;
-    if (!pid) {
+    if (embedded) {
+      try {
+        if (!createPid && ensureCreateProject) {
+          createPid = await ensureCreateProject();
+        }
+      } catch (e: any) {
+        toast({ title: 'Could not create project', description: e?.message, variant: 'destructive' });
+        setGenerating(false);
+        return;
+      }
+    } else if (!pid) {
       try {
         const { createProjectDB } = await import('@/lib/marketingStudioSync');
         const p = await createProjectDB(prompt.slice(0, 28) || productName || 'New project');
@@ -210,9 +229,7 @@ export function PromptBar({ projectId }: Props) {
       }
     }
 
-    // 2. Call orchestrator FIRST — returns immediately with the real DB id
-    //    while the pipeline runs in the background via EdgeRuntime.waitUntil.
-    //    This avoids placeholder-vs-real-id duplicates in the UI.
+    // 2. Call orchestrator.
     try {
       const { supabase } = await import('@/integrations/supabase/client');
       const { data: orch, error: orchErr } = await supabase.functions.invoke(
@@ -228,7 +245,8 @@ export function PromptBar({ projectId }: Props) {
             resolution: res,
             userPrompt: prompt,
             exactVoiceover,
-            projectId: pid,
+            projectId: embedded ? null : pid,
+            createProjectId: embedded ? createPid : null,
             extraRefImages: extraRefs.map((r) => r.url),
             extraRefNames: extraRefs.map((r) => r.name),
           },
@@ -238,26 +256,29 @@ export function PromptBar({ projectId }: Props) {
       const realId: string | undefined = orch?.id;
       if (!realId) throw new Error('Orchestrator did not return an id');
 
-      // 3. Add the generation to the local store using the REAL id.
-      addGeneration(pid, {
-        id: realId,
-        thumbUrl: productThumb || avatarThumb || '',
-        prompt,
-        mode,
-        surface,
-        aspect,
-        resolution: res,
-        duration,
-        productId: productId || undefined,
-        avatarId: avatarId || undefined,
-        createdAt: Date.now(),
-        submittedAt: Date.now(),
-        status: 'queued',
-        stage: orch?.stage || 'videoing',
-      });
+      // 3. Mirror into store only when in dedicated MS workspace.
+      //    Embedded /create relies on useMarketingFeedStore polling.
+      if (!embedded && pid) {
+        addGeneration(pid, {
+          id: realId,
+          thumbUrl: productThumb || avatarThumb || '',
+          prompt,
+          mode,
+          surface,
+          aspect,
+          resolution: res,
+          duration,
+          productId: productId || undefined,
+          avatarId: avatarId || undefined,
+          createdAt: Date.now(),
+          submittedAt: Date.now(),
+          status: 'queued',
+          stage: orch?.stage || 'videoing',
+        });
+      }
 
-      // 4. Navigate now (only if we created a new project here)
-      if (pslug) navigate(`/marketingstudio/${pslug}`);
+      // 4. Navigate ONLY when we created a fresh ms_project. Embedded never navigates.
+      if (!embedded && pslug) navigate(`/marketingstudio/${pslug}`);
       setPrompt('');
       setExtraRefs([]);
       toast({ title: 'Generation started', description: 'Rendering on Seedance 2.0…' });

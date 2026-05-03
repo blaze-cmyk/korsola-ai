@@ -1,5 +1,7 @@
 import { useGeneratorStore, MODELS, GeneratedImage } from '@/store/generatorStore';
 import { useVideoStore, GeneratedVideo } from '@/store/videoStore';
+import { useMarketingFeedStore } from '@/store/marketingFeedStore';
+import { MSGeneration } from '@/store/marketingStudioStore';
 import { usePromptModeStore } from '@/store/promptModeStore';
 import { useCreateProjectsStore } from '@/store/createProjectsStore';
 import { useGridFilterStore } from '@/store/gridFilterStore';
@@ -8,6 +10,8 @@ import { AlertCircle, Eye, RefreshCw, Trash2, Loader2, Download, Link2, Heart, M
 import { useGridSelectionStore } from '@/store/gridSelectionStore';
 import { useState, useRef, useEffect, useLayoutEffect, useMemo } from 'react';
 import { create } from 'zustand';
+import { VideoDetailModal } from '@/components/marketingstudio/VideoDetailModal';
+import { supabase } from '@/integrations/supabase/client';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,7 +31,8 @@ const useGridTabStore = create<{ tab: GridTab; setTab: (t: GridTab) => void }>((
 // Unified media item used by the justified-rows layout.
 type MediaItem =
   | ({ kind: 'image' } & GeneratedImage)
-  | ({ kind: 'video' } & GeneratedVideo);
+  | ({ kind: 'video' } & GeneratedVideo)
+  | ({ kind: 'marketing'; aspectRatio: string } & MSGeneration);
 
 
 // Build a resized variant of a Supabase Storage public URL using the
@@ -57,22 +62,35 @@ export function ImageGrid() {
   const tab = useGridTabStore((s) => s.tab);
   const setTab = useGridTabStore((s) => s.setTab);
 
-  // Merge images + videos into a unified, project-scoped, filtered, sorted feed.
-  const items = useMemo<MediaItem[]>(() => {
-    const imgItems: MediaItem[] = allImages.map((i) => ({ kind: 'image', ...i }));
-    const vidItems: MediaItem[] = allVideos.map((v) => ({ kind: 'video', ...v }));
-    let list: MediaItem[] = [...imgItems, ...vidItems];
+  const msFeed = useMarketingFeedStore(
+    (s) => (activeProjectId ? s.byProject[activeProjectId] : undefined) || [],
+  );
 
-    list = activeProjectId
-      ? list.filter((i) => i.projectId === activeProjectId)
-      : list.filter((i) => !i.projectId);
+  // Merge images + videos + marketing-studio generations into a unified feed.
+  const items = useMemo<MediaItem[]>(() => {
+    const imgItems: MediaItem[] = allImages.map((i) => ({ kind: 'image' as const, ...i }));
+    const vidItems: MediaItem[] = allVideos.map((v) => ({ kind: 'video' as const, ...v }));
+    const msItems: MediaItem[] = msFeed.map((g) => ({
+      kind: 'marketing' as const,
+      aspectRatio:
+        g.aspect && g.aspect !== 'Auto' ? g.aspect : '9:16',
+      ...g,
+    }));
+
+    let list: MediaItem[] = [...imgItems, ...vidItems, ...msItems];
+
+    list = list.filter((i) => {
+      if (i.kind === 'marketing') return true; // already scoped to active project by feed
+      const pid = (i as any).projectId as string | undefined;
+      return activeProjectId ? pid === activeProjectId : !pid;
+    });
 
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter((i) => i.prompt?.toLowerCase().includes(q));
     }
     if (modelFilter) {
-      list = list.filter((i) => i.model === modelFilter);
+      list = list.filter((i) => (i as any).model === modelFilter);
     }
     if (dateFilter !== 'all') {
       const now = Date.now();
@@ -86,7 +104,7 @@ export function ImageGrid() {
 
     list.sort((a, b) => b.createdAt - a.createdAt);
     return list;
-  }, [allImages, allVideos, activeProjectId, search, modelFilter, dateFilter, tab]);
+  }, [allImages, allVideos, msFeed, activeProjectId, search, modelFilter, dateFilter, tab]);
 
   const zoom = useLayoutStore((s) => s.zoom);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -212,7 +230,13 @@ export function ImageGrid() {
               className="absolute animate-fade-in transition-[left,top,width,height] duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] will-change-transform"
               style={{ left: pos.left, top: pos.top, width: pos.width, height: pos.height }}
             >
-              {it.kind === 'image' ? <ImageCard image={it} /> : <VideoCard video={it} />}
+              {it.kind === 'image' ? (
+                <ImageCard image={it} />
+              ) : it.kind === 'video' ? (
+                <VideoCard video={it} />
+              ) : (
+                <MarketingCard gen={it} createProjectId={activeProjectId!} />
+              )}
             </div>
           );
         })}
@@ -747,3 +771,150 @@ function VideoCard({ video }: { video: GeneratedVideo & { kind: 'video' } }) {
     </div>
   );
 }
+
+// =============================================================
+// MarketingCard — clones MarketingStudioProject card UI for /create grid
+// =============================================================
+function stageLabel(g: MSGeneration): string {
+  if (g.status === 'failed') return 'Failed';
+  if (g.status === 'done') return 'Ready';
+  switch (g.stage) {
+    case 'scripting': return 'Writing script…';
+    case 'keyframing': return 'Composing scene…';
+    case 'keyframe_ready': return 'Scene ready…';
+    case 'keyframe_failed': return 'Scene fallback…';
+    case 'videoing': return 'Rendering on Seedance 2.0…';
+    case 'done': return 'Ready';
+    default:
+      if (g.status === 'queued_pending_persist') return 'Registering…';
+      if (g.status === 'running') return 'Rendering…';
+      return 'Queued…';
+  }
+}
+
+function MarketingCard({ gen, createProjectId }: { gen: MSGeneration & { kind: 'marketing' }; createProjectId: string }) {
+  const toggleLike = useMarketingFeedStore((s) => s.toggleLike);
+  const removeLocal = useMarketingFeedStore((s) => s.removeGeneration);
+  const [selected, setSelected] = useState(false);
+  const [, forceTick] = useState(0);
+
+  const isPending = gen.status === 'queued' || gen.status === 'queued_pending_persist' || gen.status === 'running';
+  const isFailed = gen.status === 'failed';
+
+  useEffect(() => {
+    if (!isPending) return;
+    const t = setInterval(() => forceTick((n) => n + 1), 1000);
+    return () => clearInterval(t);
+  }, [isPending]);
+
+  const elapsed = Math.floor((Date.now() - (gen.submittedAt || gen.createdAt)) / 1000);
+  const pct = Math.min(95, Math.floor((elapsed / 120) * 100));
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    removeLocal(createProjectId, gen.id);
+    await supabase.from('ms_generations').delete().eq('id', gen.id);
+  };
+
+  const handleRetry = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await supabase
+        .from('ms_generations')
+        .update({ status: 'queued', stage: 'scripting', error: null, updated_at: new Date().toISOString() } as any)
+        .eq('id', gen.id);
+      await supabase.functions.invoke('ms-retry-generation', { body: { id: gen.id } });
+    } catch {}
+  };
+
+  return (
+    <>
+      <div
+        className="group relative w-full h-full overflow-hidden bg-ms-surface-2 cursor-pointer"
+        onClick={() => !isPending && !isFailed && setSelected(true)}
+      >
+        {gen.videoUrl && !isPending && !isFailed ? (
+          <video
+            src={`${gen.videoUrl}#t=0.1`}
+            poster={gen.thumbUrl}
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            onMouseEnter={(e) => e.currentTarget.play().catch(() => {})}
+            onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0.1; }}
+            className="absolute inset-0 w-full h-full object-cover bg-[#0a0a0a]"
+          />
+        ) : gen.thumbUrl && !isPending && !isFailed ? (
+          <img src={gen.thumbUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
+        ) : (
+          <div className="absolute inset-0 bg-[#0a0a0a]" />
+        )}
+
+        {isPending && (
+          <>
+            <div className="absolute inset-0 ms-shimmer opacity-40" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-foreground/90 px-3">
+              <Loader2 className="w-6 h-6 animate-spin" />
+              <div className="text-[11px] font-medium tracking-wide uppercase text-center">{stageLabel(gen)}</div>
+              <div className="w-3/4 h-1 rounded-full bg-white/10 overflow-hidden">
+                <div className="h-full bg-foreground/80 transition-all" style={{ width: `${pct}%` }} />
+              </div>
+              <div className="text-[10px] text-muted-foreground">{elapsed}s</div>
+            </div>
+          </>
+        )}
+
+        {isFailed && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/60 text-foreground/90 px-3 text-center">
+            <AlertCircle className="w-6 h-6 text-destructive" />
+            <div className="text-[11px] font-semibold">Generation failed</div>
+            <div className="text-[10px] text-muted-foreground line-clamp-3">{gen.error || 'Try again'}</div>
+            <div className="mt-1 flex items-center gap-1.5">
+              <button
+                onClick={handleRetry}
+                className="inline-flex items-center gap-1 px-2.5 h-7 rounded-full bg-white/10 hover:bg-white/20 text-[11px] font-medium"
+              >
+                <RefreshCw className="w-3 h-3" /> Retry
+              </button>
+              <button
+                onClick={handleDelete}
+                className="inline-flex items-center gap-1 px-2.5 h-7 rounded-full bg-white/10 hover:bg-white/20 text-[11px] font-medium"
+              >
+                <Trash2 className="w-3 h-3" /> Delete
+              </button>
+            </div>
+          </div>
+        )}
+
+        {!isPending && !isFailed && (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+            <div className="absolute inset-0 grid place-items-center opacity-0 group-hover:opacity-100 bg-black/20 transition-opacity">
+              <div className="grid place-items-center w-12 h-12 rounded-full bg-white/90">
+                <Play className="w-5 h-5 text-black fill-black" />
+              </div>
+            </div>
+            <div className="absolute bottom-2 right-2 flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <HoverIconBtn label="Expand" onClick={(e) => { e.stopPropagation(); setSelected(true); }} svg={<Maximize2 className="w-[18px] h-[18px]" />} />
+              <HoverIconBtn
+                label={gen.liked ? 'Unlike' : 'Like'}
+                onClick={(e) => { e.stopPropagation(); toggleLike(createProjectId, gen.id); }}
+                svg={<Heart className={`w-[18px] h-[18px] ${gen.liked ? 'fill-current text-rose-400' : ''}`} />}
+              />
+              <HoverIconBtn label="Delete" danger onClick={handleDelete} svg={<Trash2 className="w-[18px] h-[18px]" />} />
+            </div>
+          </>
+        )}
+      </div>
+
+      <VideoDetailModal
+        open={selected}
+        onOpenChange={(v) => setSelected(v)}
+        generation={gen}
+        projectId={createProjectId}
+      />
+    </>
+  );
+}
+
