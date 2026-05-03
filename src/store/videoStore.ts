@@ -62,7 +62,7 @@ type VideoState = {
   referenceImages: string[];
   motionVideo: string | null;
   model: string;
-  mode: 'text-to-video' | 'image-to-video' | 'motion-control';
+  mode: 'text-to-video' | 'image-to-video' | 'motion-control' | 'video-edit';
   aspectRatio: string;
   duration: string;
   characterOrientation: 'video' | 'image';
@@ -75,7 +75,7 @@ type VideoState = {
   removeReferenceImage: (idx: number) => void;
   setMotionVideo: (v: string | null) => void;
   setModel: (m: string) => void;
-  setMode: (m: 'text-to-video' | 'image-to-video' | 'motion-control') => void;
+  setMode: (m: 'text-to-video' | 'image-to-video' | 'motion-control' | 'video-edit') => void;
   setAspectRatio: (ar: string) => void;
   setDuration: (d: string) => void;
   setCharacterOrientation: (value: 'video' | 'image') => void;
