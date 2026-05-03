@@ -150,6 +150,88 @@ export function ImageGrid() {
           </div>
         );
       })}
+      </div>
+    </div>
+  );
+}
+
+function FilterToolbar() {
+  const { search, modelFilter, dateFilter, setSearch, setModelFilter, setDateFilter, reset } =
+    useGridFilterStore();
+  const activeProjectId = useCreateProjectsStore((s) => s.activeProjectId);
+  const activeProject = useCreateProjectsStore((s) =>
+    s.projects.find((p) => p.id === s.activeProjectId)
+  );
+  const hasActiveFilters = !!search || !!modelFilter || dateFilter !== 'all';
+
+  if (!activeProjectId) return null;
+
+  const dateLabel = { all: 'All time', today: 'Today', '7d': 'Last 7 days', '30d': 'Last 30 days' }[dateFilter];
+  const modelLabel = modelFilter ? MODELS.find((m) => m.id === modelFilter)?.name ?? modelFilter : 'All models';
+
+  return (
+    <div className="flex items-center gap-2 mb-3 flex-wrap">
+      <div className="text-sm font-semibold text-foreground truncate mr-2">
+        {activeProject?.name}
+      </div>
+      <div className="relative flex-1 min-w-[180px] max-w-[320px]">
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search prompts…"
+          className="w-full h-8 pl-8 pr-7 text-xs rounded-lg bg-ms-surface-2 border border-ms-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-foreground/30"
+        />
+        {search && (
+          <button
+            onClick={() => setSearch('')}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          >
+            <X className="w-3 h-3" />
+          </button>
+        )}
+      </div>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="h-8 px-3 text-xs rounded-lg bg-ms-surface-2 border border-ms-border text-foreground hover:bg-ms-border transition-colors">
+            {modelLabel}
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="bg-ms-surface-2 border-ms-border max-h-72 overflow-y-auto">
+          <DropdownMenuLabel>Model</DropdownMenuLabel>
+          <DropdownMenuItem onClick={() => setModelFilter(null)}>All models</DropdownMenuItem>
+          <DropdownMenuSeparator />
+          {MODELS.map((m) => (
+            <DropdownMenuItem key={m.id} onClick={() => setModelFilter(m.id)}>
+              {m.name}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="h-8 px-3 text-xs rounded-lg bg-ms-surface-2 border border-ms-border text-foreground hover:bg-ms-border transition-colors">
+            {dateLabel}
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="bg-ms-surface-2 border-ms-border">
+          <DropdownMenuItem onClick={() => setDateFilter('all')}>All time</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setDateFilter('today')}>Today</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setDateFilter('7d')}>Last 7 days</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setDateFilter('30d')}>Last 30 days</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {hasActiveFilters && (
+        <button
+          onClick={reset}
+          className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        >
+          Clear
+        </button>
+      )}
     </div>
   );
 }
