@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { AnimatePresence, motion, LayoutGroup } from 'framer-motion';
-import { useVideoStore, VIDEO_MODELS, VIDEO_ASPECT_RATIOS, VIDEO_DURATIONS } from '@/store/videoStore';
+import { useVideoStore, VIDEO_MODELS, VIDEO_CATALOG, VIDEO_ASPECT_RATIOS, VIDEO_DURATIONS, type VideoCatalogEntry } from '@/store/videoStore';
 import { usePromptModeStore, type VideoSubMode } from '@/store/promptModeStore';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ChevronDownIcon } from '@/components/marketingstudio/FormatIcons';
 import {
-  Sparkles, Search, Check, ImagePlus, Film, Wand2, Move3d, X, Volume2,
+  Sparkles, Search, Check, ImagePlus, Film, Wand2, Move3d, X, Volume2, ChevronRight, ChevronLeft, Image as ImageIcon, Clock, Tag,
 } from 'lucide-react';
 
 const SUB_MODES: { id: VideoSubMode; label: string; Icon: any; desc: string }[] = [
