@@ -289,6 +289,7 @@ export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
           createdAt: new Date(row.created_at).getTime(),
           error: row.error,
           projectId: row.project_id ?? null,
+          liked: !!row.liked,
         }));
 
         const current = get().images;
