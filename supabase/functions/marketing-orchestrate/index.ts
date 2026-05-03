@@ -257,6 +257,7 @@ Deno.serve(async (req) => {
       resolution = '720p',
       userPrompt = '',
       projectId,
+      createProjectId,
       extraRefImages = [],
       extraRefNames = [],
     } = await req.json();
