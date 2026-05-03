@@ -98,20 +98,33 @@ export function VideoPromptBarInline() {
 
   const handleSubmit = () => generate();
 
+  const acceptForIdx = (idx: number) => {
+    if (isVideoEdit) return idx === 0 ? 'video/*' : 'image/*';
+    return idx === 0 && isMotion ? 'video/*,image/*' : 'image/*';
+  };
+
+  const handleFileForIdx = async (idx: number, file: File) => {
+    const accept = acceptForIdx(idx);
+    const isVid = file.type.startsWith('video/');
+    const isImg = file.type.startsWith('image/');
+    if (accept.includes('video') && isVid) {
+      // ok
+    } else if (accept.includes('image') && isImg) {
+      // ok
+    } else if (!accept.includes('video') && !isImg) {
+      return;
+    }
+    const url = await readFile(file);
+    setReferenceImageAt(idx, url);
+  };
+
   const onUploadAt = (idx: number) => {
     const input = document.createElement('input');
     input.type = 'file';
-    if (isVideoEdit) {
-      input.accept = idx === 0 ? 'video/*' : 'image/*';
-    } else {
-      input.accept = idx === 0 && isMotion ? 'video/*,image/*' : 'image/*';
-    }
+    input.accept = acceptForIdx(idx);
     input.onchange = async (e) => {
       const f = (e.target as HTMLInputElement).files?.[0];
-      if (f) {
-        const url = await readFile(f);
-        setReferenceImageAt(idx, url);
-      }
+      if (f) await handleFileForIdx(idx, f);
     };
     input.click();
   };
