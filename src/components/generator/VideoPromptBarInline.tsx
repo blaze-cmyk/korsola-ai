@@ -199,6 +199,12 @@ export function VideoPromptBarInline() {
                           onUpload={() => onUploadAt(1)}
                           onRemove={() => removeReferenceImage(1)}
                         />
+                        <SceneControlCard
+                          on={sceneControlOn}
+                          setOn={setSceneControlOn}
+                          source={characterOrientation ?? 'image'}
+                          setSource={setCharacterOrientation}
+                        />
                       </>
                     );
                   }
