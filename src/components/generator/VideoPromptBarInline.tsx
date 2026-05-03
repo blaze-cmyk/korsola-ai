@@ -159,7 +159,9 @@ export function VideoPromptBarInline() {
               onChange={(e) => setPrompt(e.target.value)}
               placeholder={isMotion
                 ? 'Describe additional motion guidance (optional)…'
-                : 'Describe your video, like "A woman walking through a neon-lit city"'}
+                : isVideoEdit
+                  ? 'Describe how to edit the video…'
+                  : 'Describe your video, like "A woman walking through a neon-lit city"'}
               rows={2}
               className="w-full bg-transparent border-0 text-sm leading-[1.6] text-foreground placeholder:text-muted-foreground/40 focus:outline-none resize-none ms-prompt-scroll min-h-[44px] max-h-[160px]"
               style={{ scrollbarWidth: 'none' }}
