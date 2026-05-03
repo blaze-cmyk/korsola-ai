@@ -585,7 +585,7 @@ Deno.serve(async (req) => {
       }
 
       const poll = row.provider === 'fal'
-        ? await falPoll(row.provider_endpoint, row.fal_request_id)
+        ? await falPoll(row.provider_endpoint, row.fal_request_id, { statusUrl: row.status_url, responseUrl: row.response_url })
         : await atlasPoll(row.fal_request_id);
 
       if (poll.status === 'done') {
@@ -713,6 +713,8 @@ Deno.serve(async (req) => {
       provider: submission.provider,
       provider_endpoint: submission.endpoint,
       fal_request_id: submission.requestId,
+      status_url: submission.statusUrl ?? null,
+      response_url: submission.responseUrl ?? null,
       fallback_attempted: false,
     }).eq('id', row.id).select().single();
 
