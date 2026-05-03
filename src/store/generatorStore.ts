@@ -16,6 +16,7 @@ export type GeneratedImage = {
   createdAt: number;
   error?: string;
   projectId?: string | null;
+  liked?: boolean;
 };
 
 type GeneratorState = {
