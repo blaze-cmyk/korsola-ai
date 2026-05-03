@@ -464,4 +464,12 @@ export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
       .eq('id', id);
     if (error) console.error('Move image error:', error);
   },
+
+  toggleLike: (id) => {
+    const next = !get().images.find((i) => i.id === id)?.liked;
+    set({ images: get().images.map((i) => (i.id === id ? { ...i, liked: next } : i)) });
+    supabase.from('generations').update({ liked: next } as any).eq('id', id).then(({ error }) => {
+      if (error) console.error('Toggle like error:', error);
+    });
+  },
 }));
