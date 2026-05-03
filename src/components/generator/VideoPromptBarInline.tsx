@@ -277,54 +277,67 @@ export function VideoPromptBarInline() {
           </Popover>
 
           {/* Model */}
-          <Popover open={modelOpen} onOpenChange={setModelOpen}>
+          <Popover open={modelOpen} onOpenChange={(o) => { setModelOpen(o); if (!o) setExpandedFamily(null); }}>
             <PopoverTrigger asChild>
               <button className="ms-chip-glass flex items-center gap-1.5 px-3.5 h-9 rounded-full text-xs text-foreground transition-all">
                 <Film className="w-3.5 h-3.5 text-foreground/80" />
-                {selectedModel?.name || 'Select model'}
+                {displayModelName}
                 <ChevronDownIcon className="size-3.5 text-muted-foreground/70" />
               </button>
             </PopoverTrigger>
             <PopoverContent
               align="start" side="top" sideOffset={10}
-              className="w-80 p-0 rounded-2xl ms-glass shadow-[0_24px_60px_-20px_rgba(0,0,0,0.85)] overflow-hidden"
+              className="w-[360px] p-0 rounded-2xl ms-glass shadow-[0_24px_60px_-20px_rgba(0,0,0,0.85)] overflow-hidden"
             >
-              <div className="p-2 border-b border-white/5">
-                <div className="flex items-center gap-2 bg-white/5 rounded-lg px-3 py-2">
-                  <Search className="w-3.5 h-3.5 text-muted-foreground" />
-                  <input
-                    value={search} onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Search video models…"
-                    className="bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 border-0 focus:outline-none flex-1"
-                  />
-                </div>
-              </div>
-              <div className="max-h-80 overflow-y-auto px-1 pb-1 ms-prompt-scroll">
-                {filteredModels.map((m) => (
-                  <button
-                    key={m.id}
-                    onClick={() => { setModel(m.id); setModelOpen(false); }}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left hover:bg-white/5 transition-colors ${model === m.id ? 'bg-white/10' : ''}`}
-                  >
-                    <span className={`w-8 h-8 rounded-lg grid place-items-center shrink-0 ${model === m.id ? 'bg-[#FF2D78]/15 text-[#FF2D78]' : 'bg-white/5 text-foreground/90'}`}>
-                      <Film className="size-4" />
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-sm text-foreground">{m.name}</span>
-                        {m.badge && (
-                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#FF2D78]/20 text-[#FF2D78]">{m.badge}</span>
-                        )}
-                      </div>
-                      <span className="text-xs text-muted-foreground truncate block">{m.desc}</span>
+              {isCreate ? (
+                <CreateModelPicker
+                  search={search}
+                  setSearch={setSearch}
+                  selectedId={model}
+                  expandedFamily={expandedFamily}
+                  setExpandedFamily={setExpandedFamily}
+                  onPick={(id) => { setModel(id); setModelOpen(false); setExpandedFamily(null); }}
+                />
+              ) : (
+                <>
+                  <div className="p-2 border-b border-white/5">
+                    <div className="flex items-center gap-2 bg-white/5 rounded-lg px-3 py-2">
+                      <Search className="w-3.5 h-3.5 text-muted-foreground" />
+                      <input
+                        value={search} onChange={(e) => setSearch(e.target.value)}
+                        placeholder="Search video models…"
+                        className="bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 border-0 focus:outline-none flex-1"
+                      />
                     </div>
-                    {model === m.id && <Check className="w-4 h-4 text-[#FF2D78] shrink-0" />}
-                  </button>
-                ))}
-                {filteredModels.length === 0 && (
-                  <div className="px-3 py-4 text-xs text-muted-foreground text-center">No models for this mode</div>
-                )}
-              </div>
+                  </div>
+                  <div className="max-h-80 overflow-y-auto px-1 pb-1 ms-prompt-scroll">
+                    {filteredModels.map((m) => (
+                      <button
+                        key={m.id}
+                        onClick={() => { setModel(m.id); setModelOpen(false); }}
+                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left hover:bg-white/5 transition-colors ${model === m.id ? 'bg-white/10' : ''}`}
+                      >
+                        <span className={`w-8 h-8 rounded-lg grid place-items-center shrink-0 ${model === m.id ? 'bg-[#FF2D78]/15 text-[#FF2D78]' : 'bg-white/5 text-foreground/90'}`}>
+                          <Film className="size-4" />
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-sm text-foreground">{m.name}</span>
+                            {m.badge && (
+                              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#FF2D78]/20 text-[#FF2D78]">{m.badge}</span>
+                            )}
+                          </div>
+                          <span className="text-xs text-muted-foreground truncate block">{m.desc}</span>
+                        </div>
+                        {model === m.id && <Check className="w-4 h-4 text-[#FF2D78] shrink-0" />}
+                      </button>
+                    ))}
+                    {filteredModels.length === 0 && (
+                      <div className="px-3 py-4 text-xs text-muted-foreground text-center">No models for this mode</div>
+                    )}
+                  </div>
+                </>
+              )}
             </PopoverContent>
           </Popover>
 
