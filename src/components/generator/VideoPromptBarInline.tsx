@@ -539,7 +539,7 @@ function FrameSlot({
 }
 
 function MotionSlot({
-  kind, title, subtitle, url, onUpload, onRemove,
+  kind, title, subtitle, url, onUpload, onRemove, onDropFile,
 }: {
   kind: 'video' | 'character';
   title: string;
@@ -547,11 +547,22 @@ function MotionSlot({
   url?: string;
   onUpload: () => void;
   onRemove: () => void;
+  onDropFile?: (f: File) => void;
 }) {
+  const [over, setOver] = useState(false);
   const isVideo = !!url && (url.startsWith('data:video') || /\.(mp4|mov|webm)(\?|$)/i.test(url));
+  const dropProps = {
+    onDragOver: (e: React.DragEvent) => { e.preventDefault(); setOver(true); },
+    onDragLeave: () => setOver(false),
+    onDrop: (e: React.DragEvent) => {
+      e.preventDefault(); setOver(false);
+      const f = e.dataTransfer.files?.[0];
+      if (f && onDropFile) onDropFile(f);
+    },
+  };
   if (url) {
     return (
-      <div className="relative flex-1 max-w-[180px] rounded-xl overflow-hidden border border-white/10 aspect-[3/4] bg-black/40">
+      <div {...dropProps} className={`relative flex-1 max-w-[180px] rounded-xl overflow-hidden border aspect-[3/4] bg-black/40 ${over ? 'border-[#FF2D78]' : 'border-white/10'}`}>
         {isVideo ? (
           <video src={url} className="w-full h-full object-cover" muted autoPlay loop playsInline />
         ) : (
@@ -570,7 +581,8 @@ function MotionSlot({
   return (
     <button
       onClick={onUpload}
-      className="relative flex-1 max-w-[180px] aspect-[3/4] rounded-xl bg-white/[0.03] border border-dashed border-white/15 hover:border-white/30 hover:bg-white/[0.06] transition-colors flex flex-col items-center justify-center gap-2 px-3 text-muted-foreground"
+      {...dropProps}
+      className={`relative flex-1 max-w-[180px] aspect-[3/4] rounded-xl bg-white/[0.03] border border-dashed transition-colors flex flex-col items-center justify-center gap-2 px-3 text-muted-foreground ${over ? 'border-[#FF2D78] bg-white/[0.08]' : 'border-white/15 hover:border-white/30 hover:bg-white/[0.06]'}`}
     >
       <div className="w-9 h-9 rounded-full bg-white/5 grid place-items-center">
         <Icon className="w-4 h-4" />
