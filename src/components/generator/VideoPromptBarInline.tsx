@@ -591,7 +591,7 @@ function SingleUploadTile({
 }: { optional?: boolean; url?: string; onUpload: () => void; onRemove: () => void }) {
   if (url) {
     return (
-      <div className="relative w-full max-w-[560px] rounded-2xl overflow-hidden border border-white/10 aspect-[16/7] bg-black/40">
+      <div className="relative w-full max-w-[260px] rounded-xl overflow-hidden border border-white/10 aspect-video bg-black/40">
         <img src={url} alt="" className="w-full h-full object-cover" />
         <button
           onClick={onRemove}
