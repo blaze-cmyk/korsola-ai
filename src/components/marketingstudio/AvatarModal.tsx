@@ -88,7 +88,7 @@ export function AvatarModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl ms-glass border-0 p-0 overflow-hidden text-foreground">
+      <DialogContent className="max-w-5xl ms-glass border-0 p-0 overflow-hidden text-foreground z-[100]">
         {view === 'list' ? (
           <>
             <div className="flex items-center justify-between gap-3 p-4 border-b border-white/10">

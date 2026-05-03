@@ -166,7 +166,7 @@ export function AddProductModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl ms-glass border-0 p-0 overflow-hidden text-foreground">
+      <DialogContent className="max-w-6xl ms-glass border-0 p-0 overflow-hidden text-foreground z-[100]">
         {view === 'list' ? (
           <div className="flex flex-col max-h-[85vh]">
             {/* Tab switch pill — top center */}
