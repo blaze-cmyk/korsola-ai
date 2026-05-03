@@ -17,6 +17,7 @@ export type GeneratedVideo = {
   mode: 'text-to-video' | 'image-to-video' | 'motion-control' | 'video-edit';
   aspectRatio: string;
   duration: string;
+  resolution?: string;
   status: 'generating' | 'complete' | 'failed' | 'nsfw';
   videoUrl?: string;
   thumbnailUrl?: string;
@@ -132,6 +133,10 @@ export const MODEL_DURATIONS: Record<string, string[]> = {
 // Per-model resolution choices.
 // Empty list = model has no resolution param (don't render the chip).
 export const MODEL_RESOLUTIONS: Record<string, string[]> = {
+  'kling-v3-pro':         ['4K'],
+  'kling-v2.6-pro':       ['1080p'],
+  'kling-v2.5-turbo-pro': ['1080p'],
+  'minimax-video':        ['720p'],
   'pixverse-v6':          ['360p','540p','720p','1080p'],
   'veo-3.1':              ['720p','1080p'],
   'veo-3.1-fast':         ['720p','1080p'],
@@ -145,7 +150,7 @@ export const MODEL_RESOLUTIONS: Record<string, string[]> = {
   'rw-veo-3.1-fast':      ['720p','1080p'],
   'rw-sora-2':            ['720p'],
   'ev-kling-v3-motion':   ['720p','1080p'],
-  // kling fal endpoints, minimax, ltx → no resolution control (use defaults / video_size).
+  'ltx-2-19b':            ['1080p'],
 };
 
 export function getDurationsForModel(model: string): string[] {
@@ -201,6 +206,7 @@ async function saveVideoToDb(video: GeneratedVideo) {
       mode: video.mode,
       aspect_ratio: video.aspectRatio,
       duration: video.duration,
+      resolution: video.resolution || null,
       status: video.status === 'generating' ? 'processing' : video.status,
       video_url: video.videoUrl || null,
       thumbnail_url: video.thumbnailUrl || null,
@@ -410,6 +416,7 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
       mode,
       aspectRatio,
       duration,
+      resolution,
       status: 'generating',
       createdAt: Date.now(),
       characterOrientation: mode === 'motion-control' ? characterOrientation : undefined,
@@ -443,6 +450,7 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
       mode: video.mode,
       aspectRatio: video.aspectRatio,
       duration: video.duration,
+      resolution: video.resolution ?? get().resolution,
       characterOrientation: video.characterOrientation ?? 'video',
     }, id, get, set);
   },
@@ -468,7 +476,7 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
     try {
       let q = (supabase as any)
         .from('video_generations')
-        .select('id,prompt,model,mode,aspect_ratio,duration,status,video_url,thumbnail_url,reference_images,error,created_at,liked,project_id,create_project_id')
+        .select('id,prompt,model,mode,aspect_ratio,duration,resolution,status,video_url,thumbnail_url,reference_images,error,created_at,liked,project_id,create_project_id')
         .order('created_at', { ascending: false })
         .limit(100);
       if (projectId) q = q.or(`create_project_id.eq.${projectId},project_id.eq.${projectId}`);
@@ -481,6 +489,7 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
         mode: row.mode as GeneratedVideo['mode'],
         aspectRatio: row.aspect_ratio,
         duration: row.duration,
+        resolution: row.resolution || undefined,
         status: row.status === 'processing' ? 'generating' : row.status as GeneratedVideo['status'],
         videoUrl: row.video_url || undefined,
         thumbnailUrl: row.thumbnail_url || undefined,
