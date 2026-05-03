@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { Plus, Search, Wand2, PanelLeft, MoreHorizontal, Trash2 } from 'lucide-react';
 import { useMarketingStudioStore } from '@/store/marketingStudioStore';
+import { usePromptModeStore } from '@/store/promptModeStore';
 import { Logo } from './Logo';
 import { useState } from 'react';
 import {
@@ -21,7 +22,9 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
   const collapsed = sidebarCollapsed;
   const filtered = projects.filter((p) => p.name.toLowerCase().includes(query.toLowerCase()));
 
+  const setMode = usePromptModeStore((s) => s.setMode);
   const handleNew = () => {
+    setMode('marketing');
     navigate('/image');
     onClose?.();
   };

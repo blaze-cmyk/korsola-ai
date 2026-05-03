@@ -1,5 +1,6 @@
 import { Menu, ArrowLeft, Gem } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { usePromptModeStore } from '@/store/promptModeStore';
 
 export function TopHeader({
   onMenu,
@@ -13,6 +14,7 @@ export function TopHeader({
   rightSlot?: React.ReactNode;
 }) {
   const navigate = useNavigate();
+  const setMode = usePromptModeStore((s) => s.setMode);
   return (
     <header className="h-14 px-3 md:px-5 flex items-center justify-between shrink-0">
       <div className="flex items-center gap-2 min-w-0">
@@ -25,7 +27,7 @@ export function TopHeader({
         </button>
         {showBack && (
           <button
-            onClick={() => navigate('/image')}
+            onClick={() => { setMode('marketing'); navigate('/image'); }}
             className="grid place-items-center w-9 h-9 rounded-md text-muted-foreground hover:text-foreground hover:bg-ms-surface-2"
             aria-label="Back"
           >
