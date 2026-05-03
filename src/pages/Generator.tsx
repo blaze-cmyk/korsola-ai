@@ -24,7 +24,6 @@ export default function Generator() {
   useEffect(() => {
     loadHistory();
     loadVideoHistory();
-    hydrateMarketingStudio();
   }, [loadHistory, loadVideoHistory]);
 
   const renderBar = () => {
@@ -39,12 +38,12 @@ export default function Generator() {
     <div className="min-h-[calc(100vh-5rem)] w-full bg-background text-foreground flex -mt-20 pt-20 transition-[padding] duration-200 ease-out" style={{ paddingLeft: `${sidebarWidth}px` }}>
       {/* Desktop sidebar - full height, above header */}
       <div className="hidden md:flex fixed left-0 top-0 h-screen z-[60]">
-        <MarketingSidebar />
+        <CreateSidebar />
       </div>
       {/* Mobile sidebar */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent side="left" className="p-0 w-72 bg-ms-surface border-ms-border">
-          <MarketingSidebar onClose={() => setMobileOpen(false)} />
+          <CreateSidebar onClose={() => setMobileOpen(false)} />
         </SheetContent>
       </Sheet>
 
