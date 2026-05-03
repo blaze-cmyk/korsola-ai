@@ -255,7 +255,9 @@ function getAspectClass(ratio: string): string {
 function ImageCard({ image }: {
   image: ReturnType<typeof useGeneratorStore.getState>['images'][0];
 }) {
-  const { setSelectedImageId, retryImage, deleteImage, useAsReference } = useGeneratorStore();
+  const { setSelectedImageId, retryImage, deleteImage, useAsReference, moveImageToProject } = useGeneratorStore();
+  const projects = useCreateProjectsStore((s) => s.projects);
+  const setProjectThumbnail = useCreateProjectsStore((s) => s.setProjectThumbnail);
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const [naturalAspect, setNaturalAspect] = useState<number | null>(null);
