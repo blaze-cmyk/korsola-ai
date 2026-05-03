@@ -1,5 +1,7 @@
 import { useGeneratorStore, MODELS, GeneratedImage } from '@/store/generatorStore';
 import { useVideoStore, GeneratedVideo } from '@/store/videoStore';
+import { useMarketingFeedStore } from '@/store/marketingFeedStore';
+import { MSGeneration } from '@/store/marketingStudioStore';
 import { usePromptModeStore } from '@/store/promptModeStore';
 import { useCreateProjectsStore } from '@/store/createProjectsStore';
 import { useGridFilterStore } from '@/store/gridFilterStore';
@@ -8,6 +10,8 @@ import { AlertCircle, Eye, RefreshCw, Trash2, Loader2, Download, Link2, Heart, M
 import { useGridSelectionStore } from '@/store/gridSelectionStore';
 import { useState, useRef, useEffect, useLayoutEffect, useMemo } from 'react';
 import { create } from 'zustand';
+import { VideoDetailModal } from '@/components/marketingstudio/VideoDetailModal';
+import { supabase } from '@/integrations/supabase/client';
 import {
   DropdownMenu,
   DropdownMenuContent,
