@@ -175,7 +175,7 @@ function loadPersistedReferenceImages(): string[] {
 }
 
 // Save a completed generation to the database
-async function saveToDb(img: GeneratedImage, storageUrl: string) {
+async function saveToDb(img: GeneratedImage, storageUrl: string, projectId: string | null) {
   const { error } = await supabase.from('generations').insert({
     id: img.id,
     prompt: img.prompt,
@@ -185,8 +185,17 @@ async function saveToDb(img: GeneratedImage, storageUrl: string) {
     image_url: storageUrl,
     status: img.status,
     error: img.error || null,
+    project_id: projectId,
   } as any);
   if (error) console.error('DB insert error:', error);
+
+  // Set/refresh project thumbnail with the latest image
+  if (projectId && storageUrl) {
+    await supabase
+      .from('create_projects' as any)
+      .update({ thumb_url: storageUrl, updated_at: new Date().toISOString() } as any)
+      .eq('id', projectId);
+  }
 }
 
 export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
