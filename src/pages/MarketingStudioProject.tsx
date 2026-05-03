@@ -165,7 +165,8 @@ export default function MarketingStudioProject() {
         (g) =>
           (g.status === 'queued' ||
             g.status === 'queued_pending_persist' ||
-            g.status === 'running') &&
+            g.status === 'running' ||
+            (g.status as string) === 'processing') &&
           /^[0-9a-f-]{36}$/i.test(g.id),
       );
 
