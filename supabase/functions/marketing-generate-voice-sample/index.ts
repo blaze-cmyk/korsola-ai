@@ -124,9 +124,19 @@ Deno.serve(async (req) => {
       force?: boolean;
     };
 
-    // Backfill mode — generate for every avatar missing a sample
+    // Backfill mode — admin only. Requires the service-role key in the
+    // Authorization header (so only server-to-server callers can trigger it).
     if (backfill) {
-      let q = admin.from('ms_avatars').select('id, name, gender, voice_sample_url');
+      const auth = req.headers.get('authorization') || '';
+      const provided = auth.replace(/^Bearer\s+/i, '').trim();
+      if (!provided || provided !== SERVICE_KEY) {
+        return new Response(JSON.stringify({ error: 'forbidden' }), {
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      const MAX_BATCH = 50;
+      let q = admin.from('ms_avatars').select('id, name, gender, voice_sample_url').limit(MAX_BATCH);
       if (!force) q = q.is('voice_sample_url', null);
       const { data: avatars, error } = await q;
       if (error) throw error;

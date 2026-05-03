@@ -87,16 +87,29 @@ function bytesToBase64(bytes: Uint8Array): string {
   return btoa(binary);
 }
 
+import { assertUrlIsPublic, isAllowedImageContentType } from "../_shared/ssrf.ts";
+
 async function fetchImageAsDataUri(src: string): Promise<string | null> {
   try {
     if (src.startsWith("data:")) return src;
     if (src.startsWith("http://") || src.startsWith("https://")) {
+      let parsed: URL;
+      try { parsed = new URL(src); } catch { return null; }
+      const ssrfErr = await assertUrlIsPublic(parsed);
+      if (ssrfErr) {
+        console.warn(`Blocked reference image fetch: ${ssrfErr} (${parsed.hostname})`);
+        return null;
+      }
       const resp = await fetch(src);
       if (!resp.ok) return null;
+      const mimeType = resp.headers.get("content-type") || "";
+      if (!isAllowedImageContentType(mimeType)) {
+        console.warn(`Rejected non-image content-type: ${mimeType}`);
+        return null;
+      }
       const buf = await resp.arrayBuffer();
       const bytes = new Uint8Array(buf);
-      const mimeType = resp.headers.get("content-type") || "image/jpeg";
-      return `data:${mimeType};base64,${bytesToBase64(bytes)}`;
+      return `data:${mimeType.split(';')[0].trim()};base64,${bytesToBase64(bytes)}`;
     }
     return null;
   } catch {
