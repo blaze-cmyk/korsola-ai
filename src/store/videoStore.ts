@@ -352,7 +352,16 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
     set({ referenceImages: refs });
   },
   setMotionVideo: (motionVideo) => set({ motionVideo }),
-  setModel: (model) => set({ model }),
+  setModel: (model) => set((state) => {
+    const durations = getDurationsForModel(model);
+    const resolutions = getResolutionsForModel(model);
+    const next: Partial<VideoState> = { model };
+    if (!durations.includes(state.duration)) next.duration = durations[0];
+    if (resolutions.length > 0 && !resolutions.includes(state.resolution)) {
+      next.resolution = resolutions.includes('720p') ? '720p' : resolutions[0];
+    }
+    return next as VideoState;
+  }),
   setMode: (mode) => set((state) => {
     const currentModel = VIDEO_MODELS.find(m => m.id === state.model);
     if (currentModel && (currentModel.modes as readonly string[]).includes(mode)) {
