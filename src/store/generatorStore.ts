@@ -192,12 +192,11 @@ async function saveToDb(img: GeneratedImage, storageUrl: string, projectId: stri
   } as any);
   if (error) console.error('DB insert error:', error);
 
-  // Set/refresh project thumbnail with the latest image
+  // Set/refresh project thumbnail with the latest image — only if user hasn't locked one
   if (projectId && storageUrl) {
-    await supabase
-      .from('create_projects' as any)
-      .update({ thumb_url: storageUrl, updated_at: new Date().toISOString() } as any)
-      .eq('id', projectId);
+    try {
+      await useCreateProjectsStore.getState().bumpProjectThumbIfUnlocked(projectId, storageUrl);
+    } catch (e) { console.error('thumb bump error:', e); }
   }
 }
 
