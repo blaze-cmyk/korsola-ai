@@ -268,7 +268,7 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
   setSelectedVideoId: (selectedVideoId) => set({ selectedVideoId }),
 
   generate: () => {
-    const { prompt, motionPrompt, referenceImages, model, mode, aspectRatio, duration, characterOrientation, keepAudio } = get();
+    const { prompt, motionPrompt, referenceImages, model, mode, aspectRatio, duration, characterOrientation, keepAudio, resolution } = get();
     const effectivePrompt = mode === 'motion-control' ? motionPrompt.trim() : prompt.trim();
 
     if (!effectivePrompt && mode === 'text-to-video') return;
@@ -300,6 +300,7 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
       duration,
       characterOrientation,
       keepAudio,
+      resolution,
     }, newVideo.id, get, set);
   },
 
