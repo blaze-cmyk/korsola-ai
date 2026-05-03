@@ -206,6 +206,7 @@ async function saveVideoToDb(video: GeneratedVideo) {
       mode: video.mode,
       aspect_ratio: video.aspectRatio,
       duration: video.duration,
+      resolution: video.resolution || null,
       status: video.status === 'generating' ? 'processing' : video.status,
       video_url: video.videoUrl || null,
       thumbnail_url: video.thumbnailUrl || null,
@@ -475,7 +476,7 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
     try {
       let q = (supabase as any)
         .from('video_generations')
-        .select('id,prompt,model,mode,aspect_ratio,duration,status,video_url,thumbnail_url,reference_images,error,created_at,liked,project_id,create_project_id')
+        .select('id,prompt,model,mode,aspect_ratio,duration,resolution,status,video_url,thumbnail_url,reference_images,error,created_at,liked,project_id,create_project_id')
         .order('created_at', { ascending: false })
         .limit(100);
       if (projectId) q = q.or(`create_project_id.eq.${projectId},project_id.eq.${projectId}`);
@@ -488,6 +489,7 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
         mode: row.mode as GeneratedVideo['mode'],
         aspectRatio: row.aspect_ratio,
         duration: row.duration,
+        resolution: row.resolution || undefined,
         status: row.status === 'processing' ? 'generating' : row.status as GeneratedVideo['status'],
         videoUrl: row.video_url || undefined,
         thumbnailUrl: row.thumbnail_url || undefined,
