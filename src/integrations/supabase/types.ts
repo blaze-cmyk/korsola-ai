@@ -567,6 +567,7 @@ export type Database = {
           prompt: string
           provider: string | null
           reference_images: string[] | null
+          resolution: string | null
           response_url: string | null
           status: string
           status_url: string | null
@@ -588,6 +589,7 @@ export type Database = {
           prompt?: string
           provider?: string | null
           reference_images?: string[] | null
+          resolution?: string | null
           response_url?: string | null
           status?: string
           status_url?: string | null
@@ -609,6 +611,7 @@ export type Database = {
           prompt?: string
           provider?: string | null
           reference_images?: string[] | null
+          resolution?: string | null
           response_url?: string | null
           status?: string
           status_url?: string | null
