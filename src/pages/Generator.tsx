@@ -140,6 +140,7 @@ export default function Generator() {
       </div>
 
       {selectedImageId && <ImageDetailModal />}
+      {selectedVideoId && <VideoDetailModal />}
     </div>
   );
 }
