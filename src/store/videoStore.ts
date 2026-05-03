@@ -266,6 +266,7 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
     if (!effectivePrompt && mode === 'text-to-video') return;
     if (mode === 'image-to-video' && referenceImages.length === 0) return;
     if (mode === 'motion-control' && (!referenceImages[0] || !referenceImages[1])) return;
+    if (mode === 'video-edit' && (!referenceImages[0] || !effectivePrompt)) return;
 
     const newVideo: GeneratedVideo = {
       id: crypto.randomUUID(),
