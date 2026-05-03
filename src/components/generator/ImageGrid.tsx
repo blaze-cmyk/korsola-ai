@@ -73,7 +73,9 @@ export function ImageGrid() {
     return () => ro.disconnect();
   }, []);
 
-  const gap = 8;
+  const gap = 4;
+  // Higgsfield-style: row height is driven by a 9:16 reference at the current zoom level.
+  // All other aspect ratios in the same row scale to that height.
   const targetRowHeight = ZOOM_ROW_HEIGHTS[zoom];
 
   // Justified rows layout (à la Higgsfield / Google Images / Flickr):
