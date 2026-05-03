@@ -33,6 +33,7 @@ const ALLOWED_HOST_SUFFIXES = [
   '.bytedanceapi.com',
   '.bytedance.com',
   '.volccdn.com',
+  '.volces.com',
   '.byteimg.com',
 ];
 
