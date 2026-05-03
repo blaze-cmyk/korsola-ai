@@ -1,13 +1,15 @@
-import { useVideoStore, VIDEO_MODELS, VIDEO_ASPECT_RATIOS, VIDEO_DURATIONS } from '@/store/videoStore';
+import { useVideoStore, VIDEO_MODELS, VIDEO_ASPECT_RATIOS, VIDEO_DURATIONS, getDurationsForModel, getResolutionsForModel } from '@/store/videoStore';
 import { ImagePlus, ChevronDown, Check, Search, Play, Video, Film, Wand2 } from 'lucide-react';
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 
 export function VideoPromptBar() {
   const {
     prompt, setPrompt, referenceImages, addReferenceImage, removeReferenceImage,
     model, setModel, mode, setMode, aspectRatio, setAspectRatio,
-    duration, setDuration, generate,
+    duration, setDuration, resolution, setResolution, generate,
   } = useVideoStore();
+  const modelResolutions = useMemo(() => getResolutionsForModel(model), [model]);
+  const modelDurations = useMemo(() => getDurationsForModel(model), [model]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
