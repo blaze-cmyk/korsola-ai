@@ -95,6 +95,7 @@ export default function MarketingStudioProject() {
   // already know about, so newly-created server rows (e.g. from orchestrator) appear.
   useEffect(() => {
     if (!project) return;
+    const projectId = project.id;
     // One-time cleanup: remove any non-UUID placeholder generations left in
     // localStorage by previous (buggy) versions of the prompt bar — these caused
     // duplicate cards alongside DB-hydrated rows.
@@ -115,14 +116,15 @@ export default function MarketingStudioProject() {
         .select(
           'id, status, stage, video_url, thumb_url, error, fal_request_id, prompt, format, surface, aspect, resolution, duration_seconds, product_id, avatar_id, created_at, updated_at, keyframe_url',
         )
-        .eq('project_id', project.id)
+        .eq('project_id', projectId)
         .order('created_at', { ascending: false })
         .limit(100);
       if (cancelled || error || !data) return;
-      const known = new Set(project.generations.map((g) => g.id));
+      const currentProject = useMarketingStudioStore.getState().projects.find((p) => p.id === projectId);
+      const known = new Set((currentProject?.generations ?? []).map((g) => g.id));
       for (const row of data) {
         if (known.has(row.id)) {
-          updateGeneration(project.id, row.id, {
+          updateGeneration(projectId, row.id, {
             status: row.status as MSGeneration['status'],
             stage: (row as any).stage as MSGeneration['stage'],
             videoUrl: row.video_url ?? undefined,
@@ -135,7 +137,7 @@ export default function MarketingStudioProject() {
                 : undefined,
           });
         } else {
-          addGeneration(project.id, {
+          addGeneration(projectId, {
             id: row.id,
             thumbUrl: row.thumb_url ?? (row as any).keyframe_url ?? '',
             videoUrl: row.video_url ?? undefined,
@@ -158,7 +160,11 @@ export default function MarketingStudioProject() {
       }
     };
     sync();
-    const t = setInterval(sync, 5000);
+    const hasActiveJobs = () => {
+      const currentProject = useMarketingStudioStore.getState().projects.find((p) => p.id === projectId);
+      return (currentProject?.generations ?? []).some(isGenerationActive);
+    };
+    const t = setInterval(sync, hasActiveJobs() ? 10000 : 30000);
     return () => {
       cancelled = true;
       clearInterval(t);
