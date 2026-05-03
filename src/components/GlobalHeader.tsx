@@ -34,7 +34,7 @@ export function GlobalHeader() {
 
   return (
     <header
-      className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl transition-[left,width] duration-200 ease-out"
+      className="sticky top-0 z-50 ms-grid-bg backdrop-blur-xl transition-[left,width] duration-200 ease-out"
       style={
         isCreate
           ? { marginLeft: `${sidebarWidth}px`, width: `calc(100% - ${sidebarWidth}px)` }
