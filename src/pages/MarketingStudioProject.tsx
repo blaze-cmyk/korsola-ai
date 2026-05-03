@@ -329,13 +329,7 @@ export default function MarketingStudioProject() {
   );
 
   // Active jobs panel summary
-  const activeJobs = project.generations.filter(
-    (g) =>
-      g.status === 'queued' ||
-      g.status === 'queued_pending_persist' ||
-      g.status === 'running' ||
-      (g.status as string) === 'processing',
-  );
+  const activeJobs = project.generations.filter(isGenerationActive);
 
   return (
     <MarketingStudioLayout showBack title={project.name} rightSlot={tabsRight}>
@@ -365,12 +359,7 @@ export default function MarketingStudioProject() {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
             {items.map((g) => {
-              const isPending =
-                g.status === 'queued' ||
-                g.status === 'queued_pending_persist' ||
-                g.status === 'running' ||
-                (g.status as string) === 'processing' ||
-                (!g.videoUrl && g.status !== 'failed' && g.stage !== 'done');
+              const isPending = isGenerationPending(g);
               const isFailed = g.status === 'failed';
               const elapsed = Math.floor((Date.now() - (g.submittedAt || g.createdAt)) / 1000);
               const pct = Math.min(95, Math.floor((elapsed / 120) * 100)); // fake progress to 95% over 2min
