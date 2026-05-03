@@ -737,8 +737,8 @@ function CatalogRow({ entry, selected, onPick }: { entry: VideoCatalogEntry; sel
       onClick={onPick}
       className={`w-full flex items-start gap-3 px-3 py-2.5 rounded-lg text-left hover:bg-white/5 transition-colors ${selected ? 'bg-white/10' : ''}`}
     >
-      <span className={`w-9 h-9 rounded-lg grid place-items-center shrink-0 ${selected ? 'bg-[#FF2D78]/15 text-[#FF2D78]' : 'bg-white/5 text-foreground/90'}`}>
-        <Film className="size-4" />
+      <span className={`w-9 h-9 rounded-lg grid place-items-center shrink-0 ${selected ? 'bg-[#FF2D78]/15 text-[#FF2D78]' : 'bg-white/5 text-white'}`}>
+        <VideoModelIcon family={entry.family} id={entry.id} className="size-4" />
       </span>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5 flex-wrap">
