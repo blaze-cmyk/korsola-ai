@@ -32,6 +32,7 @@ export function CreateSidebar({ onClose }: { onClose?: () => void }) {
     renameProject,
     loaded,
   } = useCreateProjectsStore();
+  const activeProject = projects.find((p) => p.id === activeProjectId);
   const [query, setQuery] = useState('');
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
@@ -64,6 +65,11 @@ export function CreateSidebar({ onClose }: { onClose?: () => void }) {
     } catch (e) {
       console.error(e);
     }
+  };
+
+  const openProject = (id: string) => {
+    if (id !== activeProjectId) setActiveProject(id);
+    onClose?.();
   };
 
   return (
@@ -154,11 +160,14 @@ export function CreateSidebar({ onClose }: { onClose?: () => void }) {
           {filtered.map((p) => {
             const active = p.id === activeProjectId;
             return (
-              <div
+              <a
                 key={p.id}
-                onClick={() => {
-                  setActiveProject(p.id);
-                  onClose?.();
+                href={`/create/${p.slug}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.history.pushState(null, '', `/create/${p.slug}`);
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                  openProject(p.id);
                 }}
                 className={`group flex items-center gap-2 ${
                   collapsed ? 'justify-center px-0' : 'px-2'
@@ -234,7 +243,7 @@ export function CreateSidebar({ onClose }: { onClose?: () => void }) {
                     </DropdownMenu>
                   </>
                 )}
-              </div>
+              </a>
             );
           })}
         </div>
