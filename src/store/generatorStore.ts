@@ -306,6 +306,16 @@ export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
     const { prompt, referenceImages, model, quality, aspectRatio, quantity } = get();
     if (!prompt.trim()) return;
 
+    // Resolve active project; auto-create one if none exists
+    const projStore = useCreateProjectsStore.getState();
+    let projectIdPromise: Promise<string | null>;
+    if (projStore.activeProjectId) {
+      projectIdPromise = Promise.resolve(projStore.activeProjectId);
+    } else {
+      const name = prompt.split(/\s+/).slice(0, 5).join(' ').slice(0, 60) || 'New project';
+      projectIdPromise = projStore.createProject(name).then((p) => p.id).catch(() => null);
+    }
+
     const newImages: GeneratedImage[] = Array.from({ length: quantity }, () => ({
       id: crypto.randomUUID(),
       prompt,
@@ -321,6 +331,7 @@ export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
 
     newImages.forEach(async (img) => {
       try {
+        const projectId = await projectIdPromise;
         const result = await callGenerateAPI({ prompt, referenceImages, model, quality, aspectRatio });
 
         if (result.error) {
@@ -332,17 +343,15 @@ export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
           });
         } else {
           const rawUrl = result.imageBase64 || result.imageUrl;
-          
-          // Upload to storage for persistence
           let persistentUrl = rawUrl;
           if (rawUrl) {
             const storageUrl = await uploadToStorage(rawUrl, img.id);
             if (storageUrl) {
               persistentUrl = storageUrl;
-              // Save to database
               await saveToDb(
-                { ...img, status: 'complete', imageUrl: persistentUrl },
-                persistentUrl
+                { ...img, status: 'complete', imageUrl: persistentUrl, projectId },
+                persistentUrl,
+                projectId,
               );
             }
           }
@@ -350,10 +359,19 @@ export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
           set({
             images: get().images.map((i) =>
               i.id === img.id
-                ? { ...i, status: 'complete' as const, imageUrl: persistentUrl }
+                ? { ...i, status: 'complete' as const, imageUrl: persistentUrl, projectId }
                 : i
             ),
           });
+
+          // Update project thumb in store
+          if (projectId && persistentUrl) {
+            useCreateProjectsStore.setState((s) => ({
+              projects: s.projects.map((p) =>
+                p.id === projectId ? { ...p, thumbUrl: persistentUrl } : p
+              ),
+            }));
+          }
         }
       } catch (e) {
         console.error('Generation error:', e);
