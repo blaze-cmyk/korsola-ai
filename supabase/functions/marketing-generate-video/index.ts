@@ -411,7 +411,13 @@ async function falSubmit(opts: { prompt: string; bundle: ReferenceBundle; durati
     const prefix = isBalanceError(res.status, text) ? 'fal.ai balance/auth' : 'fal.ai';
     return { ok: false, provider: 'fal', endpoint, error: `${prefix}: ${msg}`, raw: parsed || text };
   }
-  return { ok: true, provider: 'fal', endpoint, requestId: String(requestId), raw: parsed };
+  return {
+    ok: true,
+    provider: 'fal',
+    endpoint,
+    requestId: String(requestId),
+    raw: parsed,
+  };
 }
 
 async function submitAcrossProviders(opts: {
@@ -476,10 +482,18 @@ function extractFalVideoUrl(payload: any): string | null {
   return null;
 }
 
+function falQueueEndpoint(endpoint: string): string {
+  // fal Seedance 2.0 submit endpoint is mode-specific, but the returned
+  // queue status/result URLs use the parent endpoint: /bytedance/seedance-2.0/requests/{id}
+  if (endpoint.startsWith('bytedance/seedance-2.0/')) return 'bytedance/seedance-2.0';
+  return endpoint;
+}
+
 async function falPoll(endpoint: string, requestId: string): Promise<PollOutcome> {
   if (requestId.startsWith('immediate:')) return { status: 'done', videoUrl: requestId.slice('immediate:'.length) };
+  const queueEndpoint = falQueueEndpoint(endpoint);
   const headers = { Authorization: `Key ${FAL_KEY}`, Accept: 'application/json' };
-  const statusRes = await fetch(`${FAL_QUEUE}/${endpoint}/requests/${requestId}/status`, { headers });
+  const statusRes = await fetch(`${FAL_QUEUE}/${queueEndpoint}/requests/${requestId}/status`, { headers });
   const statusText = await statusRes.text();
   let statusJson: any = {};
   try { statusJson = JSON.parse(statusText); } catch { /* keep text */ }
@@ -489,12 +503,15 @@ async function falPoll(endpoint: string, requestId: string): Promise<PollOutcome
       return { status: 'failed', error: statusJson?.error ?? statusJson?.detail ?? 'fal.ai reported failure' };
     }
     if (status !== 'COMPLETED') return { status: 'processing' };
-  } else if (statusRes.status !== 202 && statusRes.status !== 404) {
+  } else if (statusRes.status !== 202 && statusRes.status !== 404 && statusRes.status !== 405) {
     return { status: 'failed', error: (statusJson?.detail ?? statusJson?.message ?? statusText) || `fal.ai status http ${statusRes.status}` };
   }
 
-  const resultRes = await fetch(`${FAL_QUEUE}/${endpoint}/requests/${requestId}`, { headers });
-  if (resultRes.status === 202) return { status: 'processing' };
+  let resultRes = await fetch(`${FAL_QUEUE}/${queueEndpoint}/requests/${requestId}`, { headers });
+  if (resultRes.status === 405 || resultRes.status === 404) {
+    resultRes = await fetch(`${FAL_QUEUE}/${queueEndpoint}/requests/${requestId}/response`, { headers });
+  }
+  if (resultRes.status === 202 || resultRes.status === 404) return { status: 'processing' };
   const resultText = await resultRes.text();
   let resultJson: any = {};
   try { resultJson = JSON.parse(resultText); } catch { /* keep text */ }
@@ -559,19 +576,6 @@ Deno.serve(async (req) => {
       if (row.status === 'failed' && row.fallback_attempted) return json(row);
       if (!row.fal_request_id || !row.provider_endpoint) return json({ ...row, status: 'queued_pending_persist' });
 
-      const startedAt = Date.parse(row.updated_at || row.created_at || '') || Date.now();
-      const timeoutMs = timeoutForDuration(row.duration_seconds);
-      if (Date.now() - startedAt > timeoutMs) {
-        const fallbackProvider: Provider = row.provider === 'fal' ? 'atlascloud' : 'fal';
-        if (!row.fallback_attempted && (fallbackProvider === 'fal' ? FAL_KEY : ATLAS_KEY)) {
-          const fallback = await submitFallbackFromRow(admin, row, fallbackProvider);
-          if (fallback) return json(fallback);
-        }
-        const msg = `Timed out after ${Math.round(timeoutMs / 60000)} minutes while rendering. Retry will submit a fresh job.`;
-        const { data: updated } = await admin.from('ms_generations').update({ status: 'failed', stage: 'failed', error: msg }).eq('id', row.id).select().single();
-        return json(updated);
-      }
-
       const poll = row.provider === 'fal'
         ? await falPoll(row.provider_endpoint, row.fal_request_id)
         : await atlasPoll(row.fal_request_id);
@@ -592,8 +596,21 @@ Deno.serve(async (req) => {
         return json(updated);
       }
 
-      if (row.status !== 'running') await admin.from('ms_generations').update({ status: 'running' }).eq('id', row.id);
-      return json({ ...row, status: 'running' });
+      const startedAt = Date.parse(row.updated_at || row.created_at || '') || Date.now();
+      const timeoutMs = timeoutForDuration(row.duration_seconds);
+      if (Date.now() - startedAt > timeoutMs) {
+        const fallbackProvider: Provider = row.provider === 'fal' ? 'atlascloud' : 'fal';
+        if (!row.fallback_attempted && (fallbackProvider === 'fal' ? FAL_KEY : ATLAS_KEY)) {
+          const fallback = await submitFallbackFromRow(admin, row, fallbackProvider);
+          if (fallback) return json(fallback);
+        }
+        const msg = `Timed out after ${Math.round(timeoutMs / 60000)} minutes while rendering. Retry will submit a fresh job.`;
+        const { data: updated } = await admin.from('ms_generations').update({ status: 'failed', stage: 'failed', error: msg }).eq('id', row.id).select().single();
+        return json(updated);
+      }
+
+      if (row.status !== 'processing') await admin.from('ms_generations').update({ status: 'processing' }).eq('id', row.id);
+      return json({ ...row, status: 'processing' });
     }
 
     if (body.retry) {
