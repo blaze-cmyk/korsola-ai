@@ -98,20 +98,33 @@ export function VideoPromptBarInline() {
 
   const handleSubmit = () => generate();
 
+  const acceptForIdx = (idx: number) => {
+    if (isVideoEdit) return idx === 0 ? 'video/*' : 'image/*';
+    return idx === 0 && isMotion ? 'video/*,image/*' : 'image/*';
+  };
+
+  const handleFileForIdx = async (idx: number, file: File) => {
+    const accept = acceptForIdx(idx);
+    const isVid = file.type.startsWith('video/');
+    const isImg = file.type.startsWith('image/');
+    if (accept.includes('video') && isVid) {
+      // ok
+    } else if (accept.includes('image') && isImg) {
+      // ok
+    } else if (!accept.includes('video') && !isImg) {
+      return;
+    }
+    const url = await readFile(file);
+    setReferenceImageAt(idx, url);
+  };
+
   const onUploadAt = (idx: number) => {
     const input = document.createElement('input');
     input.type = 'file';
-    if (isVideoEdit) {
-      input.accept = idx === 0 ? 'video/*' : 'image/*';
-    } else {
-      input.accept = idx === 0 && isMotion ? 'video/*,image/*' : 'image/*';
-    }
+    input.accept = acceptForIdx(idx);
     input.onchange = async (e) => {
       const f = (e.target as HTMLInputElement).files?.[0];
-      if (f) {
-        const url = await readFile(f);
-        setReferenceImageAt(idx, url);
-      }
+      if (f) await handleFileForIdx(idx, f);
     };
     input.click();
   };
@@ -152,6 +165,7 @@ export function VideoPromptBarInline() {
                           url={referenceImages[idx]}
                           onUpload={() => onUploadAt(idx)}
                           onRemove={() => removeReferenceImage(idx)}
+                          onDropFile={(f) => handleFileForIdx(idx, f)}
                         />
                       ));
                     }
@@ -162,6 +176,7 @@ export function VideoPromptBarInline() {
                           url={referenceImages[0]}
                           onUpload={() => onUploadAt(0)}
                           onRemove={() => removeReferenceImage(0)}
+                          onDropFile={(f) => handleFileForIdx(0, f)}
                         />
                       );
                     }
@@ -181,6 +196,7 @@ export function VideoPromptBarInline() {
                         url={referenceImages[idx]}
                         onUpload={() => onUploadAt(idx)}
                         onRemove={() => removeReferenceImage(idx)}
+                        onDropFile={(f) => handleFileForIdx(idx, f)}
                       />
                     ));
                   }
@@ -195,6 +211,7 @@ export function VideoPromptBarInline() {
                           url={referenceImages[0]}
                           onUpload={() => onUploadAt(0)}
                           onRemove={() => removeReferenceImage(0)}
+                          onDropFile={(f) => handleFileForIdx(0, f)}
                         />
                         <MotionSlot
                           kind="character"
@@ -203,6 +220,7 @@ export function VideoPromptBarInline() {
                           url={referenceImages[1]}
                           onUpload={() => onUploadAt(1)}
                           onRemove={() => removeReferenceImage(1)}
+                          onDropFile={(f) => handleFileForIdx(1, f)}
                         />
                         <SceneControlCard
                           on={sceneControlOn}
@@ -219,6 +237,7 @@ export function VideoPromptBarInline() {
                       url={referenceImages[0]}
                       onUpload={() => onUploadAt(0)}
                       onRemove={() => removeReferenceImage(0)}
+                      onDropFile={(f) => handleFileForIdx(0, f)}
                     />
                   );
 
@@ -478,11 +497,21 @@ export function VideoPromptBarInline() {
 }
 
 function FrameSlot({
-  label, optional, url, onUpload, onRemove,
-}: { label: string; optional?: boolean; url?: string; onUpload: () => void; onRemove: () => void }) {
+  label, optional, url, onUpload, onRemove, onDropFile,
+}: { label: string; optional?: boolean; url?: string; onUpload: () => void; onRemove: () => void; onDropFile?: (f: File) => void }) {
+  const [over, setOver] = useState(false);
+  const dropProps = {
+    onDragOver: (e: React.DragEvent) => { e.preventDefault(); setOver(true); },
+    onDragLeave: () => setOver(false),
+    onDrop: (e: React.DragEvent) => {
+      e.preventDefault(); setOver(false);
+      const f = e.dataTransfer.files?.[0];
+      if (f && onDropFile) onDropFile(f);
+    },
+  };
   if (url) {
     return (
-      <div className="relative flex-1 max-w-[180px] rounded-xl overflow-hidden border border-white/10 aspect-video bg-black/40">
+      <div {...dropProps} className={`relative flex-1 max-w-[180px] rounded-xl overflow-hidden border aspect-video bg-black/40 ${over ? 'border-[#FF2D78]' : 'border-white/10'}`}>
         {url.startsWith('data:video') || url.match(/\.(mp4|mov|webm)$/i) ? (
           <video src={url} className="w-full h-full object-cover" muted />
         ) : (
@@ -501,7 +530,8 @@ function FrameSlot({
   return (
     <button
       onClick={onUpload}
-      className="relative flex-1 max-w-[180px] aspect-video rounded-xl bg-white/[0.03] border border-dashed border-white/15 hover:border-white/30 hover:bg-white/[0.06] transition-colors flex flex-col items-center justify-center gap-1 text-muted-foreground"
+      {...dropProps}
+      className={`relative flex-1 max-w-[180px] aspect-video rounded-xl bg-white/[0.03] border border-dashed transition-colors flex flex-col items-center justify-center gap-1 text-muted-foreground ${over ? 'border-[#FF2D78] bg-white/[0.08]' : 'border-white/15 hover:border-white/30 hover:bg-white/[0.06]'}`}
     >
       {optional && (
         <span className="absolute top-1.5 right-2 text-[9px] text-muted-foreground/70 bg-white/5 rounded-full px-1.5 py-0.5">Optional</span>
@@ -515,7 +545,7 @@ function FrameSlot({
 }
 
 function MotionSlot({
-  kind, title, subtitle, url, onUpload, onRemove,
+  kind, title, subtitle, url, onUpload, onRemove, onDropFile,
 }: {
   kind: 'video' | 'character';
   title: string;
@@ -523,11 +553,22 @@ function MotionSlot({
   url?: string;
   onUpload: () => void;
   onRemove: () => void;
+  onDropFile?: (f: File) => void;
 }) {
+  const [over, setOver] = useState(false);
   const isVideo = !!url && (url.startsWith('data:video') || /\.(mp4|mov|webm)(\?|$)/i.test(url));
+  const dropProps = {
+    onDragOver: (e: React.DragEvent) => { e.preventDefault(); setOver(true); },
+    onDragLeave: () => setOver(false),
+    onDrop: (e: React.DragEvent) => {
+      e.preventDefault(); setOver(false);
+      const f = e.dataTransfer.files?.[0];
+      if (f && onDropFile) onDropFile(f);
+    },
+  };
   if (url) {
     return (
-      <div className="relative flex-1 max-w-[180px] rounded-xl overflow-hidden border border-white/10 aspect-[3/4] bg-black/40">
+      <div {...dropProps} className={`relative flex-1 max-w-[180px] rounded-xl overflow-hidden border aspect-[3/4] bg-black/40 ${over ? 'border-[#FF2D78]' : 'border-white/10'}`}>
         {isVideo ? (
           <video src={url} className="w-full h-full object-cover" muted autoPlay loop playsInline />
         ) : (
@@ -546,7 +587,8 @@ function MotionSlot({
   return (
     <button
       onClick={onUpload}
-      className="relative flex-1 max-w-[180px] aspect-[3/4] rounded-xl bg-white/[0.03] border border-dashed border-white/15 hover:border-white/30 hover:bg-white/[0.06] transition-colors flex flex-col items-center justify-center gap-2 px-3 text-muted-foreground"
+      {...dropProps}
+      className={`relative flex-1 max-w-[180px] aspect-[3/4] rounded-xl bg-white/[0.03] border border-dashed transition-colors flex flex-col items-center justify-center gap-2 px-3 text-muted-foreground ${over ? 'border-[#FF2D78] bg-white/[0.08]' : 'border-white/15 hover:border-white/30 hover:bg-white/[0.06]'}`}
     >
       <div className="w-9 h-9 rounded-full bg-white/5 grid place-items-center">
         <Icon className="w-4 h-4" />
@@ -616,11 +658,21 @@ function AspectIcon({ ratio, className = '' }: { ratio: string; className?: stri
 // Single wide upload tile (Veo 3.1 Lite, Grok Imagine, Sora 2…)
 // =============================================================
 function SingleUploadTile({
-  optional, url, onUpload, onRemove,
-}: { optional?: boolean; url?: string; onUpload: () => void; onRemove: () => void }) {
+  optional, url, onUpload, onRemove, onDropFile,
+}: { optional?: boolean; url?: string; onUpload: () => void; onRemove: () => void; onDropFile?: (f: File) => void }) {
+  const [over, setOver] = useState(false);
+  const dropProps = {
+    onDragOver: (e: React.DragEvent) => { e.preventDefault(); setOver(true); },
+    onDragLeave: () => setOver(false),
+    onDrop: (e: React.DragEvent) => {
+      e.preventDefault(); setOver(false);
+      const f = e.dataTransfer.files?.[0];
+      if (f && onDropFile) onDropFile(f);
+    },
+  };
   if (url) {
     return (
-      <div className="relative w-full max-w-[260px] rounded-xl overflow-hidden border border-white/10 aspect-video bg-black/40">
+      <div {...dropProps} className={`relative w-full max-w-[260px] rounded-xl overflow-hidden border aspect-video bg-black/40 ${over ? 'border-[#FF2D78]' : 'border-white/10'}`}>
         <img src={url} alt="" className="w-full h-full object-cover" />
         <button
           onClick={onRemove}
@@ -634,7 +686,8 @@ function SingleUploadTile({
   return (
     <button
       onClick={onUpload}
-      className="relative w-full max-w-[260px] aspect-video rounded-xl bg-white/[0.03] border border-dashed border-white/15 hover:border-white/30 hover:bg-white/[0.06] transition-colors flex flex-col items-center justify-center gap-1 text-muted-foreground px-3"
+      {...dropProps}
+      className={`relative w-full max-w-[260px] aspect-video rounded-xl bg-white/[0.03] border border-dashed transition-colors flex flex-col items-center justify-center gap-1 text-muted-foreground px-3 ${over ? 'border-[#FF2D78] bg-white/[0.08]' : 'border-white/15 hover:border-white/30 hover:bg-white/[0.06]'}`}
     >
       {optional && (
         <span className="absolute top-1.5 right-2 text-[9px] text-muted-foreground/80 bg-white/5 rounded-full px-1.5 py-0.5">Optional</span>
