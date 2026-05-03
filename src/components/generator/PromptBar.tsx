@@ -257,13 +257,17 @@ export function PromptBar() {
           {/* Prompt area */}
           <div className="flex-1 min-w-0 flex flex-col gap-1.5 py-1 pr-1">
             <div className="relative">
+              {!prompt && (
+                <div className="pointer-events-none absolute left-0 top-0 text-sm leading-[1.6] text-muted-foreground/60 select-none px-0">
+                  {referenceImages.length > 0 ? 'Describe the scene… type @ to reference an image' : 'Describe the scene you imagine'}
+                </div>
+              )}
               <div
                 ref={editorRef}
                 contentEditable
                 suppressContentEditableWarning
                 role="textbox"
                 aria-multiline="true"
-                data-placeholder={referenceImages.length > 0 ? 'Describe the scene… type @ to reference an image' : 'Describe the scene you imagine'}
                 onInput={(e) => {
                   syncPromptFromEditor();
                   // detect "@query" before caret
