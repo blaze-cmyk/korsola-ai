@@ -7,7 +7,10 @@ export function PromptNavBar() {
   const navigate = useNavigate();
   const { mode, setMode, videoSubMode, setVideoSubMode } = usePromptModeStore();
 
-  const onImageRoute = pathname.startsWith('/image') || pathname.startsWith('/generator');
+  const onImageRoute =
+    pathname.startsWith('/create') ||
+    pathname.startsWith('/image') ||
+    pathname.startsWith('/generator');
 
   const items = [
     {
