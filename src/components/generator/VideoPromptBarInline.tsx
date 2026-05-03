@@ -5,7 +5,7 @@ import { usePromptModeStore, type VideoSubMode } from '@/store/promptModeStore';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ChevronDownIcon } from '@/components/marketingstudio/FormatIcons';
 import {
-  Sparkles, Search, Check, ImagePlus, Film, Wand2, Move3d, X, Volume2, ChevronRight, ChevronLeft, Image as ImageIcon, Clock, Tag,
+  Sparkles, Search, Check, ImagePlus, Film, Wand2, Move3d, X, Volume2, ChevronRight, ChevronLeft, Image as ImageIcon, Clock, Tag, Video as VideoIcon, Plus,
 } from 'lucide-react';
 
 const SUB_MODES: { id: VideoSubMode; label: string; Icon: any; desc: string }[] = [
