@@ -395,40 +395,41 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
     (supabase as any).from('video_generations').update({ liked: next }).eq('id', id).then(() => {});
   },
 
-  loadHistory: async () => {
-    if (get()._historyLoaded) return;
+  loadHistory: async (projectId?: string | null) => {
+    const key = projectId ?? '__all__';
+    const loaded = (get() as any)._loadedProjects as Set<string> | undefined;
+    if (loaded?.has(key)) return;
     try {
-      const { data } = await (supabase as any)
+      let q = (supabase as any)
         .from('video_generations')
-        .select('*')
+        .select('id,prompt,model,mode,aspect_ratio,duration,status,video_url,thumbnail_url,reference_images,error,created_at,liked,project_id,create_project_id')
         .order('created_at', { ascending: false })
         .limit(100);
-      if (data && data.length > 0) {
-        const loaded: GeneratedVideo[] = data.map((row: any) => ({
-          id: row.id,
-          prompt: row.prompt || '',
-          referenceImages: row.reference_images || [],
-          model: row.model,
-          mode: row.mode as GeneratedVideo['mode'],
-          aspectRatio: row.aspect_ratio,
-          duration: row.duration,
-          status: row.status === 'processing' ? 'generating' : row.status as GeneratedVideo['status'],
-          videoUrl: row.video_url || undefined,
-          thumbnailUrl: row.thumbnail_url || undefined,
-          createdAt: new Date(row.created_at).getTime(),
-          error: row.error || undefined,
-          liked: !!row.liked,
-        }));
-        // Merge with any in-memory videos (active generations)
-        const existingIds = new Set(get().videos.map(v => v.id));
-        const newOnes = loaded.filter(v => !existingIds.has(v.id));
-        set({ videos: [...get().videos, ...newOnes], _historyLoaded: true });
-      } else {
-        set({ _historyLoaded: true });
-      }
+      if (projectId) q = q.or(`create_project_id.eq.${projectId},project_id.eq.${projectId}`);
+      const { data } = await q;
+      const rows: GeneratedVideo[] = (data || []).map((row: any) => ({
+        id: row.id,
+        prompt: row.prompt || '',
+        referenceImages: row.reference_images || [],
+        model: row.model,
+        mode: row.mode as GeneratedVideo['mode'],
+        aspectRatio: row.aspect_ratio,
+        duration: row.duration,
+        status: row.status === 'processing' ? 'generating' : row.status as GeneratedVideo['status'],
+        videoUrl: row.video_url || undefined,
+        thumbnailUrl: row.thumbnail_url || undefined,
+        createdAt: new Date(row.created_at).getTime(),
+        error: row.error || undefined,
+        liked: !!row.liked,
+        projectId: row.create_project_id ?? row.project_id ?? null,
+      }));
+      const existingIds = new Set(get().videos.map(v => v.id));
+      const newOnes = rows.filter(v => !existingIds.has(v.id));
+      const nextLoaded = new Set(loaded ?? []);
+      nextLoaded.add(key);
+      set({ videos: [...get().videos, ...newOnes], _historyLoaded: true, _loadedProjects: nextLoaded } as any);
     } catch (e) {
       console.error('Failed to load video history:', e);
-      set({ _historyLoaded: true });
     }
   },
 }));
