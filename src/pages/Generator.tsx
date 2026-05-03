@@ -35,7 +35,7 @@ export default function Generator() {
   const sidebarWidth = sidebarCollapsed ? 64 : 256; // w-16 / w-64
 
   return (
-    <div className="min-h-[calc(100vh-5rem)] w-full bg-background text-foreground flex -mt-20 pt-20 transition-[padding] duration-200 ease-out" style={{ paddingLeft: `${sidebarWidth}px` }}>
+    <div className="min-h-[calc(100vh-5rem)] w-full bg-ms-surface text-foreground flex -mt-20 pt-20 transition-[padding] duration-200 ease-out" style={{ paddingLeft: `${sidebarWidth}px` }}>
       {/* Desktop sidebar - full height, above header */}
       <div className="hidden md:flex fixed left-0 top-0 h-screen z-[60]">
         <CreateSidebar />
@@ -48,7 +48,7 @@ export default function Generator() {
       </Sheet>
 
       <div className="flex-1 min-w-0 flex flex-col">
-        <div className="flex-1 px-3 md:px-5 pt-3 pb-44">
+        <div className="flex-1 pb-44">
           <ImageGrid />
         </div>
 
