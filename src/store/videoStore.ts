@@ -230,7 +230,7 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
   setMotionPrompt: (motionPrompt) => set({ motionPrompt }),
   addReferenceImage: (img) => {
     const refs = get().referenceImages;
-    if (refs.length < 3) set({ referenceImages: [...refs, img] });
+    if (refs.length < 5) set({ referenceImages: [...refs, img] });
   },
   setReferenceImageAt: (idx, img) => {
     const refs = [...get().referenceImages];
