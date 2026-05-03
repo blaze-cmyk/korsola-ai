@@ -1,8 +1,17 @@
-import { useGeneratorStore } from '@/store/generatorStore';
+import { useGeneratorStore, MODELS } from '@/store/generatorStore';
 import { useCreateProjectsStore } from '@/store/createProjectsStore';
+import { useGridFilterStore } from '@/store/gridFilterStore';
 import { useLayoutStore, ZOOM_ROW_HEIGHTS } from '@/store/layoutStore';
-import { AlertCircle, Eye, RefreshCw, Trash2, Loader2, Download, Link2, Heart, MoreHorizontal, Maximize2 } from 'lucide-react';
+import { AlertCircle, Eye, RefreshCw, Trash2, Loader2, Download, Link2, Heart, MoreHorizontal, Maximize2, Search, X, ImageIcon, FolderInput, Image as ImageLucide } from 'lucide-react';
 import { useState, useRef, useEffect, useLayoutEffect, useMemo } from 'react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 // Build a resized variant of a Supabase Storage public URL using the
 // `/render/image/` transform endpoint. Falls back to original on non-Supabase URLs.
