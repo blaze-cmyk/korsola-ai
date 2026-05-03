@@ -339,14 +339,22 @@ function ImageCard({ image }: {
 
   const aspectClass = getAspectClass(image.aspectRatio);
 
-  // Generating state
+  // Generating state — Marketing Studio style queue card with shimmer + progress
   if (image.status === 'generating') {
+    const elapsed = Math.floor((Date.now() - image.createdAt) / 1000);
+    const pct = Math.min(95, Math.floor((elapsed / 60) * 100));
     return (
-      <div className="relative w-full h-full overflow-hidden bg-ms-surface-2 flex items-center justify-center">
+      <div className="relative w-full h-full overflow-hidden bg-ms-surface-2 ring-1 ring-ms-border">
         <div className="absolute inset-0 ms-shimmer opacity-40" />
-        <div className="relative flex flex-col items-center gap-2">
-          <Loader2 className="w-6 h-6 text-foreground animate-spin" />
-          <span className="text-[11px] uppercase tracking-wider text-muted-foreground">Generating…</span>
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-foreground/90 px-3">
+          <Loader2 className="w-6 h-6 animate-spin" />
+          <div className="text-[11px] font-medium tracking-wide uppercase text-center">
+            Generating…
+          </div>
+          <div className="w-3/4 h-1 rounded-full bg-white/10 overflow-hidden">
+            <div className="h-full bg-foreground/80 transition-all" style={{ width: `${pct}%` }} />
+          </div>
+          <div className="text-[10px] text-muted-foreground">{elapsed}s</div>
         </div>
       </div>
     );
