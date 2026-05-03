@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { AnimatePresence, motion, LayoutGroup } from 'framer-motion';
-import { useVideoStore, VIDEO_MODELS, VIDEO_ASPECT_RATIOS, VIDEO_DURATIONS } from '@/store/videoStore';
+import { useVideoStore, VIDEO_MODELS, VIDEO_CATALOG, VIDEO_ASPECT_RATIOS, VIDEO_DURATIONS, type VideoCatalogEntry } from '@/store/videoStore';
 import { usePromptModeStore, type VideoSubMode } from '@/store/promptModeStore';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ChevronDownIcon } from '@/components/marketingstudio/FormatIcons';
 import {
-  Sparkles, Search, Check, ImagePlus, Film, Wand2, Move3d, X, Volume2,
+  Sparkles, Search, Check, ImagePlus, Film, Wand2, Move3d, X, Volume2, ChevronRight, ChevronLeft, Image as ImageIcon, Clock, Tag,
 } from 'lucide-react';
 
 const SUB_MODES: { id: VideoSubMode; label: string; Icon: any; desc: string }[] = [
@@ -53,6 +53,15 @@ export function VideoPromptBarInline() {
   const [search, setSearch] = useState('');
   const [enhance, setEnhance] = useState(true);
   const [sound, setSound] = useState(true);
+  const [expandedFamily, setExpandedFamily] = useState<string | null>(null);
+
+  const isCreate = videoSubMode === 'text-to-video';
+
+  // Catalog entry for the currently-selected model (Create Video uses VIDEO_CATALOG)
+  const catalogEntry: VideoCatalogEntry | undefined = useMemo(
+    () => VIDEO_CATALOG.find(e => e.id === model),
+    [model],
+  );
 
   const filteredModels = VIDEO_MODELS.filter(m =>
     (m.modes as readonly string[]).includes(videoSubMode) &&
@@ -63,17 +72,20 @@ export function VideoPromptBarInline() {
     VIDEO_MODELS.find(m => m.id === model && (m.modes as readonly string[]).includes(videoSubMode)) ??
     VIDEO_MODELS.find(m => (m.modes as readonly string[]).includes(videoSubMode));
 
-  const supportsStartEnd =
-    videoSubMode === 'image-to-video' ||
-    (videoSubMode === 'text-to-video' && selectedModel && START_END_FRAME_MODELS.has(selectedModel.id));
+  // Display name: prefer catalog entry (clean, no provider) for Create Video
+  const displayModelName =
+    (isCreate && catalogEntry?.name) || selectedModel?.name || 'Select model';
+
   const isVideoEdit = videoSubMode === 'video-edit';
   const isMotion = videoSubMode === 'motion-control';
   const isGrokEdit = isVideoEdit && model === 'grok-imagine-edit';
   const editSupportsImageRefs = isVideoEdit && (model === 'kling-omni-edit' || model === 'kling-o1-edit-pro');
 
+  // Create Video upload layout comes from the catalog entry
+  const createLayout = isCreate ? (catalogEntry?.uploadLayout ?? 'start-end') : 'none';
+
   const showFrames =
-    (videoSubMode === 'text-to-video' && supportsStartEnd) ||
-    videoSubMode === 'image-to-video' ||
+    (isCreate && createLayout !== 'none') ||
     isMotion ||
     isVideoEdit;
 
@@ -112,7 +124,7 @@ export function VideoPromptBarInline() {
         <AnimatePresence initial={false}>
           {showFrames && (
             <motion.div
-              key={`frames-${videoSubMode}-${supportsStartEnd}`}
+              key={`frames-${videoSubMode}-${createLayout}`}
               layout
               initial={{ opacity: 0, height: 0, marginBottom: 0 }}
               animate={{ opacity: 1, height: 'auto', marginBottom: 0 }}
@@ -122,18 +134,44 @@ export function VideoPromptBarInline() {
             >
               <div className="flex gap-2 px-1 pt-1">
                 {(() => {
+                  // Create Video — drive layout from the catalog entry
+                  if (isCreate) {
+                    if (createLayout === 'start-end') {
+                      return ['Start frame', 'End frame'].map((label, idx) => (
+                        <FrameSlot
+                          key={label}
+                          label={label}
+                          optional
+                          url={referenceImages[idx]}
+                          onUpload={() => onUploadAt(idx)}
+                          onRemove={() => removeReferenceImage(idx)}
+                        />
+                      ));
+                    }
+                    if (createLayout === 'single-required' || createLayout === 'single-optional') {
+                      return (
+                        <SingleUploadTile
+                          optional={createLayout === 'single-optional'}
+                          url={referenceImages[0]}
+                          onUpload={() => onUploadAt(0)}
+                          onRemove={() => removeReferenceImage(0)}
+                        />
+                      );
+                    }
+                    return null;
+                  }
+
+                  // Edit Video / Motion Control — existing behavior
                   const labels = isVideoEdit
                     ? (editSupportsImageRefs
                         ? ['Source video', 'Image 1', 'Image 2', 'Image 3', 'Image 4']
                         : ['Source video'])
-                    : supportsStartEnd
-                      ? ['Start frame', 'End frame']
-                      : isMotion
-                        ? ['Driving video', 'Character image']
-                        : ['Image'];
+                    : isMotion
+                      ? ['Driving video', 'Character image']
+                      : ['Image'];
                   return labels.map((label, idx) => {
                     const img = referenceImages[idx];
-                    const isOptional = (supportsStartEnd && idx === 1) || (isVideoEdit && idx > 0);
+                    const isOptional = isVideoEdit && idx > 0;
                     return (
                       <FrameSlot
                         key={label}
@@ -240,54 +278,67 @@ export function VideoPromptBarInline() {
           </Popover>
 
           {/* Model */}
-          <Popover open={modelOpen} onOpenChange={setModelOpen}>
+          <Popover open={modelOpen} onOpenChange={(o) => { setModelOpen(o); if (!o) setExpandedFamily(null); }}>
             <PopoverTrigger asChild>
               <button className="ms-chip-glass flex items-center gap-1.5 px-3.5 h-9 rounded-full text-xs text-foreground transition-all">
                 <Film className="w-3.5 h-3.5 text-foreground/80" />
-                {selectedModel?.name || 'Select model'}
+                {displayModelName}
                 <ChevronDownIcon className="size-3.5 text-muted-foreground/70" />
               </button>
             </PopoverTrigger>
             <PopoverContent
               align="start" side="top" sideOffset={10}
-              className="w-80 p-0 rounded-2xl ms-glass shadow-[0_24px_60px_-20px_rgba(0,0,0,0.85)] overflow-hidden"
+              className="w-[360px] p-0 rounded-2xl ms-glass shadow-[0_24px_60px_-20px_rgba(0,0,0,0.85)] overflow-hidden"
             >
-              <div className="p-2 border-b border-white/5">
-                <div className="flex items-center gap-2 bg-white/5 rounded-lg px-3 py-2">
-                  <Search className="w-3.5 h-3.5 text-muted-foreground" />
-                  <input
-                    value={search} onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Search video models…"
-                    className="bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 border-0 focus:outline-none flex-1"
-                  />
-                </div>
-              </div>
-              <div className="max-h-80 overflow-y-auto px-1 pb-1 ms-prompt-scroll">
-                {filteredModels.map((m) => (
-                  <button
-                    key={m.id}
-                    onClick={() => { setModel(m.id); setModelOpen(false); }}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left hover:bg-white/5 transition-colors ${model === m.id ? 'bg-white/10' : ''}`}
-                  >
-                    <span className={`w-8 h-8 rounded-lg grid place-items-center shrink-0 ${model === m.id ? 'bg-[#FF2D78]/15 text-[#FF2D78]' : 'bg-white/5 text-foreground/90'}`}>
-                      <Film className="size-4" />
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-sm text-foreground">{m.name}</span>
-                        {m.badge && (
-                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#FF2D78]/20 text-[#FF2D78]">{m.badge}</span>
-                        )}
-                      </div>
-                      <span className="text-xs text-muted-foreground truncate block">{m.desc}</span>
+              {isCreate ? (
+                <CreateModelPicker
+                  search={search}
+                  setSearch={setSearch}
+                  selectedId={model}
+                  expandedFamily={expandedFamily}
+                  setExpandedFamily={setExpandedFamily}
+                  onPick={(id) => { setModel(id); setModelOpen(false); setExpandedFamily(null); }}
+                />
+              ) : (
+                <>
+                  <div className="p-2 border-b border-white/5">
+                    <div className="flex items-center gap-2 bg-white/5 rounded-lg px-3 py-2">
+                      <Search className="w-3.5 h-3.5 text-muted-foreground" />
+                      <input
+                        value={search} onChange={(e) => setSearch(e.target.value)}
+                        placeholder="Search video models…"
+                        className="bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 border-0 focus:outline-none flex-1"
+                      />
                     </div>
-                    {model === m.id && <Check className="w-4 h-4 text-[#FF2D78] shrink-0" />}
-                  </button>
-                ))}
-                {filteredModels.length === 0 && (
-                  <div className="px-3 py-4 text-xs text-muted-foreground text-center">No models for this mode</div>
-                )}
-              </div>
+                  </div>
+                  <div className="max-h-80 overflow-y-auto px-1 pb-1 ms-prompt-scroll">
+                    {filteredModels.map((m) => (
+                      <button
+                        key={m.id}
+                        onClick={() => { setModel(m.id); setModelOpen(false); }}
+                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left hover:bg-white/5 transition-colors ${model === m.id ? 'bg-white/10' : ''}`}
+                      >
+                        <span className={`w-8 h-8 rounded-lg grid place-items-center shrink-0 ${model === m.id ? 'bg-[#FF2D78]/15 text-[#FF2D78]' : 'bg-white/5 text-foreground/90'}`}>
+                          <Film className="size-4" />
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-sm text-foreground">{m.name}</span>
+                            {m.badge && (
+                              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#FF2D78]/20 text-[#FF2D78]">{m.badge}</span>
+                            )}
+                          </div>
+                          <span className="text-xs text-muted-foreground truncate block">{m.desc}</span>
+                        </div>
+                        {model === m.id && <Check className="w-4 h-4 text-[#FF2D78] shrink-0" />}
+                      </button>
+                    ))}
+                    {filteredModels.length === 0 && (
+                      <div className="px-3 py-4 text-xs text-muted-foreground text-center">No models for this mode</div>
+                    )}
+                  </div>
+                </>
+              )}
             </PopoverContent>
           </Popover>
 
@@ -406,5 +457,189 @@ function AspectIcon({ ratio, className = '' }: { ratio: string; className?: stri
     <span className={`w-4 h-4 flex items-center justify-center ${className}`}>
       <span className="border border-current rounded-sm opacity-90" style={{ width: w * scale, height: h * scale }} />
     </span>
+  );
+}
+
+// =============================================================
+// Single wide upload tile (Veo 3.1 Lite, Grok Imagine, Sora 2…)
+// =============================================================
+function SingleUploadTile({
+  optional, url, onUpload, onRemove,
+}: { optional?: boolean; url?: string; onUpload: () => void; onRemove: () => void }) {
+  if (url) {
+    return (
+      <div className="relative w-full max-w-[560px] rounded-2xl overflow-hidden border border-white/10 aspect-[16/7] bg-black/40">
+        <img src={url} alt="" className="w-full h-full object-cover" />
+        <button
+          onClick={onRemove}
+          className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/70 text-white grid place-items-center hover:bg-black/90 transition"
+        >
+          <X className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    );
+  }
+  return (
+    <button
+      onClick={onUpload}
+      className="relative w-full max-w-[560px] aspect-[16/7] rounded-2xl bg-white/[0.03] border border-dashed border-white/15 hover:border-white/30 hover:bg-white/[0.06] transition-colors flex flex-col items-center justify-center gap-1.5 text-muted-foreground"
+    >
+      {optional && (
+        <span className="absolute top-2.5 right-3 text-[10px] text-muted-foreground/80 bg-white/5 rounded-full px-2 py-0.5">Optional</span>
+      )}
+      <div className="w-9 h-9 rounded-full bg-white/5 grid place-items-center">
+        <ImageIcon className="w-4.5 h-4.5" />
+      </div>
+      <div className="text-[13px] text-foreground/90">
+        Upload image or <span className="text-white underline underline-offset-2">generate it</span>
+      </div>
+      <div className="text-[11px] text-muted-foreground/70">PNG, JPG or Paste from clipboard</div>
+    </button>
+  );
+}
+
+// =============================================================
+// Higgsfield-style Create Video model picker
+// Featured + All models (collapsible families)
+// =============================================================
+function CreateModelPicker({
+  search, setSearch, selectedId, expandedFamily, setExpandedFamily, onPick,
+}: {
+  search: string;
+  setSearch: (v: string) => void;
+  selectedId: string;
+  expandedFamily: string | null;
+  setExpandedFamily: (f: string | null) => void;
+  onPick: (id: string) => void;
+}) {
+  const q = search.trim().toLowerCase();
+  const all = VIDEO_CATALOG.filter(e => (e.modes as readonly string[]).includes('text-to-video'));
+  const matches = q ? all.filter(e => e.name.toLowerCase().includes(q) || e.familyLabel.toLowerCase().includes(q)) : null;
+
+  const featured = all.filter(e => e.featured);
+
+  // Group non-featured by family
+  const families: { family: string; familyLabel: string; familyDesc: string; entries: VideoCatalogEntry[] }[] = [];
+  for (const e of all) {
+    let f = families.find(x => x.family === e.family);
+    if (!f) {
+      f = { family: e.family, familyLabel: e.familyLabel, familyDesc: e.familyDesc, entries: [] };
+      families.push(f);
+    }
+    f.entries.push(e);
+  }
+
+  const expanded = expandedFamily ? families.find(f => f.family === expandedFamily) : null;
+
+  return (
+    <>
+      <div className="p-2 border-b border-white/5">
+        <div className="flex items-center gap-2 bg-white/5 rounded-lg px-3 py-2">
+          {expanded ? (
+            <button onClick={() => setExpandedFamily(null)} className="text-muted-foreground hover:text-foreground">
+              <ChevronLeft className="w-3.5 h-3.5" />
+            </button>
+          ) : (
+            <Search className="w-3.5 h-3.5 text-muted-foreground" />
+          )}
+          <input
+            value={search} onChange={(e) => setSearch(e.target.value)}
+            placeholder={expanded ? expanded.familyLabel : 'Search…'}
+            className="bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 border-0 focus:outline-none flex-1"
+          />
+        </div>
+      </div>
+
+      <div className="max-h-[440px] overflow-y-auto px-1.5 pb-2 ms-prompt-scroll">
+        {/* Search results override sections */}
+        {matches ? (
+          <div className="pt-2">
+            {matches.length === 0 && (
+              <div className="px-3 py-4 text-xs text-muted-foreground text-center">No models found</div>
+            )}
+            {matches.map(e => (
+              <CatalogRow key={e.id} entry={e} selected={selectedId === e.id} onPick={() => onPick(e.id)} />
+            ))}
+          </div>
+        ) : expanded ? (
+          <div className="pt-2">
+            {expanded.entries.map(e => (
+              <CatalogRow key={e.id} entry={e} selected={selectedId === e.id} onPick={() => onPick(e.id)} />
+            ))}
+          </div>
+        ) : (
+          <>
+            {/* Featured */}
+            <div className="flex items-center gap-1.5 px-2.5 pt-2.5 pb-1.5 text-[11px] font-semibold tracking-[0.18em] text-white/50 uppercase">
+              <Sparkles className="w-3 h-3" /> Featured models
+            </div>
+            {featured.map(e => (
+              <CatalogRow key={e.id} entry={e} selected={selectedId === e.id} onPick={() => onPick(e.id)} />
+            ))}
+
+            {/* All models */}
+            <div className="flex items-center gap-1.5 px-2.5 pt-3 pb-1.5 text-[11px] font-semibold tracking-[0.18em] text-white/50 uppercase">
+              <Film className="w-3 h-3" /> All models
+            </div>
+            {families.map(f => {
+              const single = f.entries.length === 1;
+              if (single) {
+                return <CatalogRow key={f.family} entry={f.entries[0]} selected={selectedId === f.entries[0].id} onPick={() => onPick(f.entries[0].id)} />;
+              }
+              const hasSelected = f.entries.some(e => e.id === selectedId);
+              return (
+                <button
+                  key={f.family}
+                  onClick={() => setExpandedFamily(f.family)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left hover:bg-white/5 transition-colors ${hasSelected ? 'bg-white/[0.06]' : ''}`}
+                >
+                  <span className="w-9 h-9 rounded-lg grid place-items-center shrink-0 bg-white/5 text-foreground/90">
+                    <Film className="size-4" />
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm text-foreground">{f.familyLabel}</div>
+                    <div className="text-[11px] text-muted-foreground truncate">{f.familyDesc}</div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground/70 shrink-0" />
+                </button>
+              );
+            })}
+          </>
+        )}
+      </div>
+    </>
+  );
+}
+
+function CatalogRow({ entry, selected, onPick }: { entry: VideoCatalogEntry; selected: boolean; onPick: () => void }) {
+  return (
+    <button
+      onClick={onPick}
+      className={`w-full flex items-start gap-3 px-3 py-2.5 rounded-lg text-left hover:bg-white/5 transition-colors ${selected ? 'bg-white/10' : ''}`}
+    >
+      <span className={`w-9 h-9 rounded-lg grid place-items-center shrink-0 ${selected ? 'bg-[#FF2D78]/15 text-[#FF2D78]' : 'bg-white/5 text-foreground/90'}`}>
+        <Film className="size-4" />
+      </span>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-sm text-foreground font-medium">{entry.name}</span>
+          {entry.hasAudio && <Volume2 className="w-3 h-3 text-muted-foreground" />}
+          {entry.badge && (
+            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${entry.badge === 'EXCLUSIVE' ? 'bg-[#D4FF3F] text-black' : 'bg-[#D4FF3F] text-black'}`}>
+              {entry.badge}
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-1.5 mt-1">
+          <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground bg-white/5 rounded-md px-1.5 py-0.5">
+            <Tag className="w-2.5 h-2.5" /> {entry.resolution}
+          </span>
+          <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground bg-white/5 rounded-md px-1.5 py-0.5">
+            <Clock className="w-2.5 h-2.5" /> {entry.durationRange}
+          </span>
+        </div>
+      </div>
+      {selected && <Check className="w-4 h-4 text-[#FF2D78] shrink-0 mt-1" />}
+    </button>
   );
 }
