@@ -330,14 +330,8 @@ function withReferenceMap(prompt: string, bundle: ReferenceBundle) {
   const lines: string[] = [];
   const refs = bundle.referenceImages;
   const hasAvatarFirst = bundle.hasAvatar && refs[0]?.includes('ms-avatars');
-  const hasKeyframe = refs.some((u) => u.includes('ms-keyframes'));
 
-  if (hasAvatarFirst && hasKeyframe) {
-    lines.push('Reference map: Image 1 is the avatar identity — primary facial identity lock. Every frame of the video must match this face exactly (skin tone, hair color, hair texture, eye shape, facial structure).');
-    lines.push('Image 2 is the composed scene — use for environment, lighting, composition, and product placement only. Do NOT use image 2 for facial identity.');
-    lines.push('Images 3+ are product references — preserve product shape, color, material, packaging, and visible details exactly.');
-    lines.push('Animate the composed scene naturally with the dialogue, micro-actions, and camera language described below. Do not invent a new environment.');
-  } else if (hasAvatarFirst) {
+  if (hasAvatarFirst) {
     lines.push('Reference map: Image 1 is the avatar identity — primary facial identity lock. Every frame of the video must match this face exactly. Do not copy the photo composition, background, pose, lighting, or wardrobe.');
     lines.push('The remaining images are product references — preserve product shape, color, material, packaging, and visible details exactly.');
     lines.push('Generate a fresh scene from the script below.');
@@ -354,10 +348,10 @@ function assertNoRawHumanReferences(bundle: ReferenceBundle): string | null {
   if (!bundle.hasAvatar) return null;
   if (bundle.assetRegistrationError) return bundle.assetRegistrationError;
   const rawHumanRef = bundle.atlasReferenceImages?.find((url) => !String(url).startsWith('asset://') && (
-    /ms-avatars/i.test(String(url)) || /ms-keyframes/i.test(String(url)) || String(url).includes('wsrv.nl')
+    /ms-avatars/i.test(String(url)) || String(url).includes('wsrv.nl')
   ));
   return rawHumanRef
-    ? 'AtlasCloud portrait asset registration did not complete, so the avatar/keyframe was not submitted as a raw image. Retry shortly or re-upload the avatar.'
+    ? 'AtlasCloud portrait asset registration did not complete, so the avatar was not submitted as a raw image. Retry shortly or re-upload the avatar.'
     : null;
 }
 
