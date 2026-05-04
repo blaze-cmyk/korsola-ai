@@ -813,6 +813,7 @@ Deno.serve(async (req) => {
     const userTextBlock =
       // Duration spec FIRST so it dominates everything that follows.
       `${durationSpec}\n` +
+      `SELECTED_FORMAT: ${format || 'UGC'} — apply the matching format module from the system prompt verbatim. Do NOT mix in beats from other formats.\n` +
       `ASPECT: ${aspect}\n` +
       `DURATION: ${durSec}s\n\n` +
       `${personaBlock}\n` +
