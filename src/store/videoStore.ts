@@ -229,6 +229,36 @@ function updateVideoAndSave(videoId: string, updates: Partial<GeneratedVideo>, g
   if (updated) saveVideoToDb(updated);
 }
 
+const activeSeedancePolls = new Set<string>();
+
+async function pollSeedanceVideo(videoId: string, taskId: string, get: () => VideoState, set: (s: Partial<VideoState>) => void) {
+  if (!taskId || activeSeedancePolls.has(videoId)) return;
+  activeSeedancePolls.add(videoId);
+  try {
+    const maxAttempts = 360;
+    let delay = 4000;
+    for (let i = 0; i < maxAttempts; i++) {
+      await new Promise(r => setTimeout(r, delay));
+      delay = Math.min(8000, delay + 250);
+      const { data: poll } = await supabase.functions.invoke('seedance-generate-video', {
+        body: { action: 'poll', predictionId: taskId, videoId },
+      });
+      if (poll?.status === 'complete' && poll.videoUrl) {
+        updateVideoAndSave(videoId, { status: 'complete', videoUrl: poll.videoUrl, progress: 100 }, get, set);
+        return;
+      }
+      if (poll?.status === 'failed') {
+        updateVideoAndSave(videoId, { status: 'failed', error: poll.error || 'Seedance generation failed' }, get, set);
+        return;
+      }
+    }
+  } catch (e) {
+    console.error('Seedance polling failed:', e);
+  } finally {
+    activeSeedancePolls.delete(videoId);
+  }
+}
+
 async function callGenerate(payload: Record<string, unknown>, videoId: string, get: () => VideoState, set: (s: Partial<VideoState>) => void) {
   const refs = payload.referenceImages as string[] | undefined;
 
@@ -473,6 +503,8 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
         });
         if (error || data?.error) {
           updateVideoAndSave(id, { status: 'failed', error: (data?.error || error?.message) ?? 'Seedance retry failed' }, get, set);
+        } else if (data?.taskId) {
+          pollSeedanceVideo(id, data.taskId, get, set);
         }
       } catch (e: any) {
         updateVideoAndSave(id, { status: 'failed', error: e?.message ?? 'Seedance retry failed' }, get, set);
@@ -513,7 +545,7 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
     try {
       let q = (supabase as any)
         .from('video_generations')
-        .select('id,prompt,model,mode,aspect_ratio,duration,resolution,status,video_url,thumbnail_url,reference_images,error,created_at,liked,project_id,create_project_id')
+        .select('id,prompt,model,mode,aspect_ratio,duration,resolution,status,video_url,thumbnail_url,reference_images,error,created_at,liked,project_id,create_project_id,task_id')
         .order('created_at', { ascending: false })
         .limit(100);
       if (projectId) q = q.or(`create_project_id.eq.${projectId},project_id.eq.${projectId}`);
@@ -540,6 +572,11 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
       const nextLoaded = new Set(loaded ?? []);
       nextLoaded.add(key);
       set({ videos: [...get().videos, ...newOnes], _historyLoaded: true, _loadedProjects: nextLoaded } as any);
+      (data || []).forEach((row: any) => {
+        if (row.model === 'seedance-2.0' && row.status === 'processing' && row.task_id) {
+          pollSeedanceVideo(row.id, row.task_id, get, set);
+        }
+      });
     } catch (e) {
       console.error('Failed to load video history:', e);
     }
