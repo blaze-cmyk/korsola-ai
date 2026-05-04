@@ -817,7 +817,6 @@ function MarketingCard({ gen, createProjectId }: { gen: MSGeneration & { kind: '
   const toggleLike = useMarketingFeedStore((s) => s.toggleLike);
   const removeLocal = useMarketingFeedStore((s) => s.removeGeneration);
   const [selected, setSelected] = useState(false);
-  const [, forceTick] = useState(0);
 
   const isPending =
     gen.status === 'queued' ||
@@ -827,14 +826,14 @@ function MarketingCard({ gen, createProjectId }: { gen: MSGeneration & { kind: '
     (!gen.videoUrl && gen.status !== 'failed' && gen.stage !== 'done');
   const isFailed = gen.status === 'failed';
 
-  useEffect(() => {
-    if (!isPending) return;
-    const t = setInterval(() => forceTick((n) => n + 1), 1000);
-    return () => clearInterval(t);
-  }, [isPending]);
-
-  const elapsed = Math.floor((Date.now() - (gen.submittedAt || gen.createdAt)) / 1000);
-  const pct = Math.min(95, Math.floor((elapsed / 120) * 100));
+  const { pct, elapsed } = useGenerationProgress({
+    kind: 'marketing',
+    startedAt: gen.submittedAt || gen.createdAt,
+    isComplete: gen.status === 'done' || (!!gen.videoUrl && !isPending),
+    isFailed,
+    hint: gen.stage,
+    durationSeconds: parseInt((gen.duration || '8s').replace(/[^0-9]/g, ''), 10) || 8,
+  });
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
