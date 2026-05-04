@@ -9,6 +9,14 @@ function formatBytes(bytes: number) {
   return `${(bytes / 1048576).toFixed(1)} MB`;
 }
 
+export type VideoStage =
+  | 'submitted'
+  | 'uploading_refs'
+  | 'queued'
+  | 'processing'
+  | 'complete'
+  | 'failed';
+
 export type GeneratedVideo = {
   id: string;
   prompt: string;
@@ -19,6 +27,7 @@ export type GeneratedVideo = {
   duration: string;
   resolution?: string;
   status: 'generating' | 'complete' | 'failed' | 'nsfw';
+  stage?: VideoStage;
   videoUrl?: string;
   thumbnailUrl?: string;
   createdAt: number;
