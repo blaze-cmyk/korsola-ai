@@ -284,11 +284,13 @@ async function buildReferenceBundle(admin: any, opts: {
   avatarId?: string | null;
   extraImageUrls: string[];
   audioSourceUrls: string[];
+  keyframeUrl?: string | null;
 }): Promise<ReferenceBundle> {
   const productUrls = opts.productId ? await fetchProductImageUrls(admin, opts.productId, 7) : [];
   const avatarUrl = opts.avatarId ? await fetchAvatarImageUrl(admin, opts.avatarId) : null;
   const atlasAvatarAsset = avatarUrl ? await createAtlasPortraitAsset(avatarUrl, opts.avatarId) : null;
   const extraImageUrls = uniqueValidUrls(opts.extraImageUrls ?? [], 9).filter((url) => {
+    if (url === opts.keyframeUrl) return false; // keyframe is placed explicitly below
     if (!opts.avatarId) return true;
     // Never pass the original avatar upload as an extra reference. The working
     // pipeline only sent the wsrv-cropped avatar headshot; the raw signed avatar
@@ -299,15 +301,22 @@ async function buildReferenceBundle(admin: any, opts: {
     return !isAvatarStorageUrl(url);
   });
 
-  // Order matters for Seedance reference-to-video: product refs first, avatar
-  // (already wsrv-cropped to a 640x640 headshot) last. Putting a raw full-body
-  // avatar photo first is what Atlas's "may contain real person" moderator
-  // rejects. Keep extras after the avatar.
-  const orderedRefs = uniqueValidUrls([
-    ...productUrls,
-    ...(avatarUrl ? [avatarUrl] : []),
-    ...extraImageUrls,
-  ], 9);
+  // KEYFRAME-FIRST ORDERING: when a composed keyframe is present, it goes at
+  // index 0 — that's the "scene to animate". Avatar (face lock only) and
+  // products (appearance lock) follow. When no keyframe, fall back to the
+  // legacy product-first / avatar-last order so we preserve old behavior.
+  const orderedRefs = opts.keyframeUrl
+    ? uniqueValidUrls([
+        opts.keyframeUrl,
+        ...(avatarUrl ? [avatarUrl] : []),
+        ...productUrls,
+        ...extraImageUrls,
+      ], 9)
+    : uniqueValidUrls([
+        ...productUrls,
+        ...(avatarUrl ? [avatarUrl] : []),
+        ...extraImageUrls,
+      ], 9);
 
   return {
     mode: orderedRefs.length > 0 ? 'reference-to-video' : 'text-to-video',
