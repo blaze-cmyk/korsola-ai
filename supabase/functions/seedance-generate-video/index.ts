@@ -293,7 +293,7 @@ Deno.serve(async (req) => {
       duration = 5,
       resolution = '720p',
       ratio = 'adaptive',
-      generateAudio = true,
+      generateAudio = false,
       variant,
       videoId,            // existing video_generations row id (created client-side)
       projectId,
