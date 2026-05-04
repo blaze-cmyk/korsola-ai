@@ -443,6 +443,8 @@ async function byteplusPoll(taskId: string) {
   }
   return { status: 'processing' as const };
 }
+
+async function atlasPoll(predictionId: string) {
   const res = await fetch(`${ATLAS_BASE}/prediction/${predictionId}`, {
     headers: { Authorization: `Bearer ${ATLAS_KEY}` },
   });
