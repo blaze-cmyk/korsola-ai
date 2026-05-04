@@ -64,6 +64,11 @@ function uniqueUrls(values: unknown[], max: number): string[] {
   return out;
 }
 
+const VIDEO_EXT = /\.(mp4|mov|webm|m4v|mkv|avi)(\?|#|$)/i;
+const AUDIO_EXT = /\.(mp3|wav|m4a|aac|ogg|flac)(\?|#|$)/i;
+function looksLikeVideo(url: string): boolean { return VIDEO_EXT.test(url); }
+function looksLikeAudio(url: string): boolean { return AUDIO_EXT.test(url); }
+
 function clampDuration(d: unknown): number {
   const n = Number(d);
   if (!Number.isFinite(n)) return 5;
