@@ -243,6 +243,16 @@ export const useSeedanceStore = create<SeedanceState>((set, get) => ({
       console.error('Failed to insert seedance row', e);
     }
 
+    // Helper: write stage to the row so the grid can render the step label.
+    const setStage = async (stage: string, extra: Record<string, unknown> = {}) => {
+      try {
+        await (supabase as any).from('video_generations')
+          .update({ stage, ...extra }).eq('id', videoId);
+      } catch { /* non-fatal */ }
+    };
+
+    await setStage('submitted');
+
     // Use the dedicated seedance edge function (handles asset registration).
     const { data, error } = await supabase.functions.invoke('seedance-generate-video', {
       body: {
@@ -263,18 +273,28 @@ export const useSeedanceStore = create<SeedanceState>((set, get) => ({
 
     if (error) {
       set({ isSubmitting: false });
+      await setStage('failed', { status: 'failed', error: error.message ?? 'Submit failed' });
       toast.error(error.message || 'Seedance submit failed');
       return;
     }
-    if (data?.error) {
+    if (data?.error || data?.status === 'failed') {
       set({ isSubmitting: false });
-      toast.error(data.error);
+      const msg = data.error || 'Seedance rejected the request';
+      await setStage('failed', { status: 'failed', error: msg });
+      toast.error(msg);
       return;
     }
     if (!data?.taskId) {
       set({ isSubmitting: false });
+      await setStage('failed', { status: 'failed', error: 'No task id returned' });
       toast.error('AtlasCloud did not return a task id.');
       return;
+    }
+
+    if (data?.audioFallbackUsed) {
+      toast.message('Audio disabled', {
+        description: 'Seedance moderation rejected the audio track — retried as visual-only.',
+      });
     }
 
     // Reset UI for next prompt; polling continues in background.
@@ -295,9 +315,14 @@ export const useSeedanceStore = create<SeedanceState>((set, get) => ({
             body: { action: 'poll', predictionId: data.taskId, videoId },
           });
           if (poll?.status === 'complete') return;
-          if (poll?.status === 'failed') return;
+          if (poll?.status === 'failed') {
+            toast.error(poll.error || 'Seedance generation failed');
+            return;
+          }
         } catch { /* keep polling */ }
       }
+      await setStage('failed', { status: 'failed', error: 'Generation timed out after 30 min' });
+      toast.error('Seedance timed out. Try a shorter clip or fewer references.');
     })();
   },
 }));
