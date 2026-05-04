@@ -213,15 +213,14 @@ async function createRequiredAtlasAsset(
   label: string,
   assetType: 'Image' | 'Video',
 ): Promise<{ assetUrl?: string; error?: string }> {
-  const assetUrl = await createAtlasAsset(rawUrl, label, assetType);
-  if (assetUrl?.startsWith('asset://')) return { assetUrl };
   if (assetType === 'Video') {
-    // Atlas portrait assets are image-first and can reject valid videos during
-    // preprocessing. If that happens, ingest the prompt-bar upload through
-    // Atlas uploadMedia and pass the provider-hosted URL (never the raw app URL).
+    // Atlas docs support reference_videos as URLs; prompt-bar uploads must be
+    // re-hosted through Atlas uploadMedia instead of sent as raw app storage URLs.
     const mediaUrl = await uploadAtlasMedia(rawUrl, label);
     if (mediaUrl) return { assetUrl: mediaUrl };
   }
+  const assetUrl = await createAtlasAsset(rawUrl, label, assetType);
+  if (assetUrl?.startsWith('asset://')) return { assetUrl };
   const media = assetType === 'Video' ? 'reference video' : 'reference image';
   return { error: `AtlasCloud could not ingest the ${media}. Retry with an MP4/MOV under 50MB and 15 seconds, or remove that reference.` };
 }
