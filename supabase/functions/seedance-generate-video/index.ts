@@ -471,11 +471,12 @@ Deno.serve(async (req) => {
         provider: 'atlascloud',
         task_id: submission.predictionId,
         status: 'processing',
+        stage: 'processing',
         error: null,
       });
     }
 
-    log('INFO', 'submit ok', { predictionId: submission.predictionId, endpoint: submission.endpoint });
+    log('INFO', 'submit ok', { predictionId: submission.predictionId, endpoint: submission.endpoint, audioFallbackUsed });
 
     return json({
       submitted: true,
@@ -483,6 +484,8 @@ Deno.serve(async (req) => {
       taskId: submission.predictionId,
       endpoint: submission.endpoint,
       status: 'processing',
+      stage: 'processing',
+      audioFallbackUsed,
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
