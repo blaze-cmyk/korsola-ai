@@ -224,7 +224,7 @@ async function atlasSubmit(p: SubmitParams) {
     if (isBalanceError(res.status, text)) {
       return { ok: false as const, error: 'AtlasCloud is out of credit. Add credits at console.atlascloud.ai then retry.' };
     }
-    return { ok: false as const, error: `AtlasCloud ${code}: ${rawMsg}` };
+    return { ok: false as const, error: friendly(`${rawMsg}`) };
   }
   return { ok: true as const, predictionId: String(predictionId), endpoint: p.variant };
 }
