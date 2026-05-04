@@ -7,6 +7,7 @@ import { Heart, Maximize2, Play, Loader2, AlertCircle, RefreshCw } from 'lucide-
 import { VideoDetailModal } from '@/components/marketingstudio/VideoDetailModal';
 import { FailedGenerationPanel } from '@/components/marketingstudio/FailedGenerationPanel';
 import { supabase } from '@/integrations/supabase/client';
+import { useRealtimeTable } from '@/hooks/useRealtimeTable';
 import { toast } from '@/hooks/use-toast';
 
 const minProviderTimeoutMs = (duration?: string) => {
