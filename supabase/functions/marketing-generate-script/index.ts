@@ -361,18 +361,17 @@ const FORMAT_WILD_CARD = `SELECTED FORMAT: WILD CARD (full creative freedom)
 No format constraints. Make the most interesting decision possible for this specific product with this specific avatar. Name your approach in camera_notes. Explain in one sentence in persona_used why this approach serves this product better than any standard format.`;
 
 const FORMAT_SYSTEM_PROMPTS: Record<string, string> = {
-  UGC: UGC_PROMPT,
-  'UGC Virtual Try On': UGC_TRYON_PROMPT,
-  Tutorial: TUTORIAL_PROMPT,
-  Unboxing: UNBOXING_PROMPT,
-  Podcast: PODCAST_PROMPT,
-  AVATAR_TALKING_HEAD: AVATAR_TALKING_HEAD_PROMPT,
-  // Legacy formats keep lightweight prompts
-  'Pro Virtual Try On': `You write polished editorial try-on scripts. Street-style energy, fashion-photographer aesthetic, slow camera pushes, light natural dialog or beat-cut silence. Voice = CREATOR_PERSONA.`,
-  'Hyper Motion': `You write CGI / hyper-motion product scripts. NO avatar dialog. Pure cinematic: liquid, particles, macro, 360 orbits, speed ramps, packshot. Studio background, hyper-real, 8k aesthetic.`,
-  'Product Review': `You write hands-on product review scripts. Avatar holds, demonstrates, gives an honest 10-second take. Voice = CREATOR_PERSONA.`,
-  'TV Spot': `You write 15s cinematic TV spot scripts. 3-act narrative, voiceover (not on-camera dialog), beautiful camera work, brand moment at the end.`,
-  'Wild Card': `You write surreal, scroll-stopping ad scripts that break expectations. Surprising beat, unexpected setting, memorable single line.`,
+  UGC: FORMAT_UGC,
+  'UGC Virtual Try On': FORMAT_UGC_TRYON,
+  Tutorial: FORMAT_TUTORIAL,
+  Unboxing: FORMAT_UNBOXING,
+  Podcast: FORMAT_PODCAST,
+  AVATAR_TALKING_HEAD: FORMAT_AVATAR_TALKING_HEAD,
+  'Pro Virtual Try On': FORMAT_UGC_TRYON,
+  'Hyper Motion': FORMAT_HYPER_MOTION,
+  'Product Review': FORMAT_TUTORIAL,
+  'TV Spot': FORMAT_TV_SPOT,
+  'Wild Card': FORMAT_WILD_CARD,
 };
 
 // ---------- Banned word check ----------
