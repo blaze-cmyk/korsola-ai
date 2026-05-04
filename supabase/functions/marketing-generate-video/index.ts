@@ -284,11 +284,13 @@ async function buildReferenceBundle(admin: any, opts: {
   avatarId?: string | null;
   extraImageUrls: string[];
   audioSourceUrls: string[];
+  keyframeUrl?: string | null;
 }): Promise<ReferenceBundle> {
   const productUrls = opts.productId ? await fetchProductImageUrls(admin, opts.productId, 7) : [];
   const avatarUrl = opts.avatarId ? await fetchAvatarImageUrl(admin, opts.avatarId) : null;
   const atlasAvatarAsset = avatarUrl ? await createAtlasPortraitAsset(avatarUrl, opts.avatarId) : null;
   const extraImageUrls = uniqueValidUrls(opts.extraImageUrls ?? [], 9).filter((url) => {
+    if (url === opts.keyframeUrl) return false; // keyframe is placed explicitly below
     if (!opts.avatarId) return true;
     // Never pass the original avatar upload as an extra reference. The working
     // pipeline only sent the wsrv-cropped avatar headshot; the raw signed avatar
@@ -299,15 +301,22 @@ async function buildReferenceBundle(admin: any, opts: {
     return !isAvatarStorageUrl(url);
   });
 
-  // Order matters for Seedance reference-to-video: product refs first, avatar
-  // (already wsrv-cropped to a 640x640 headshot) last. Putting a raw full-body
-  // avatar photo first is what Atlas's "may contain real person" moderator
-  // rejects. Keep extras after the avatar.
-  const orderedRefs = uniqueValidUrls([
-    ...productUrls,
-    ...(avatarUrl ? [avatarUrl] : []),
-    ...extraImageUrls,
-  ], 9);
+  // KEYFRAME-FIRST ORDERING: when a composed keyframe is present, it goes at
+  // index 0 — that's the "scene to animate". Avatar (face lock only) and
+  // products (appearance lock) follow. When no keyframe, fall back to the
+  // legacy product-first / avatar-last order so we preserve old behavior.
+  const orderedRefs = opts.keyframeUrl
+    ? uniqueValidUrls([
+        opts.keyframeUrl,
+        ...(avatarUrl ? [avatarUrl] : []),
+        ...productUrls,
+        ...extraImageUrls,
+      ], 9)
+    : uniqueValidUrls([
+        ...productUrls,
+        ...(avatarUrl ? [avatarUrl] : []),
+        ...extraImageUrls,
+      ], 9);
 
   return {
     mode: orderedRefs.length > 0 ? 'reference-to-video' : 'text-to-video',
@@ -322,8 +331,20 @@ async function buildReferenceBundle(admin: any, opts: {
 function withReferenceMap(prompt: string, bundle: ReferenceBundle) {
   if (bundle.mode !== 'reference-to-video' || bundle.referenceImages.length === 0) return prompt;
   const lines: string[] = [];
-  const productCount = bundle.hasProduct ? Math.max(1, bundle.referenceImages.length - (bundle.hasAvatar ? 1 : 0)) : 0;
-  if (bundle.hasProduct && bundle.hasAvatar) {
+  // Detect a composed keyframe at index 0 (ms-keyframes bucket signed URL).
+  const firstUrl = bundle.referenceImages[0] || '';
+  const hasKeyframe = firstUrl.includes('ms-keyframes');
+
+  if (hasKeyframe) {
+    lines.push('Reference map: image 1 is the COMPOSED SCENE — animate THIS frame. The avatar is already positioned, the product is already in their hands, the lighting and setting are already established. Treat image 1 as the first frame of the video.');
+    if (bundle.hasAvatar) {
+      lines.push('The remaining images are identity locks: the avatar reference is for FACIAL LIKENESS ONLY — do NOT recreate its background, wardrobe, room, pose, or composition. The product references lock product shape, color, material, packaging, and visible details exactly.');
+    } else {
+      lines.push('The remaining images are product references — preserve product shape, color, material, packaging, and visible details exactly.');
+    }
+    lines.push('Animate the composed scene naturally with the dialogue, micro-actions, and camera language described below. Do not invent a new environment.');
+  } else if (bundle.hasProduct && bundle.hasAvatar) {
+    const productCount = Math.max(1, bundle.referenceImages.length - 1);
     const avatarIndex = bundle.referenceImages.findIndex((url) => url.includes('wsrv.nl') && url.includes('ms-avatars')) + 1;
     const productIndexes = bundle.referenceImages
       .map((url, idx) => ({ url, idx: idx + 1 }))
@@ -331,14 +352,16 @@ function withReferenceMap(prompt: string, bundle: ReferenceBundle) {
       .map(({ idx }) => idx)
       .join(', ');
     lines.push(`Reference map: images ${productIndexes || '1'} are product references — preserve product shape, color, material, packaging, and visible details exactly. Image ${avatarIndex || productCount + 1} is the creator/avatar identity — preserve facial likeness only; do not copy the uploaded photo composition, background, pose, lighting, or wardrobe.`);
+    lines.push('Generate a fresh scene from the script below; direct the subject and product naturally inside that new scene.');
   } else if (bundle.hasProduct) {
     lines.push('Reference map: all images are product references. Preserve product shape, color, material, packaging, and visible details exactly.');
+    lines.push('Generate a fresh scene from the script below.');
   } else if (bundle.hasAvatar) {
     lines.push('Reference map: the image is the creator/avatar identity. Preserve facial likeness only; do not copy the uploaded photo composition, background, pose, lighting, or wardrobe.');
+    lines.push('Generate a fresh scene from the script below.');
   } else {
     lines.push('Reference map: use the provided images as visual anchors, not as a first frame to animate.');
   }
-  lines.push('Generate a fresh scene from the script below; direct the subject and product naturally inside that new scene.');
   return `${lines.join('\n')}\n\n${prompt}`;
 }
 
@@ -651,7 +674,20 @@ Deno.serve(async (req) => {
     const atlasRatio = normalizeAtlasRatio(aspect);
     const extraImageUrls = Array.isArray(image_urls) ? uniqueValidUrls(image_urls, 9) : [];
     const audioSourceUrls = await gatherAudioSourceUrls(admin, { avatarId, format });
-    const bundle = await buildReferenceBundle(admin, { productId, avatarId, extraImageUrls, audioSourceUrls });
+
+    // Resolve the keyframe URL: prefer explicit body param (from orchestrator),
+    // fall back to the value already stored on the row (retry path).
+    let keyframeUrl: string | null = (body.keyframe_url as string | null) ?? null;
+    if (!keyframeUrl && reuseGenerationId) {
+      const { data: existingRow } = await admin
+        .from('ms_generations')
+        .select('keyframe_url, keyframe_path')
+        .eq('id', reuseGenerationId)
+        .maybeSingle();
+      if (existingRow?.keyframe_url) keyframeUrl = existingRow.keyframe_url as string;
+    }
+
+    const bundle = await buildReferenceBundle(admin, { productId, avatarId, extraImageUrls, audioSourceUrls, keyframeUrl });
 
     log('INFO', 'submit: bundle built', {
       mode: bundle.mode,
@@ -659,15 +695,14 @@ Deno.serve(async (req) => {
       refAudios: bundle.referenceAudios.length,
       hasAvatar: bundle.hasAvatar,
       hasProduct: bundle.hasProduct,
+      hasKeyframe: !!keyframeUrl,
       providerOrder: providerOrder(bundle),
     });
 
     let row: any;
-    const rowPayload = {
+    const rowPayload: Record<string, unknown> = {
       prompt,
       script_text: script_text ?? null,
-      keyframe_url: null,
-      keyframe_path: null,
       reference_paths: bundle.referenceImages,
       status: 'queued',
       stage: 'videoing',
@@ -681,6 +716,11 @@ Deno.serve(async (req) => {
       duration_seconds: duration,
       resolution: normalizeAtlasResolution(resolution),
     };
+    // Only overwrite keyframe fields if we explicitly received one — never
+    // wipe a successfully composed keyframe on retry / re-submit.
+    if (keyframeUrl) {
+      rowPayload.keyframe_url = keyframeUrl;
+    }
 
     if (reuseGenerationId) {
       const { data: updated, error } = await admin.from('ms_generations').update(rowPayload).eq('id', reuseGenerationId).select().single();
