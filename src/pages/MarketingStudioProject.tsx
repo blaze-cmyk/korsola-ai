@@ -110,7 +110,50 @@ export default function MarketingStudioProject() {
       }));
     }
     let cancelled = false;
-    const sync = async () => {
+
+    const applyRow = (row: any) => {
+      const currentProject = useMarketingStudioStore
+        .getState()
+        .projects.find((p) => p.id === projectId);
+      const known = new Set((currentProject?.generations ?? []).map((g) => g.id));
+      if (known.has(row.id)) {
+        updateGeneration(projectId, row.id, {
+          status: row.status as MSGeneration['status'],
+          stage: row.stage as MSGeneration['stage'],
+          videoUrl: row.video_url ?? undefined,
+          thumbUrl: row.thumb_url ?? row.keyframe_url ?? undefined,
+          error: row.error ?? undefined,
+          falRequestId: row.fal_request_id ?? undefined,
+          submittedAt:
+            row.status === 'queued' || row.status === 'queued_pending_persist' || row.status === 'running'
+              ? new Date(row.updated_at ?? row.created_at).getTime()
+              : undefined,
+        });
+      } else {
+        addGeneration(projectId, {
+          id: row.id,
+          thumbUrl: row.thumb_url ?? row.keyframe_url ?? '',
+          videoUrl: row.video_url ?? undefined,
+          prompt: row.prompt ?? '',
+          mode: (row.format ?? 'UGC') as MSGeneration['mode'],
+          surface: (row.surface ?? 'Product') as MSGeneration['surface'],
+          aspect: (row.aspect ?? '9:16') as MSGeneration['aspect'],
+          resolution: (row.resolution ?? '720p') as MSGeneration['resolution'],
+          duration: `${row.duration_seconds ?? 8}s`,
+          productId: row.product_id ?? undefined,
+          avatarId: row.avatar_id ?? undefined,
+          createdAt: new Date(row.created_at).getTime(),
+          submittedAt: new Date(row.updated_at ?? row.created_at).getTime(),
+          status: row.status as MSGeneration['status'],
+          stage: row.stage as MSGeneration['stage'],
+          falRequestId: row.fal_request_id ?? undefined,
+          error: row.error ?? undefined,
+        });
+      }
+    };
+
+    // One-time hydration from DB on mount/project switch.
+    (async () => {
       const { data, error } = await supabase
         .from('ms_generations')
         .select(
@@ -120,54 +163,28 @@ export default function MarketingStudioProject() {
         .order('created_at', { ascending: false })
         .limit(100);
       if (cancelled || error || !data) return;
-      const currentProject = useMarketingStudioStore.getState().projects.find((p) => p.id === projectId);
-      const known = new Set((currentProject?.generations ?? []).map((g) => g.id));
-      for (const row of data) {
-        if (known.has(row.id)) {
-          updateGeneration(projectId, row.id, {
-            status: row.status as MSGeneration['status'],
-            stage: (row as any).stage as MSGeneration['stage'],
-            videoUrl: row.video_url ?? undefined,
-            thumbUrl: row.thumb_url ?? (row as any).keyframe_url ?? undefined,
-            error: row.error ?? undefined,
-            falRequestId: row.fal_request_id ?? undefined,
-            submittedAt:
-              row.status === 'queued' || row.status === 'queued_pending_persist' || row.status === 'running'
-                ? new Date((row as any).updated_at ?? row.created_at as any).getTime()
-                : undefined,
-          });
-        } else {
-          addGeneration(projectId, {
-            id: row.id,
-            thumbUrl: row.thumb_url ?? (row as any).keyframe_url ?? '',
-            videoUrl: row.video_url ?? undefined,
-            prompt: row.prompt ?? '',
-            mode: ((row as any).format ?? 'UGC') as MSGeneration['mode'],
-            surface: ((row as any).surface ?? 'Product') as MSGeneration['surface'],
-            aspect: ((row as any).aspect ?? '9:16') as MSGeneration['aspect'],
-            resolution: ((row as any).resolution ?? '720p') as MSGeneration['resolution'],
-            duration: `${(row as any).duration_seconds ?? 8}s`,
-            productId: (row as any).product_id ?? undefined,
-            avatarId: (row as any).avatar_id ?? undefined,
-            createdAt: new Date(row.created_at as any).getTime(),
-            submittedAt: new Date(((row as any).updated_at ?? row.created_at) as any).getTime(),
-            status: row.status as MSGeneration['status'],
-            stage: (row as any).stage as MSGeneration['stage'],
-            falRequestId: row.fal_request_id ?? undefined,
-            error: row.error ?? undefined,
-          });
-        }
-      }
-    };
-    sync();
-    const hasActiveJobs = () => {
-      const currentProject = useMarketingStudioStore.getState().projects.find((p) => p.id === projectId);
-      return (currentProject?.generations ?? []).some(isGenerationActive);
-    };
-    const t = setInterval(sync, hasActiveJobs() ? 10000 : 30000);
+      for (const row of data) applyRow(row);
+    })();
+
+    // Realtime subscription — INSERT/UPDATE on ms_generations for this project
+    // pushes status changes (queued → running → done) to the UI instantly.
+    const channel = supabase
+      .channel(`ms_gen:${projectId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'ms_generations', filter: `project_id=eq.${projectId}` },
+        (payload) => {
+          const row = (payload.new ?? payload.old) as any;
+          if (!row?.id) return;
+          if (payload.eventType === 'DELETE') return;
+          applyRow(row);
+        },
+      )
+      .subscribe();
+
     return () => {
       cancelled = true;
-      clearInterval(t);
+      supabase.removeChannel(channel);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project?.id]);
