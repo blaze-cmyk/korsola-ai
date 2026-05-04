@@ -185,11 +185,11 @@ export function VideoPromptBarInline() {
 
   const mentionItems: MentionItem[] = useMemo(
     () => slotMeta
-      .map((s, i) => {
+      .map((s, i): MentionItem | null => {
         const url = referenceImages[i];
         if (!url) return null;
         const isVideo = url.startsWith('data:video') || /\.(mp4|mov|webm)(\?|$)/i.test(url);
-        return { id: s.id, label: s.label, thumbUrl: url, kind: isVideo ? 'video' as const : 'image' as const };
+        return { id: s.id, label: s.label, thumbUrl: url, kind: isVideo ? 'video' : 'image' };
       })
       .filter((x): x is MentionItem => !!x),
     [slotMeta, referenceImages],
