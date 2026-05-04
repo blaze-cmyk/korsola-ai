@@ -395,24 +395,7 @@ export default function MarketingStudioProject() {
                     <div className="absolute inset-0 bg-[#0a0a0a]" />
                   )}
 
-                  {isPending && (
-                    <>
-                      <div className="absolute inset-0 ms-shimmer opacity-40" />
-                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-foreground/90 px-3">
-                        <Loader2 className="w-6 h-6 animate-spin" />
-                        <div className="text-[11px] font-medium tracking-wide uppercase text-center">
-                          {stageLabel(g)}
-                        </div>
-                        <div className="w-3/4 h-1 rounded-full bg-white/10 overflow-hidden">
-                          <div
-                            className="h-full bg-foreground/80 transition-all"
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
-                        <div className="text-[10px] text-muted-foreground">{elapsed}s</div>
-                      </div>
-                    </>
-                  )}
+                  {isPending && <PendingOverlay g={g} />}
 
                   {isFailed && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/60 text-foreground/90 px-3 text-center">
