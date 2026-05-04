@@ -202,7 +202,7 @@ async function createAtlasAsset(
   if (!id) return immediateAsset ? `asset://${immediateAsset}` : null;
   for (let i = 0; i < 24; i++) {
     await new Promise((r) => setTimeout(r, 2500));
-    const poll = await fetch(`${ATLAS_BASE}/sd/assets/${id}`, { headers: { Authorization: `Bearer ${ATLAS_KEY}` } });
+    const poll = await fetch(`${ATLAS_ASSETS_BASE}/sd/assets/${id}`, { headers: { Authorization: `Bearer ${ATLAS_KEY}` } });
     const pollText = await poll.text();
     let pollJson: any = {};
     try { pollJson = JSON.parse(pollText); } catch { /* keep text */ }
