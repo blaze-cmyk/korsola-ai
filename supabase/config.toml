@@ -3,6 +3,9 @@ project_id = "rpbffvnorvqxcplhjgxy"
 [functions.marketing-generate-script]
 verify_jwt = false
 
+[functions.marketing-generate-keyframe]
+verify_jwt = false
+
 [functions.marketing-generate-video]
 verify_jwt = false
 
