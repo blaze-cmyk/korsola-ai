@@ -331,8 +331,20 @@ async function buildReferenceBundle(admin: any, opts: {
 function withReferenceMap(prompt: string, bundle: ReferenceBundle) {
   if (bundle.mode !== 'reference-to-video' || bundle.referenceImages.length === 0) return prompt;
   const lines: string[] = [];
-  const productCount = bundle.hasProduct ? Math.max(1, bundle.referenceImages.length - (bundle.hasAvatar ? 1 : 0)) : 0;
-  if (bundle.hasProduct && bundle.hasAvatar) {
+  // Detect a composed keyframe at index 0 (ms-keyframes bucket signed URL).
+  const firstUrl = bundle.referenceImages[0] || '';
+  const hasKeyframe = firstUrl.includes('ms-keyframes');
+
+  if (hasKeyframe) {
+    lines.push('Reference map: image 1 is the COMPOSED SCENE — animate THIS frame. The avatar is already positioned, the product is already in their hands, the lighting and setting are already established. Treat image 1 as the first frame of the video.');
+    if (bundle.hasAvatar) {
+      lines.push('The remaining images are identity locks: the avatar reference is for FACIAL LIKENESS ONLY — do NOT recreate its background, wardrobe, room, pose, or composition. The product references lock product shape, color, material, packaging, and visible details exactly.');
+    } else {
+      lines.push('The remaining images are product references — preserve product shape, color, material, packaging, and visible details exactly.');
+    }
+    lines.push('Animate the composed scene naturally with the dialogue, micro-actions, and camera language described below. Do not invent a new environment.');
+  } else if (bundle.hasProduct && bundle.hasAvatar) {
+    const productCount = Math.max(1, bundle.referenceImages.length - 1);
     const avatarIndex = bundle.referenceImages.findIndex((url) => url.includes('wsrv.nl') && url.includes('ms-avatars')) + 1;
     const productIndexes = bundle.referenceImages
       .map((url, idx) => ({ url, idx: idx + 1 }))
@@ -340,14 +352,16 @@ function withReferenceMap(prompt: string, bundle: ReferenceBundle) {
       .map(({ idx }) => idx)
       .join(', ');
     lines.push(`Reference map: images ${productIndexes || '1'} are product references — preserve product shape, color, material, packaging, and visible details exactly. Image ${avatarIndex || productCount + 1} is the creator/avatar identity — preserve facial likeness only; do not copy the uploaded photo composition, background, pose, lighting, or wardrobe.`);
+    lines.push('Generate a fresh scene from the script below; direct the subject and product naturally inside that new scene.');
   } else if (bundle.hasProduct) {
     lines.push('Reference map: all images are product references. Preserve product shape, color, material, packaging, and visible details exactly.');
+    lines.push('Generate a fresh scene from the script below.');
   } else if (bundle.hasAvatar) {
     lines.push('Reference map: the image is the creator/avatar identity. Preserve facial likeness only; do not copy the uploaded photo composition, background, pose, lighting, or wardrobe.');
+    lines.push('Generate a fresh scene from the script below.');
   } else {
     lines.push('Reference map: use the provided images as visual anchors, not as a first frame to animate.');
   }
-  lines.push('Generate a fresh scene from the script below; direct the subject and product naturally inside that new scene.');
   return `${lines.join('\n')}\n\n${prompt}`;
 }
 
