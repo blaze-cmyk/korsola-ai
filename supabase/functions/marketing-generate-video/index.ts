@@ -199,8 +199,18 @@ async function createAtlasPortraitAsset(imageUrl: string, avatarId?: string | nu
   const data = parsed?.data ?? parsed;
   const id = data?.id;
   const immediateAsset = data?.atlas_asset_id ?? data?.ark_asset_id;
-  if (immediateAsset && String(data?.status ?? '').toLowerCase() === 'active') return `asset://${immediateAsset}`;
-  if (!id) return immediateAsset ? `asset://${immediateAsset}` : null;
+  if (immediateAsset && String(data?.status ?? '').toLowerCase() === 'active') {
+    log('INFO', 'atlas asset: active (immediate)', { label, assetId: immediateAsset });
+    return `asset://${immediateAsset}`;
+  }
+  if (!id) {
+    if (immediateAsset) {
+      log('INFO', 'atlas asset: immediate (no poll)', { label, assetId: immediateAsset });
+      return `asset://${immediateAsset}`;
+    }
+    log('WARN', 'atlas asset: no id returned', { label, raw: text.slice(0, 240) });
+    return null;
+  }
   for (let i = 0; i < 24; i++) {
     await new Promise((resolve) => setTimeout(resolve, 2500));
     const poll = await fetch(`${ATLAS_ASSET_BASE}/sd/assets/${id}`, { headers: { Authorization: `Bearer ${ATLAS_KEY}` } });
