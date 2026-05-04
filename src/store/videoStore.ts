@@ -253,12 +253,18 @@ async function pollSeedanceVideo(videoId: string, taskId: string, get: () => Vid
         body: { action: 'poll', predictionId: taskId, videoId },
       });
       if (poll?.status === 'complete' && poll.videoUrl) {
-        updateVideoAndSave(videoId, { status: 'complete', videoUrl: poll.videoUrl, progress: 100 }, get, set);
+        updateVideoAndSave(videoId, { status: 'complete', stage: 'complete', videoUrl: poll.videoUrl, progress: 100 }, get, set);
         return;
       }
       if (poll?.status === 'failed') {
-        updateVideoAndSave(videoId, { status: 'failed', error: poll.error || 'Seedance generation failed' }, get, set);
+        updateVideoAndSave(videoId, { status: 'failed', stage: 'failed', error: poll.error || 'Seedance generation failed' }, get, set);
         return;
+      }
+      if (poll?.stage) {
+        const cur = get().videos.find(v => v.id === videoId);
+        if (cur && cur.stage !== poll.stage) {
+          updateVideoAndSave(videoId, { stage: poll.stage as VideoStage }, get, set);
+        }
       }
     }
   } catch (e) {
