@@ -60,6 +60,16 @@ export function PromptNavBar() {
       },
     },
     {
+      key: 'seedance',
+      label: 'Seedance 2.0',
+      Icon: SeedanceIcon,
+      active: ((onImageRoute && mode === 'video') || pathname.startsWith('/video')) && videoSubMode === 'seedance-2',
+      onClick: () => {
+        setVideoSubMode('seedance-2' as any);
+        if (!onImageRoute && !pathname.startsWith('/video')) navigate('/create');
+      },
+    },
+    {
       key: 'marketing',
       label: 'Marketing Studio',
       Icon: Megaphone,
