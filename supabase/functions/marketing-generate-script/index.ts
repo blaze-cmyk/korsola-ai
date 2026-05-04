@@ -727,10 +727,14 @@ Deno.serve(async (req) => {
       ? ''
       : `CREATIVE_ANGLE_HINT (use only if it fits the product; ignore if it doesn't): ${rollCreativeAngle()}\n`;
 
-    // System prompt = firewall + format prompt + distilled Creatify reference.
-    // Order: hardest rules first (firewall), format-specific structure second,
-    // light Creatify hints last so they stay reference, not checklist.
-    const sys = `${HUMAN_UGC_FIREWALL}\n\n${FORMAT_SYSTEM_PROMPTS[format] || FORMAT_SYSTEM_PROMPTS.UGC}\n\n${CREATIFY_DISTILLED}`;
+    // System prompt = 3-block Director's Constitution architecture.
+    // BLOCK 1 = constitution (hard rules, decisions, kinetic intelligence — cached)
+    // BLOCK 2 = format module (creative brief for the SELECTED format only)
+    // BLOCK 3 = reference anchors (calibration examples — cached)
+    // Format module is wedged in the middle so format-specific rules apply
+    // before anchors, but always under the constitution.
+    const formatModule = FORMAT_SYSTEM_PROMPTS[format] || FORMAT_SYSTEM_PROMPTS.UGC;
+    const sys = `${DIRECTORS_CONSTITUTION}\n\n${formatModule}\n\n${REFERENCE_ANCHORS}`;
 
     // ---------- Build hard duration spec ----------
     const durSec = Math.max(1, Math.min(60, Number(duration) || 8));
