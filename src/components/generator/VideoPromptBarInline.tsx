@@ -228,6 +228,7 @@ export function VideoPromptBarInline() {
                         <FrameSlot
                           key={label}
                           label={label}
+                          tag={slotMeta[idx]?.id}
                           optional={idx === 1}
                           portrait
                           url={referenceImages[idx]}
@@ -241,6 +242,7 @@ export function VideoPromptBarInline() {
                       return (
                         <SingleUploadTile
                           optional={createLayout === 'single-optional'}
+                          tag={slotMeta[0]?.id}
                           url={referenceImages[0]}
                           onUpload={() => onUploadAt(0)}
                           onRemove={() => removeReferenceImage(0)}
@@ -260,6 +262,7 @@ export function VideoPromptBarInline() {
                       <FrameSlot
                         key={label}
                         label={label}
+                        tag={slotMeta[idx]?.id}
                         optional={idx > 0}
                         url={referenceImages[idx]}
                         onUpload={() => onUploadAt(idx)}
@@ -275,6 +278,7 @@ export function VideoPromptBarInline() {
                         <MotionSlot
                           kind="video"
                           title="Add motion to copy"
+                          tag={slotMeta[0]?.id}
                           subtitle={<>Video duration:<br/>3–30 seconds</>}
                           url={referenceImages[0]}
                           onUpload={() => onUploadAt(0)}
@@ -284,6 +288,7 @@ export function VideoPromptBarInline() {
                         <MotionSlot
                           kind="character"
                           title="Add your character"
+                          tag={slotMeta[1]?.id}
                           subtitle={<>Image with visible<br/>face and body</>}
                           url={referenceImages[1]}
                           onUpload={() => onUploadAt(1)}
@@ -302,6 +307,7 @@ export function VideoPromptBarInline() {
                   return (
                     <FrameSlot
                       label="Image"
+                      tag={slotMeta[0]?.id}
                       url={referenceImages[0]}
                       onUpload={() => onUploadAt(0)}
                       onRemove={() => removeReferenceImage(0)}
