@@ -353,14 +353,14 @@ Deno.serve(async (req) => {
 
       const out = await atlasPoll(predictionId);
       if (out.status === 'done') {
-        if (videoId) await updateRow(admin, videoId, { status: 'complete', video_url: out.videoUrl, error: null });
-        return json({ status: 'complete', videoUrl: out.videoUrl });
+        if (videoId) await updateRow(admin, videoId, { status: 'complete', stage: 'complete', video_url: out.videoUrl, error: null });
+        return json({ status: 'complete', stage: 'complete', videoUrl: out.videoUrl });
       }
       if (out.status === 'failed') {
-        if (videoId) await updateRow(admin, videoId, { status: 'failed', error: out.error });
-        return json({ status: 'failed', error: out.error });
+        if (videoId) await updateRow(admin, videoId, { status: 'failed', stage: 'failed', error: out.error });
+        return json({ status: 'failed', stage: 'failed', error: out.error });
       }
-      return json({ status: 'processing' });
+      return json({ status: 'processing', stage: 'processing' });
     }
 
     // ----- SUBMIT -----
