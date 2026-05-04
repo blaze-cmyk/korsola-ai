@@ -249,6 +249,18 @@ export const useSeedanceStore = create<SeedanceState>((set, get) => ({
       toast.error('Audio references require at least one image or video.');
       return;
     }
+
+    // Validate @-tags BEFORE we burn credits/upload bytes.
+    const { resolved: resolvedPrompt, missing } = resolvePromptTags(promptText, {
+      images: s.images.length, videos: s.videos.length, audios: s.audios.length,
+    });
+    if (missing.length > 0) {
+      toast.error('Reference tag has no upload', {
+        description: `${missing.join(', ')} — attach the matching reference or remove the tag.`,
+      });
+      return;
+    }
+
     set({ isSubmitting: true });
 
     // Resolve all data URIs to public storage URLs.
