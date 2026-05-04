@@ -211,18 +211,22 @@ async function createAtlasAsset(
 async function createRequiredAtlasAsset(
   rawUrl: string,
   label: string,
-  assetType: 'Image' | 'Video',
+  assetType: 'Image' | 'Video' | 'Audio',
 ): Promise<{ assetUrl?: string; error?: string }> {
-  if (assetType === 'Video') {
-    // Atlas docs support reference_videos as URLs; prompt-bar uploads must be
-    // re-hosted through Atlas uploadMedia instead of sent as raw app storage URLs.
+  if (assetType === 'Video' || assetType === 'Audio') {
+    // Atlas docs accept reference_videos / reference_audios as direct URLs.
+    // Prompt-bar uploads must be re-hosted through Atlas uploadMedia (NOT sd/assets)
+    // so Seedance receives a provider-hosted URL instead of raw app storage.
     const mediaUrl = await uploadAtlasMedia(rawUrl, label);
     if (mediaUrl) return { assetUrl: mediaUrl };
+    const media = assetType === 'Video' ? 'reference video' : 'reference audio';
+    return { error: `AtlasCloud could not ingest the ${media}. Retry with a smaller file (<50MB) or remove that reference.` };
   }
+  // Images with potential human faces MUST be registered via sd/assets to avoid
+  // "real person" moderation rejections.
   const assetUrl = await createAtlasAsset(rawUrl, label, assetType);
   if (assetUrl?.startsWith('asset://')) return { assetUrl };
-  const media = assetType === 'Video' ? 'reference video' : 'reference image';
-  return { error: `AtlasCloud could not ingest the ${media}. Retry with an MP4/MOV under 50MB and 15 seconds, or remove that reference.` };
+  return { error: `AtlasCloud could not ingest the reference image. Retry with a JPG/PNG under 10MB or remove that reference.` };
 }
 
 type SubmitParams = {
