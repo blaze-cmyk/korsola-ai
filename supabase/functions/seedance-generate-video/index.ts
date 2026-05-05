@@ -151,13 +151,17 @@ function friendly(raw: string | undefined): string {
   if (/output audio.*sensitive/i.test(raw)) {
     return 'Seedance flagged the generated audio. Turn Sound OFF and retry.';
   }
-  if (/input video.*sensitive/i.test(raw)) {
-    return 'Seedance flagged the input video as containing a real person. Try a shorter clip, a different framing, or remove the reference video.';
+  if (/input video.*sensitive|input video.*real person|PrivacyInformation/i.test(raw)) {
+    return 'BytePlus Seedance 2.0 rejected the reference video because it may contain a real person/privacy information. Try a shorter clip, a different framing, or remove the reference video.';
   }
-  if (/input image.*sensitive|sensitive content/i.test(raw)) {
-    return 'Seedance flagged a reference image. Try a different photo or rephrase the prompt.';
+  if (/input image.*sensitive|input image.*real person|sensitive content/i.test(raw)) {
+    return 'BytePlus Seedance 2.0 rejected the reference image because it may contain a real person/privacy information. Try a different photo, crop/blur the face, or remove that reference.';
   }
   return raw;
+}
+
+function isInputPrivacyRejection(raw: string | undefined): boolean {
+  return /Input(Image|Video)SensitiveContentDetected\.PrivacyInformation|input (image|video).*real person|may contain real person|privacy information/i.test(raw ?? '');
 }
 
 function isGeneratedAudioModeration(raw: string | undefined): boolean {
