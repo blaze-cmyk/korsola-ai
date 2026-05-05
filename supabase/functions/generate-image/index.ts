@@ -444,7 +444,7 @@ serve(async (req) => {
           });
         }
       } else if (nanoFailed) {
-        return new Response(JSON.stringify({ error: "Nano Banana generation failed across fal.ai, EvoLink, and AtlasCloud", details: failures.join(" | ") }), {
+        return new Response(JSON.stringify({ error: "Nano Banana generation failed across APIYI, fal.ai, EvoLink, and AtlasCloud", details: failures.join(" | ") }), {
           status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
