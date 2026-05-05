@@ -366,6 +366,19 @@ export function VideoPromptBarInline() {
                 rows={3}
                 className="w-full bg-transparent border-0 text-sm leading-[1.6] text-foreground placeholder:text-muted-foreground/70 focus:outline-none resize-none ms-prompt-scroll min-h-[72px] max-h-[220px] overflow-y-auto"
                 style={{ fontFamily: 'Montserrat, system-ui, sans-serif' }}
+                onPaste={(e) => {
+                  const items = e.clipboardData?.items;
+                  if (!items) return;
+                  const files: File[] = [];
+                  for (let i = 0; i < items.length; i++) {
+                    const it = items[i];
+                    if (it.type.startsWith('image/') || it.type.startsWith('video/')) {
+                      const f = it.getAsFile();
+                      if (f) files.push(f);
+                    }
+                  }
+                  if (files.length > 0) { e.preventDefault(); ingestFiles(files); }
+                }}
                 onKeyDown={(e) => {
                   if (mention.open && e.key === 'Escape') { mention.close(); return; }
                   if (e.key === 'Enter' && !e.shiftKey) {
