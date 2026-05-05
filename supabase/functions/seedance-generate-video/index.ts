@@ -451,7 +451,79 @@ async function byteplusPoll(taskId: string) {
   return { status: 'processing' as const };
 }
 
-async function atlasPoll(predictionId: string) {
+// ===== Apiyi / laozhang.ai (Seedance 2.0 reseller) =====
+async function apiyiSubmit(p: SubmitParams): Promise<{ ok: true; predictionId: string; endpoint: string } | { ok: false; error: string }> {
+  if (!APIYI_KEY) return { ok: false, error: 'Apiyi not configured (APIYI_API_KEY missing).' };
+
+  const useFast = p.variant === SEEDANCE_FAST;
+  const model = useFast ? APIYI_MODEL_FAST : APIYI_MODEL;
+
+  const hasRefs = p.imageUrls.length || p.videoUrls.length || p.audioUrls.length;
+
+  const body: Record<string, unknown> = {
+    model,
+    prompt: p.prompt,
+    ratio: normRatio(p.ratio),
+    duration: p.duration,
+    watermark: false,
+    generate_audio: p.generateAudio,
+  };
+
+  if (hasRefs) {
+    const content: Array<Record<string, unknown>> = [{ type: 'text', text: p.prompt }];
+    for (const url of p.imageUrls) content.push({ type: 'image_url', image_url: { url }, role: 'reference_image' });
+    for (const url of p.videoUrls) content.push({ type: 'video_url', video_url: { url }, role: 'reference_video' });
+    for (const url of p.audioUrls) content.push({ type: 'audio_url', audio_url: { url }, role: 'reference_audio' });
+    body.content = content;
+  }
+
+  log('INFO', 'apiyi submit', {
+    model,
+    images: p.imageUrls.length,
+    videos: p.videoUrls.length,
+    audios: p.audioUrls.length,
+    duration: p.duration,
+    ratio: body.ratio,
+    generateAudio: p.generateAudio,
+  });
+
+  const res = await fetch(APIYI_BASE, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${APIYI_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const text = await res.text();
+  let parsed: any = {};
+  try { parsed = JSON.parse(text); } catch { /* keep text */ }
+  const taskId = parsed?.id;
+  if (!res.ok || !taskId) {
+    const rawMsg = parsed?.error?.message ?? parsed?.message ?? text ?? `http ${res.status}`;
+    log('WARN', 'apiyi submit failed', { status: res.status, body: text.slice(0, 400) });
+    return { ok: false, error: friendly(`Apiyi: ${rawMsg}`) };
+  }
+  return { ok: true, predictionId: String(taskId), endpoint: model };
+}
+
+async function apiyiPoll(taskId: string) {
+  const res = await fetch(`${APIYI_BASE}/${taskId}`, {
+    headers: { Authorization: `Bearer ${APIYI_KEY}` },
+  });
+  const text = await res.text();
+  let parsed: any = {};
+  try { parsed = JSON.parse(text); } catch { /* keep text */ }
+  if (!res.ok) {
+    return { status: 'failed' as const, error: friendly(parsed?.error?.message ?? parsed?.message ?? text ?? `poll http ${res.status}`) };
+  }
+  const status = String(parsed?.status ?? '').toLowerCase();
+  if (status === 'completed' || status === 'succeeded') {
+    const videoUrl = parsed?.video_url ?? parsed?.url;
+    return videoUrl ? { status: 'done' as const, videoUrl: String(videoUrl) } : { status: 'failed' as const, error: 'Apiyi completed without a video URL' };
+  }
+  if (status === 'failed' || status === 'expired' || status === 'cancelled') {
+    return { status: 'failed' as const, error: friendly(parsed?.error?.message ?? `Apiyi reported ${status}`) };
+  }
+  return { status: 'processing' as const };
+}
   const res = await fetch(`${ATLAS_BASE}/prediction/${predictionId}`, {
     headers: { Authorization: `Bearer ${ATLAS_KEY}` },
   });
