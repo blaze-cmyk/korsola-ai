@@ -97,9 +97,34 @@ export function GlobalHeader() {
                 <ArrowLeft className="w-5 h-5" />
               </button>
               {activeProject && (
-                <div className="text-sm font-semibold text-foreground truncate max-w-[40vw]">
-                  {activeProject.name}
-                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="group flex items-center gap-1.5 px-2 h-9 rounded-md hover:bg-muted/50 transition-colors min-w-0">
+                      <span className="text-sm font-semibold text-foreground truncate max-w-[40vw]">
+                        {activeProject.name}
+                      </span>
+                      <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="bg-ms-surface-2 border-ms-border">
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setRenameValue(activeProject.name);
+                        setRenameOpen(true);
+                      }}
+                    >
+                      <Pencil className="w-3.5 h-3.5 mr-2" />
+                      Rename
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-destructive focus:text-destructive"
+                      onClick={() => setConfirmDeleteOpen(true)}
+                    >
+                      <Trash2 className="w-3.5 h-3.5 mr-2" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               )}
             </div>
           )}
