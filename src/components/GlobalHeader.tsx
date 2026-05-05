@@ -1,11 +1,27 @@
 import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 import { GenerateButton } from '@/components/generator/GenerateButton';
 import { useState } from 'react';
-import { Menu, X, Bell, Gem, User, ArrowLeft } from 'lucide-react';
+import { Menu, X, Bell, Gem, User, ArrowLeft, ChevronDown, Pencil, Trash2 } from 'lucide-react';
 import logoWhite from '@/assets/korsola-logo-white.png';
 import logoPink from '@/assets/korsola-logo-pink.png';
 import { useLayoutStore } from '@/store/layoutStore';
 import { useCreateProjectsStore } from '@/store/createProjectsStore';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 // TODO: replace with real auth state
 const isLoggedIn = false;
@@ -20,11 +36,16 @@ const NAV_ITEMS = [
 
 export function GlobalHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [renameOpen, setRenameOpen] = useState(false);
+  const [renameValue, setRenameValue] = useState('');
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const sidebarCollapsed = useCreateProjectsStore((s) => s.sidebarCollapsed);
   const activeProjectId = useCreateProjectsStore((s) => s.activeProjectId);
   const projects = useCreateProjectsStore((s) => s.projects);
+  const renameProject = useCreateProjectsStore((s) => s.renameProject);
+  const deleteProject = useCreateProjectsStore((s) => s.deleteProject);
   const activeProject = projects.find((p) => p.id === activeProjectId);
 
   // Hide on marketing studio routes
@@ -76,9 +97,34 @@ export function GlobalHeader() {
                 <ArrowLeft className="w-5 h-5" />
               </button>
               {activeProject && (
-                <div className="text-sm font-semibold text-foreground truncate max-w-[40vw]">
-                  {activeProject.name}
-                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="group flex items-center gap-1.5 px-2 h-9 rounded-md hover:bg-muted/50 transition-colors min-w-0">
+                      <span className="text-sm font-semibold text-foreground truncate max-w-[40vw]">
+                        {activeProject.name}
+                      </span>
+                      <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="bg-ms-surface-2 border-ms-border">
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setRenameValue(activeProject.name);
+                        setRenameOpen(true);
+                      }}
+                    >
+                      <Pencil className="w-3.5 h-3.5 mr-2" />
+                      Rename
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-destructive focus:text-destructive"
+                      onClick={() => setConfirmDeleteOpen(true)}
+                    >
+                      <Trash2 className="w-3.5 h-3.5 mr-2" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               )}
             </div>
           )}
@@ -197,6 +243,68 @@ export function GlobalHeader() {
           ))}
         </nav>
       )}
+
+      {/* Rename current project */}
+      <AlertDialog open={renameOpen} onOpenChange={setRenameOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Rename project</AlertDialogTitle>
+            <AlertDialogDescription>Give your project a new name.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <input
+            autoFocus
+            value={renameValue}
+            onChange={(e) => setRenameValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && activeProjectId && renameValue.trim()) {
+                renameProject(activeProjectId, renameValue.trim());
+                setRenameOpen(false);
+              }
+            }}
+            className="w-full h-10 px-3 rounded-md bg-muted text-foreground border border-ms-border focus:outline-none focus:ring-1 focus:ring-foreground/30"
+          />
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (activeProjectId && renameValue.trim()) {
+                  await renameProject(activeProjectId, renameValue.trim());
+                }
+                setRenameOpen(false);
+              }}
+            >
+              Save
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete current project */}
+      <AlertDialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this project?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This permanently deletes the project and all generations inside it. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={async () => {
+                if (activeProjectId) {
+                  await deleteProject(activeProjectId);
+                  navigate('/create');
+                }
+                setConfirmDeleteOpen(false);
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </header>
   );
 }
