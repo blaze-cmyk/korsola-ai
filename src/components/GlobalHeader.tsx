@@ -243,6 +243,68 @@ export function GlobalHeader() {
           ))}
         </nav>
       )}
+
+      {/* Rename current project */}
+      <AlertDialog open={renameOpen} onOpenChange={setRenameOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Rename project</AlertDialogTitle>
+            <AlertDialogDescription>Give your project a new name.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <input
+            autoFocus
+            value={renameValue}
+            onChange={(e) => setRenameValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && activeProjectId && renameValue.trim()) {
+                renameProject(activeProjectId, renameValue.trim());
+                setRenameOpen(false);
+              }
+            }}
+            className="w-full h-10 px-3 rounded-md bg-muted text-foreground border border-ms-border focus:outline-none focus:ring-1 focus:ring-foreground/30"
+          />
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (activeProjectId && renameValue.trim()) {
+                  await renameProject(activeProjectId, renameValue.trim());
+                }
+                setRenameOpen(false);
+              }}
+            >
+              Save
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete current project */}
+      <AlertDialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this project?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This permanently deletes the project and all generations inside it. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={async () => {
+                if (activeProjectId) {
+                  await deleteProject(activeProjectId);
+                  navigate('/create');
+                }
+                setConfirmDeleteOpen(false);
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </header>
   );
 }
