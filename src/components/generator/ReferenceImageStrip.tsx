@@ -121,8 +121,8 @@ function SortableThumbnail({ id, src, index, onPreview, onRemove, onChipClick }:
       ref={setNodeRef}
       {...attributes}
       {...listeners}
-      onClick={() => (onChipClick ? onChipClick() : onPreview())}
-      onDoubleClick={() => onPreview()}
+      onClick={() => onPreview()}
+      onDoubleClick={() => onChipClick?.()}
       style={{ transform: CSS.Transform.toString(transform), transition, touchAction: 'none' }}
       className={`group relative h-16 w-16 shrink-0 cursor-grab rounded-2xl overflow-hidden border border-white/10 bg-muted/20 active:cursor-grabbing ${isDragging ? 'z-20 opacity-60 scale-105 shadow-xl' : ''}`}
     >
