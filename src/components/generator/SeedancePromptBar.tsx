@@ -132,6 +132,27 @@ export function SeedancePromptBar() {
     }
   };
 
+  // Paste image/video/audio from clipboard
+  const onPromptPaste = async (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    const files: { kind: SeedanceAssetKind; file: File }[] = [];
+    for (let i = 0; i < items.length; i++) {
+      const it = items[i];
+      const kind: SeedanceAssetKind | null =
+        it.type.startsWith('image/') ? 'image' :
+        it.type.startsWith('video/') ? 'video' :
+        it.type.startsWith('audio/') ? 'audio' : null;
+      if (!kind) continue;
+      const f = it.getAsFile();
+      if (f) files.push({ kind, file: f });
+    }
+    if (files.length > 0) {
+      e.preventDefault();
+      for (const { kind, file } of files) await addAsset(kind, file);
+    }
+  };
+
   const insertTag = (tag: string) => {
     setPrompt((prompt ? prompt.trimEnd() + ' ' : '') + `@${tag} `);
   };
