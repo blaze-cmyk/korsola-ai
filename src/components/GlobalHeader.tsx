@@ -36,11 +36,16 @@ const NAV_ITEMS = [
 
 export function GlobalHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [renameOpen, setRenameOpen] = useState(false);
+  const [renameValue, setRenameValue] = useState('');
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const sidebarCollapsed = useCreateProjectsStore((s) => s.sidebarCollapsed);
   const activeProjectId = useCreateProjectsStore((s) => s.activeProjectId);
   const projects = useCreateProjectsStore((s) => s.projects);
+  const renameProject = useCreateProjectsStore((s) => s.renameProject);
+  const deleteProject = useCreateProjectsStore((s) => s.deleteProject);
   const activeProject = projects.find((p) => p.id === activeProjectId);
 
   // Hide on marketing studio routes
