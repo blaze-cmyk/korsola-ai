@@ -86,7 +86,11 @@ export function SeedancePromptBar() {
     prompt, setPrompt, images, videos, audios, addAsset, removeAsset,
     resolution, setResolution, ratio, setRatio, duration, setDuration,
     generateAudio, setGenerateAudio, generate, isSubmitting,
+    variant, setVariant,
   } = useSeedanceStore();
+
+  const isFast = variant === 'bytedance/seedance-2.0-fast/text-to-video';
+  const modelLabel = isFast ? 'Seedance 2.0 Fast' : 'Seedance 2.0';
 
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
