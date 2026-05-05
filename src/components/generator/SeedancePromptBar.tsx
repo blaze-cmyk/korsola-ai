@@ -254,6 +254,7 @@ export function SeedancePromptBar() {
                   rows={3}
                   className="w-full bg-transparent border-0 text-sm leading-[1.6] text-foreground placeholder:text-muted-foreground/70 focus:outline-none resize-none ms-prompt-scroll min-h-[72px] max-h-[220px] overflow-y-auto"
                   style={{ fontFamily: 'Montserrat, system-ui, sans-serif' }}
+                  onPaste={onPromptPaste}
                   onKeyDown={(e) => {
                     // Allow native copy/paste/cut/select-all
                     if ((e.metaKey || e.ctrlKey) && ['c','v','x','a','z','y'].includes(e.key.toLowerCase())) {
