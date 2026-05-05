@@ -6,14 +6,19 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const APIYI_BASE = "https://api.apiyi.com";
 const FAL_BASE = "https://fal.run";
 const RUNWARE_BASE = "https://api.runware.ai/v1";
+const EVOLINK_BASE = "https://api.evolink.ai";
+const ATLAS_BASE = "https://api.atlascloud.ai/api/v1/model";
 
 type ModelConfig = {
-  type: "gemini" | "fal" | "runware";
-  falModel?: string;
-  falImageModel?: string;
+  type: "nano" | "fal" | "runware";
+  // Nano-banana cascade endpoints
+  falModel?: string;          // also used as fal endpoint for nano text-to-image
+  falImageModel?: string;     // also used as fal endpoint for nano image-to-image (edit)
+  evolinkModel?: string;      // EvoLink model id (e.g. gemini-3-pro-image-preview)
+  atlasModel?: string;        // AtlasCloud model id (e.g. google/nano-banana-pro/text-to-image)
+  atlasEditModel?: string;    // AtlasCloud edit model id (image-to-image)
   apiModel?: string;
   runwareModel?: string;
   supportsImageInput?: boolean;
@@ -21,20 +26,30 @@ type ModelConfig = {
   requiresImage?: boolean;
   textFallback?: string;
   lora?: string;
-  fallbackModel?: string; // model ID to retry with if this one fails
+  fallbackModel?: string; // model ID to retry with if all primary providers fail
 };
 
-// All models route through fal.ai (with Gemini fallback for nano banana family).
+// All models route through fal.ai (with EvoLink + AtlasCloud cascade for nano banana family).
 // Each entry has a text-to-image endpoint and (optionally) an edit/image-to-image endpoint
 // that's used automatically when reference images are provided.
 const MODEL_MAP: Record<string, ModelConfig> = {
-  // Google Nano Banana family — primary via apiyi (Gemini), fall back to fal Seedream
+  // Google Nano Banana family — cascade: fal.ai → EvoLink → AtlasCloud, then fall back to Seedream
   "nano-banana-pro": {
-    apiModel: "gemini-3-pro-image-preview", type: "gemini",
+    type: "nano",
+    falModel: "fal-ai/nano-banana-pro",
+    falImageModel: "fal-ai/nano-banana-pro/edit",
+    evolinkModel: "gemini-3-pro-image-preview",
+    atlasModel: "google/nano-banana-pro/text-to-image",
+    atlasEditModel: "google/nano-banana-pro/image-to-image",
     supportsImageInput: true, isMultiRef: true, fallbackModel: "seedream-4",
   },
   "nano-banana-2": {
-    apiModel: "gemini-3.1-flash-image-preview", type: "gemini",
+    type: "nano",
+    falModel: "fal-ai/nano-banana-2",
+    falImageModel: "fal-ai/nano-banana-2/edit",
+    evolinkModel: "gemini-3.1-flash-image-preview",
+    atlasModel: "google/nano-banana-2/text-to-image",
+    atlasEditModel: "google/nano-banana-2/image-to-image",
     supportsImageInput: true, isMultiRef: true, fallbackModel: "seedream-4",
   },
 
