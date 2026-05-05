@@ -124,6 +124,7 @@ export function VideoPromptBar() {
                 value={prompt}
                 onChange={e => setPrompt(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(); } }}
+                onPaste={handlePaste}
                 placeholder={mode === 'text-to-video' ? 'Describe the video you want to create...' : 'Describe how to animate this image...'}
                 rows={1}
                 className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 resize-none border-0 focus:outline-none py-1 leading-5"
