@@ -43,6 +43,7 @@ const MODEL_MAP: Record<string, ModelConfig> = {
     evolinkModel: "gemini-3-pro-image-preview",
     atlasModel: "google/nano-banana-pro/text-to-image",
     atlasEditModel: "google/nano-banana-pro/image-to-image",
+    apiyiModel: "gemini-3-pro-image-preview",
     supportsImageInput: true, isMultiRef: true, fallbackModel: "seedream-4",
   },
   "nano-banana-2": {
@@ -52,6 +53,7 @@ const MODEL_MAP: Record<string, ModelConfig> = {
     evolinkModel: "gemini-3.1-flash-image-preview",
     atlasModel: "google/nano-banana-2/text-to-image",
     atlasEditModel: "google/nano-banana-2/image-to-image",
+    apiyiModel: "gemini-3.1-flash-image-preview",
     supportsImageInput: true, isMultiRef: true, fallbackModel: "seedream-4",
   },
 
