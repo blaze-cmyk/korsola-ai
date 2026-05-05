@@ -18,6 +18,13 @@ const corsHeaders = {
 
 const ATLAS_KEY = Deno.env.get('ATLASCLOUD_API_KEY') ?? '';
 const BYTEPLUS_KEY = Deno.env.get('BYTEPLUS_ARK_API_KEY') ?? '';
+const APIYI_KEY = Deno.env.get('APIYI_API_KEY') ?? '';
+
+// Apiyi / laozhang.ai Seedance 2.0 proxy (https://docs.laozhang.ai/api-capabilities/seedance2-video-generation)
+// Same Seedance 2.0 model, different reseller. Accepts public HTTPS URLs.
+const APIYI_BASE = 'https://api.laozhang.ai/v1/videos';
+const APIYI_MODEL = 'doubao-seedance-2-0-260128';
+const APIYI_MODEL_FAST = 'doubao-seedance-2-0-fast-260128';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
