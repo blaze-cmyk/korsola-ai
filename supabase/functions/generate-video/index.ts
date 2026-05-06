@@ -310,44 +310,61 @@ async function handleSubmit(body: Record<string, unknown>) {
   const config = VIDEO_MODEL_MAP[model];
   if (!config) return jsonResp({ error: `Unknown video model: ${model}` }, 400);
 
-  // ========== APIYI SUBMIT (Google Veo) ==========
-  // Per https://docs.apiyi.com/api-capabilities/veo/async-api
-  // Text-to-video: POST /v1/videos JSON { prompt, model }
-  // Image-to-video (first frame / first+last frame): use `-fl` model variant via multipart/form-data.
-  // Aspect ratio mapping: 16:9 → `-landscape`, otherwise vertical default (9:16, 720x1280).
+  // ========== APIYI SUBMIT (Google Veo + OpenAI Sora 2) ==========
+  // Veo:  https://docs.apiyi.com/api-capabilities/veo/async-api
+  // Sora: https://docs.apiyi.com/api-capabilities/sora-2/text-to-video
+  // Both use POST /v1/videos. Veo encodes orientation/i2v in the model id (-landscape/-fast/-fl).
+  // Sora 2 uses the plain model id ("sora-2" / "sora-2-pro") plus `seconds` + `size` fields,
+  // and i2v uses the same multipart pattern with `input_reference`.
   if (config.type === "apiyi") {
     const APIYI_API_KEY = Deno.env.get("APIYI_API_KEY");
     if (!APIYI_API_KEY) return jsonResp({ error: "APIYI_API_KEY not configured" }, 500);
 
-    const baseModel = config.apiyiBaseModel || "veo-3.1";
+    const family: ApiyiFamily = config.apiyiFamily || "veo";
+    const baseModel = config.apiyiBaseModel || (family === "sora" ? "sora-2" : "veo-3.1");
     const isLandscape = aspectRatio === "16:9";
     const hasImages = mode === "image-to-video" && referenceImages.length > 0;
 
-    // Build APIYI model id following naming rules: base[-landscape][-fast][-fl]
-    // baseModel already may include "-fast" (e.g. "veo-3.1-fast"). Insert "-landscape" before "-fast".
     let apiyiModel = baseModel;
-    if (isLandscape) {
-      apiyiModel = baseModel.includes("-fast")
-        ? baseModel.replace("-fast", "-landscape-fast")
-        : `${baseModel}-landscape`;
-    }
-    if (hasImages) {
-      apiyiModel = `${apiyiModel}-fl`;
+    const extraFields: Record<string, string> = {};
+
+    if (family === "veo") {
+      // Veo model id rules: base[-landscape][-fast][-fl]
+      if (isLandscape) {
+        apiyiModel = baseModel.includes("-fast")
+          ? baseModel.replace("-fast", "-landscape-fast")
+          : `${baseModel}-landscape`;
+      }
+      if (hasImages) apiyiModel = `${apiyiModel}-fl`;
+    } else {
+      // Sora 2: plain model id + size + seconds enums.
+      // sora-2 only supports 720p (720x1280 / 1280x720). sora-2-pro adds 1024p / 1080p.
+      const isPro = baseModel === "sora-2-pro";
+      const sizeMap: Record<string, { std: string; pro: string }> = {
+        "16:9": { std: "1280x720", pro: "1920x1080" },
+        "9:16": { std: "720x1280", pro: "1080x1920" },
+      };
+      const pick = sizeMap[aspectRatio] || sizeMap["9:16"];
+      extraFields.size = isPro ? pick.pro : pick.std;
+      // seconds enum: "4" | "8" | "12"
+      const durNum = parseInt(duration) || 8;
+      extraFields.seconds = durNum <= 4 ? "4" : durNum <= 8 ? "8" : "12";
     }
 
     if (!prompt || !prompt.trim()) {
-      return jsonResp({ error: "APIYI Veo requires a text prompt" }, 400);
+      return jsonResp({ error: `APIYI ${family === "sora" ? "Sora 2" : "Veo"} requires a text prompt` }, 400);
     }
 
-    console.log(`Submitting APIYI Veo task: model=${apiyiModel}, hasImages=${hasImages}`);
+    console.log(`Submitting APIYI ${family} task: model=${apiyiModel}, hasImages=${hasImages}, extras=${JSON.stringify(extraFields)}`);
 
     let submitResp: Response;
     if (hasImages) {
-      // Multipart upload — fetch each image and append as input_reference (max 2).
       const form = new FormData();
       form.append("prompt", prompt);
       form.append("model", apiyiModel);
-      const imgs = referenceImages.slice(0, 2);
+      for (const [k, v] of Object.entries(extraFields)) form.append(k, v);
+      const maxImgs = family === "sora" ? 1 : 2;
+      const imgs = referenceImages.slice(0, maxImgs);
       for (let i = 0; i < imgs.length; i++) {
         try {
           const imgResp = await fetch(imgs[i]);
@@ -368,7 +385,7 @@ async function handleSubmit(body: Record<string, unknown>) {
       submitResp = await fetch(`${APIYI_BASE}/v1/videos`, {
         method: "POST",
         headers: { Authorization: `Bearer ${APIYI_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, model: apiyiModel }),
+        body: JSON.stringify({ prompt, model: apiyiModel, ...extraFields }),
       });
     }
 
