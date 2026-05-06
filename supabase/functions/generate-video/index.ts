@@ -9,18 +9,21 @@ const corsHeaders = {
 const FAL_QUEUE = "https://queue.fal.run";
 const RUNWARE_BASE = "https://api.runware.ai/v1";
 const EVOLINK_BASE = "https://api.evolink.ai";
+const APIYI_BASE = "https://api.apiyi.com";
 
 type DurationFormat = "kling-str" | "veo-str" | "pixverse-int" | "minimax-none" | "ltx-frames";
 type ImageField = "image_url" | "start_image_url";
 
 type VideoModelConfig = {
-  type: "fal" | "runware" | "evolink";
+  type: "fal" | "runware" | "evolink" | "apiyi";
   textToVideo?: string;
   imageToVideo?: string;
   motionControl?: string;
   videoEdit?: string;
   runwareModel?: string;
   evolinkModel?: string;
+  // For apiyi: base model id without orientation/fl suffixes (e.g. "veo-3.1", "veo-3.1-fast")
+  apiyiBaseModel?: string;
   durationFormat?: DurationFormat;
   imageField?: ImageField;
 };
