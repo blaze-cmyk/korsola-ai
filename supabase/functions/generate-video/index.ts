@@ -42,9 +42,13 @@ const VIDEO_MODEL_MAP: Record<string, VideoModelConfig> = {
   "kling-v2.6-motion-pro": { type: "fal", motionControl: "fal-ai/kling-video/v2.6/pro/motion-control", durationFormat: "kling-str" },
   // Google Veo via APIYI (官逆 — only provider for these 3 models, no fallback)
   // Note: APIYI exposes `veo-3.1` and `veo-3.1-fast`. We map "lite" → fast (cheapest tier).
-  "veo-3.1": { type: "apiyi", apiyiBaseModel: "veo-3.1" },
-  "veo-3.1-fast": { type: "apiyi", apiyiBaseModel: "veo-3.1-fast" },
-  "veo-3.1-lite": { type: "apiyi", apiyiBaseModel: "veo-3.1-fast" },
+  "veo-3.1": { type: "apiyi", apiyiFamily: "veo", apiyiBaseModel: "veo-3.1" },
+  "veo-3.1-fast": { type: "apiyi", apiyiFamily: "veo", apiyiBaseModel: "veo-3.1-fast" },
+  "veo-3.1-lite": { type: "apiyi", apiyiFamily: "veo", apiyiBaseModel: "veo-3.1-fast" },
+  // OpenAI Sora 2 via APIYI (官转 — only provider, no fallback). Same async endpoint as Veo.
+  "rw-sora-2": { type: "apiyi", apiyiFamily: "sora", apiyiBaseModel: "sora-2" },
+  "sora-2": { type: "apiyi", apiyiFamily: "sora", apiyiBaseModel: "sora-2" },
+  "sora-2-pro": { type: "apiyi", apiyiFamily: "sora", apiyiBaseModel: "sora-2-pro" },
   "minimax-video": { type: "fal", textToVideo: "fal-ai/minimax/video-01-live", imageToVideo: "fal-ai/minimax/video-01-live/image-to-video", durationFormat: "minimax-none", imageField: "image_url" },
   "pixverse-v6": { type: "fal", textToVideo: "fal-ai/pixverse/v6/text-to-video", imageToVideo: "fal-ai/pixverse/v6/image-to-video", durationFormat: "pixverse-int", imageField: "image_url" },
   "ltx-2-19b": { type: "fal", textToVideo: "fal-ai/ltx-2-19b/text-to-video", imageToVideo: "fal-ai/ltx-2-19b/image-to-video", durationFormat: "ltx-frames", imageField: "image_url" },
