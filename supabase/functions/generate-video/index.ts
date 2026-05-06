@@ -167,17 +167,19 @@ async function handlePoll(body: Record<string, unknown>) {
       return jsonResp({ status: "failed", error: statusData?.error?.message || statusData?.error || "APIYI task failed" });
     }
     if (st === "completed") {
-      const contentResp = await fetch(`${APIYI_BASE}/v1/videos/${taskId}/content`, {
-        headers: { Authorization: `Bearer ${APIYI_API_KEY}` },
-      });
-      if (!contentResp.ok) {
-        const t = await contentResp.text();
-        return jsonResp({ error: `APIYI content fetch failed: ${contentResp.status} ${t}` }, 502);
-      }
-      const contentData = await contentResp.json();
-      const videoUrl = contentData?.url || contentData?.video_url;
-      if (videoUrl) return jsonResp({ status: "complete", videoUrl });
-      return jsonResp({ error: "No video URL in APIYI response" }, 502);
+      // Prefer a URL from the status payload if APIYI provides one
+      const directUrl =
+        statusData?.url ||
+        statusData?.video_url ||
+        statusData?.result?.url ||
+        statusData?.data?.url ||
+        statusData?.data?.video_url;
+      if (directUrl) return jsonResp({ status: "complete", videoUrl: directUrl });
+
+      // Otherwise the canonical content endpoint streams the raw MP4 bytes.
+      // Return that URL directly (with the API key as query) — do NOT try to JSON.parse it.
+      const contentUrl = `${APIYI_BASE}/v1/videos/${taskId}/content`;
+      return jsonResp({ status: "complete", videoUrl: contentUrl });
     }
     return jsonResp({ status: "processing" });
   }
