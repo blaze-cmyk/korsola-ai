@@ -634,6 +634,7 @@ async function handleSubmit(body: Record<string, unknown>) {
     }
 
     console.log(`Submitting to fal.ai queue: ${endpoint}, mode=${mode}`);
+    await updateVideoRow(videoId, { provider: "fal", stage: "submitting", status: "processing", error: null });
 
     const submitResp = await fetch(`${FAL_QUEUE}/${endpoint}`, {
       method: "POST",
@@ -644,11 +645,13 @@ async function handleSubmit(body: Record<string, unknown>) {
     if (!submitResp.ok) {
       const errText = await submitResp.text();
       console.error("Fal submit error:", submitResp.status, errText);
+      await updateVideoRow(videoId, { status: "failed", stage: "failed", error: `Fal API error: ${submitResp.status} ${errText}`.slice(0, 1000) });
       return jsonResp({ error: `Fal API error: ${submitResp.status}`, details: errText }, 502);
     }
 
     const submitData = await submitResp.json();
     const responseUrl = submitData.response_url;
+    const requestId = submitData.request_id;
 
     // If response came immediately (unlikely for video)
     if (!responseUrl) {
@@ -656,15 +659,32 @@ async function handleSubmit(body: Record<string, unknown>) {
       const vid = payload?.video?.url || payload?.video;
       if (vid) {
         const videoUrl = typeof vid === "string" ? vid : vid.url;
+        await updateVideoRow(videoId, { provider: "fal", task_id: requestId ?? "immediate", status: "complete", stage: "complete", video_url: videoUrl, error: null });
         return jsonResp({ submitted: true, provider: "fal", taskId: "immediate", status: "complete", videoUrl });
       }
     }
 
-    console.log(`Fal.ai task submitted: request_id=${submitData.request_id}`);
+    if (!requestId || !responseUrl) {
+      const error = "Fal did not return queue metadata for this Kling job.";
+      await updateVideoRow(videoId, { status: "failed", stage: "failed", error, provider: "fal" });
+      return jsonResp({ error, details: JSON.stringify(submitData) }, 502);
+    }
+
+    await updateVideoRow(videoId, {
+      provider: "fal",
+      task_id: requestId,
+      response_url: responseUrl,
+      status_url: submitData.status_url || null,
+      status: "processing",
+      stage: "processing",
+      error: null,
+    });
+
+    console.log(`Fal.ai task submitted: request_id=${requestId}`);
     return jsonResp({
       submitted: true,
       provider: "fal",
-      taskId: submitData.request_id,
+      taskId: requestId,
       responseUrl,
       statusUrl: submitData.status_url || null,
     });
