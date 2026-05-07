@@ -493,6 +493,7 @@ Deno.serve(async (req) => {
       script_text,
       reuseGenerationId,
       image_urls,
+      generateAudio = true,
     } = body;
 
     if (!prompt || typeof prompt !== 'string') return json({ error: 'prompt required' }, 400);
