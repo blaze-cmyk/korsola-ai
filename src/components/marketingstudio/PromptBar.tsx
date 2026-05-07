@@ -521,6 +521,15 @@ export function PromptBar({ projectId, createProjectId, ensureCreateProject }: P
             <AspectChip value={aspect} onChange={setAspect} autoSourceUrl={productThumb || avatarThumb} onAutoChange={setAutoSourceUrl} />
             <Chip icon={<Gem className="w-3.5 h-3.5" />} value={res} options={RESOLUTIONS} onChange={(v) => setRes(v as MSResolution)} />
             <DurationChip value={duration} onChange={setDuration} />
+            <button
+              type="button"
+              onClick={() => setGenerateAudio(!generateAudio)}
+              className={`ms-chip-glass flex items-center gap-1.5 px-3.5 h-9 rounded-full text-xs transition-all ${generateAudio ? 'text-foreground' : 'text-muted-foreground'}`}
+              title={generateAudio ? 'Sound on' : 'Sound off'}
+            >
+              {generateAudio ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+              Sound {generateAudio ? 'on' : 'off'}
+            </button>
           </div>
 
           {/* Mobile generate row */}
