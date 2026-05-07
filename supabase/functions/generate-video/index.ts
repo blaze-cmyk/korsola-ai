@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -70,6 +71,16 @@ function jsonResp(data: unknown, status = 200) {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
+}
+
+async function updateVideoRow(videoId: string | undefined, patch: Record<string, unknown>) {
+  if (!videoId) return;
+  const url = Deno.env.get("SUPABASE_URL");
+  const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!url || !key) return;
+  const admin = createClient(url, key);
+  const { error } = await admin.from("video_generations").update(patch).eq("id", videoId);
+  if (error) console.error("video row update failed", error.message);
 }
 
 function normalizeClientFacingError(error: unknown) {
@@ -306,9 +317,13 @@ async function handleSubmit(body: Record<string, unknown>) {
   const mode = typeof body?.mode === "string" ? body.mode : "text-to-video";
   const aspectRatio = typeof body?.aspectRatio === "string" ? body.aspectRatio : "16:9";
   const duration = typeof body?.duration === "string" ? body.duration : "5";
+  const videoId = typeof body?.videoId === "string" ? body.videoId : undefined;
 
   const config = VIDEO_MODEL_MAP[model];
-  if (!config) return jsonResp({ error: `Unknown video model: ${model}` }, 400);
+  if (!config) {
+    await updateVideoRow(videoId, { status: "failed", stage: "failed", error: `Unknown video model: ${model}` });
+    return jsonResp({ error: `Unknown video model: ${model}` }, 400);
+  }
 
   // ========== APIYI SUBMIT (Google Veo + OpenAI Sora 2) ==========
   // Veo:  https://docs.apiyi.com/api-capabilities/veo/async-api
