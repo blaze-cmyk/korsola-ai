@@ -215,16 +215,18 @@ export function SeedancePromptBar() {
               onTag={insertTag}
               full={videos.length >= MAX_VIDEOS}
             />
-            <AssetTrack
-              label="Audio"
-              hint={`${audios.length}/${MAX_AUDIOS} · ≤${MAX_MEDIA_SECONDS}s`}
-              icon={<Music className="w-4 h-4" />}
-              assets={audios}
-              onAdd={() => triggerUpload('audio')}
-              onRemove={removeAsset}
-              onTag={insertTag}
-              full={audios.length >= MAX_AUDIOS}
-            />
+            {generateAudio && (
+              <AssetTrack
+                label="Audio"
+                hint={`${audios.length}/${MAX_AUDIOS} · ≤${MAX_MEDIA_SECONDS}s`}
+                icon={<Music className="w-4 h-4" />}
+                assets={audios}
+                onAdd={() => triggerUpload('audio')}
+                onRemove={removeAsset}
+                onTag={insertTag}
+                full={audios.length >= MAX_AUDIOS}
+              />
+            )}
           </div>
 
           {/* Hidden file input */}
@@ -335,6 +337,16 @@ export function SeedancePromptBar() {
 
             {/* Duration — MS-style slider chip */}
             <SeedanceDurationChip value={duration} onChange={setDuration} />
+
+            <button
+              type="button"
+              onClick={() => setGenerateAudio(!generateAudio)}
+              className={`ms-chip-glass flex items-center gap-1.5 px-3.5 h-9 rounded-full text-xs transition-all ${generateAudio ? 'text-foreground' : 'text-muted-foreground'}`}
+              title={generateAudio ? 'Sound on' : 'Sound off'}
+            >
+              {generateAudio ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+              Sound {generateAudio ? 'on' : 'off'}
+            </button>
 
             <div className="flex-1" />
           </div>
