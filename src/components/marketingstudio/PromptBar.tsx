@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { RECREATE_EVENT, FormatPreset } from './formatPresets';
-import { Plus, Sparkles, Package, Smartphone, Smartphone as PhoneIcon, Gem, Clock } from 'lucide-react';
+import { Plus, Sparkles, Package, Smartphone, Smartphone as PhoneIcon, Gem, Clock, Volume2, VolumeX } from 'lucide-react';
 import { ExtraRefStrip, ExtraRef } from './ExtraRefStrip';
 import { resolveToUrl } from '@/lib/uploadToStorage';
 import {
@@ -84,6 +84,7 @@ export function PromptBar({ projectId, createProjectId, ensureCreateProject }: P
   const [avatarId, setAvatarId] = useState<string | null>(null);
   const [exactVoiceover, setExactVoiceover] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [generateAudio, setGenerateAudio] = useState(true);
 
   // Extra reference images (drag/drop, paste, finder upload, @-mentionable)
   const [extraRefs, setExtraRefs] = useState<ExtraRef[]>([]);
@@ -250,6 +251,7 @@ export function PromptBar({ projectId, createProjectId, ensureCreateProject }: P
             createProjectId: embedded ? createPid : null,
             extraRefImages: extraRefs.map((r) => r.url),
             extraRefNames: extraRefs.map((r) => r.name),
+            generateAudio,
           },
         },
       );
@@ -519,6 +521,15 @@ export function PromptBar({ projectId, createProjectId, ensureCreateProject }: P
             <AspectChip value={aspect} onChange={setAspect} autoSourceUrl={productThumb || avatarThumb} onAutoChange={setAutoSourceUrl} />
             <Chip icon={<Gem className="w-3.5 h-3.5" />} value={res} options={RESOLUTIONS} onChange={(v) => setRes(v as MSResolution)} />
             <DurationChip value={duration} onChange={setDuration} />
+            <button
+              type="button"
+              onClick={() => setGenerateAudio(!generateAudio)}
+              className={`ms-chip-glass flex items-center gap-1.5 px-3.5 h-9 rounded-full text-xs transition-all ${generateAudio ? 'text-foreground' : 'text-muted-foreground'}`}
+              title={generateAudio ? 'Sound on' : 'Sound off'}
+            >
+              {generateAudio ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+              Sound {generateAudio ? 'on' : 'off'}
+            </button>
           </div>
 
           {/* Mobile generate row */}

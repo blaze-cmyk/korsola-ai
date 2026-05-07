@@ -493,6 +493,7 @@ Deno.serve(async (req) => {
       script_text,
       reuseGenerationId,
       image_urls,
+      generateAudio = true,
     } = body;
 
     if (!prompt || typeof prompt !== 'string') return json({ error: 'prompt required' }, 400);
@@ -557,7 +558,7 @@ Deno.serve(async (req) => {
       duration,
       resolution,
       ratio: atlasRatio,
-      generateAudio: true,
+      generateAudio: !!generateAudio,
     });
 
     if (!submission.ok) {
