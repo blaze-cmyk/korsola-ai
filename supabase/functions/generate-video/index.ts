@@ -762,6 +762,7 @@ async function handleSubmit(body: Record<string, unknown>) {
     }
 
     console.log(`Calling Runware video: model=${config.runwareModel}, async`);
+    await updateVideoRow(videoId, { provider: "runware", task_id: taskUUID, stage: "submitting", status: "processing", error: null });
 
     const response = await fetch(RUNWARE_BASE, {
       method: "POST",
@@ -772,6 +773,7 @@ async function handleSubmit(body: Record<string, unknown>) {
     if (!response.ok) {
       const errText = await response.text();
       console.error("Runware video error:", response.status, errText);
+      await updateVideoRow(videoId, { status: "failed", stage: "failed", error: `Runware API error: ${response.status} ${errText}`.slice(0, 1000), provider: "runware", task_id: taskUUID });
       return jsonResp({ error: `Runware API error: ${response.status}`, details: errText }, 502);
     }
 
@@ -781,14 +783,17 @@ async function handleSubmit(body: Record<string, unknown>) {
     const completed = resData?.data?.find((d: any) => d.videoURL);
 
     if (completed?.videoURL) {
+      await updateVideoRow(videoId, { provider: "runware", task_id: taskUUID, status: "complete", stage: "complete", video_url: completed.videoURL, error: null });
       return jsonResp({ submitted: true, provider: "runware", taskId: taskUUID, status: "complete", videoUrl: completed.videoURL });
     }
 
     const erroredAck = resData?.errors?.[0];
     if (erroredAck) {
+      await updateVideoRow(videoId, { status: "failed", stage: "failed", error: `Runware: ${erroredAck.message || erroredAck.code || "submit failed"}`, provider: "runware", task_id: taskUUID });
       return jsonResp({ error: `Runware: ${erroredAck.message || erroredAck.code || "submit failed"}` }, 502);
     }
 
+    await updateVideoRow(videoId, { provider: "runware", task_id: ackRow?.taskUUID || taskUUID, status: "processing", stage: "processing", error: null });
     console.log(`Runware task submitted (async): ${taskUUID}`);
     return jsonResp({ submitted: true, provider: "runware", taskId: ackRow?.taskUUID || taskUUID });
   }
