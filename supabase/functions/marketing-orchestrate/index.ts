@@ -260,6 +260,7 @@ Deno.serve(async (req) => {
       createProjectId,
       extraRefImages = [],
       extraRefNames = [],
+      generateAudio = true,
     } = await req.json();
     const userExtraRefs: string[] = uniqueValidUrls(Array.isArray(extraRefImages) ? extraRefImages : []);
     const userExtraNames: string[] = (Array.isArray(extraRefNames) ? extraRefNames : []).map((n: any) => String(n || '').trim());
