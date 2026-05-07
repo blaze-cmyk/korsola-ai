@@ -105,10 +105,11 @@ export default function SpacesProjects() {
           loop
           playsInline
           className="absolute inset-0 w-full h-full object-cover"
+          style={{ objectPosition: 'center 30%' }}
           src="/spaces-hero-video-2.mp4"
         />
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
+        {/* Bottom-up overlay so face stays visible while text remains readable */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
         {/* Content */}
         <div className="relative z-10 h-full flex flex-col justify-end p-10 max-w-md">
