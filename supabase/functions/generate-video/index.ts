@@ -479,6 +479,7 @@ async function handleSubmit(body: Record<string, unknown>) {
     if (prompt) evolinkBody.prompt = prompt;
 
     console.log(`Submitting Evolink task: model=${config.evolinkModel}, quality=${evolinkQuality}`);
+    await updateVideoRow(videoId, { provider: "evolink", stage: "submitting", status: "processing", error: null });
 
     const submitResp = await fetch(`${EVOLINK_BASE}/v1/videos/generations`, {
       method: "POST",
@@ -510,6 +511,7 @@ async function handleSubmit(body: Record<string, unknown>) {
           const requestId = falData.request_id;
           if (requestId) {
             console.log(`Fal fallback submitted: ${requestId}`);
+              await updateVideoRow(videoId, { provider: "fal", task_id: requestId, response_url: falData.response_url, status_url: falData.status_url || null, status: "processing", stage: "processing", error: null });
             return jsonResp({
               submitted: true,
               provider: "fal",
@@ -525,15 +527,21 @@ async function handleSubmit(body: Record<string, unknown>) {
         }
       }
       if (submitResp.status === 402) {
+        await updateVideoRow(videoId, { status: "failed", stage: "failed", error: "Motion-control provider out of credits and fallback failed. Please try again later.", provider: "evolink" });
         return jsonResp({ error: "Motion-control provider out of credits and fallback failed. Please try again later." }, 402);
       }
+      await updateVideoRow(videoId, { status: "failed", stage: "failed", error: `Evolink API error: ${submitResp.status} ${errText}`.slice(0, 1000), provider: "evolink" });
       return jsonResp({ error: `Evolink API error: ${submitResp.status}`, details: errText }, 502);
     }
 
     const submitData = await submitResp.json();
     const taskId = submitData.id;
-    if (!taskId) return jsonResp({ error: "No task ID in Evolink response" }, 502);
+    if (!taskId) {
+      await updateVideoRow(videoId, { status: "failed", stage: "failed", error: "No task ID in Evolink response", provider: "evolink" });
+      return jsonResp({ error: "No task ID in Evolink response" }, 502);
+    }
 
+    await updateVideoRow(videoId, { provider: "evolink", task_id: taskId, status: "processing", stage: "processing", error: null });
     console.log(`Evolink task submitted: ${taskId}`);
     return jsonResp({ submitted: true, provider: "evolink", taskId });
   }
