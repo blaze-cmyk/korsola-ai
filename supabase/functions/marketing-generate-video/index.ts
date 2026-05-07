@@ -558,7 +558,7 @@ Deno.serve(async (req) => {
       duration,
       resolution,
       ratio: atlasRatio,
-      generateAudio: true,
+      generateAudio: !!generateAudio,
     });
 
     if (!submission.ok) {
