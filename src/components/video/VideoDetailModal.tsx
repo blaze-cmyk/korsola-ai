@@ -75,6 +75,7 @@ export function VideoDetailModal() {
                 src={posterSrc}
                 alt=""
                 aria-hidden
+                onError={nextPoster}
                 className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-50 pointer-events-none"
                 draggable={false}
               />
@@ -85,6 +86,7 @@ export function VideoDetailModal() {
                   <img
                     src={posterSrc}
                     alt="Video preview"
+                    onError={nextPoster}
                     className="max-w-full max-h-[88vh] w-auto h-auto object-contain"
                     draggable={false}
                   />
@@ -106,6 +108,7 @@ export function VideoDetailModal() {
               <img
                 src={posterSrc}
                 alt="Video preview"
+                onError={nextPoster}
                 className="relative max-w-full max-h-full w-auto h-auto object-contain z-10"
                 draggable={false}
               />
