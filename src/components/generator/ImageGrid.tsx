@@ -660,6 +660,7 @@ function VideoCard({ video }: { video: GeneratedVideo & { kind: 'video' } }) {
   const isSelected = useGridSelectionStore((s) => s.selected.has(video.id));
   const toggleSelect = useGridSelectionStore((s) => s.toggle);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [hovering, setHovering] = useState(false);
 
   const [, forceTick] = useState(0);
   useEffect(() => {
@@ -743,22 +744,34 @@ function VideoCard({ video }: { video: GeneratedVideo & { kind: 'video' } }) {
       ref={inViewRef}
       className="group relative w-full h-full overflow-hidden bg-ms-surface-2 cursor-pointer"
       onClick={() => setSelectedVideoId(video.id)}
-      onMouseEnter={() => { videoRef.current?.play().catch(() => {}); }}
-      onMouseLeave={() => { const v = videoRef.current; if (v) { v.pause(); v.currentTime = 0.1; } }}
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => { setHovering(false); const v = videoRef.current; if (v) { v.pause(); v.currentTime = 0.1; } }}
     >
-      {video.videoUrl && inView ? (
+      {video.thumbnailUrl ? (
+        <img
+          src={thumbUrl(video.thumbnailUrl, 640, 72)}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover bg-[#0a0a0a]"
+          loading="lazy"
+          decoding="async"
+          draggable={false}
+        />
+      ) : (
+        <div className="absolute inset-0 bg-[#0a0a0a]" />
+      )}
+
+      {video.videoUrl && inView && hovering && (
         <video
           ref={videoRef}
           src={`${video.videoUrl}#t=0.1`}
           poster={video.thumbnailUrl}
+          autoPlay
           muted
           loop
           playsInline
-          preload="metadata"
+          preload="none"
           className="absolute inset-0 w-full h-full object-cover bg-[#0a0a0a] pointer-events-none"
         />
-      ) : (
-        <div className="absolute inset-0 bg-[#0a0a0a]" />
       )}
 
       {/* Play badge (top-right corner, subtle) */}
@@ -821,6 +834,7 @@ function MarketingCard({ gen, createProjectId }: { gen: MSGeneration & { kind: '
   const toggleLike = useMarketingFeedStore((s) => s.toggleLike);
   const removeLocal = useMarketingFeedStore((s) => s.removeGeneration);
   const [selected, setSelected] = useState(false);
+  const [hovering, setHovering] = useState(false);
 
   const isPending =
     gen.status === 'queued' ||
@@ -864,23 +878,26 @@ function MarketingCard({ gen, createProjectId }: { gen: MSGeneration & { kind: '
         ref={mcInViewRef}
         className="group relative w-full h-full overflow-hidden bg-ms-surface-2 cursor-pointer"
         onClick={() => !isPending && !isFailed && setSelected(true)}
-        onMouseEnter={(e) => { const v = e.currentTarget.querySelector('video'); v?.play().catch(() => {}); }}
-        onMouseLeave={(e) => { const v = e.currentTarget.querySelector('video'); if (v) { v.pause(); v.currentTime = 0.1; } }}
+        onMouseEnter={() => setHovering(true)}
+        onMouseLeave={(e) => { setHovering(false); const v = e.currentTarget.querySelector('video'); if (v) { v.pause(); v.currentTime = 0.1; } }}
       >
-        {gen.videoUrl && !isPending && !isFailed && mcInView ? (
+        {gen.thumbUrl && !isPending && !isFailed ? (
+          <img src={thumbUrl(gen.thumbUrl, 640, 72)} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" />
+        ) : (
+          <div className="absolute inset-0 bg-[#0a0a0a]" />
+        )}
+
+        {gen.videoUrl && !isPending && !isFailed && mcInView && hovering && (
           <video
             src={`${gen.videoUrl}#t=0.1`}
             poster={gen.thumbUrl}
+            autoPlay
             muted
             loop
             playsInline
-            preload="metadata"
+            preload="none"
             className="absolute inset-0 w-full h-full object-cover bg-[#0a0a0a] pointer-events-none"
           />
-        ) : gen.thumbUrl && !isPending && !isFailed ? (
-          <img src={gen.thumbUrl} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" />
-        ) : (
-          <div className="absolute inset-0 bg-[#0a0a0a]" />
         )}
 
         {isPending && (
