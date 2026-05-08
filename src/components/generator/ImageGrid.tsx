@@ -660,6 +660,7 @@ function VideoCard({ video }: { video: GeneratedVideo & { kind: 'video' } }) {
   const isSelected = useGridSelectionStore((s) => s.selected.has(video.id));
   const toggleSelect = useGridSelectionStore((s) => s.toggle);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [hovering, setHovering] = useState(false);
 
   const [, forceTick] = useState(0);
   useEffect(() => {
@@ -743,22 +744,34 @@ function VideoCard({ video }: { video: GeneratedVideo & { kind: 'video' } }) {
       ref={inViewRef}
       className="group relative w-full h-full overflow-hidden bg-ms-surface-2 cursor-pointer"
       onClick={() => setSelectedVideoId(video.id)}
-      onMouseEnter={() => { videoRef.current?.play().catch(() => {}); }}
-      onMouseLeave={() => { const v = videoRef.current; if (v) { v.pause(); v.currentTime = 0.1; } }}
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => { setHovering(false); const v = videoRef.current; if (v) { v.pause(); v.currentTime = 0.1; } }}
     >
-      {video.videoUrl && inView ? (
+      {video.thumbnailUrl ? (
+        <img
+          src={thumbUrl(video.thumbnailUrl, 640, 72)}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover bg-[#0a0a0a]"
+          loading="lazy"
+          decoding="async"
+          draggable={false}
+        />
+      ) : (
+        <div className="absolute inset-0 bg-[#0a0a0a]" />
+      )}
+
+      {video.videoUrl && inView && hovering && (
         <video
           ref={videoRef}
           src={`${video.videoUrl}#t=0.1`}
           poster={video.thumbnailUrl}
+          autoPlay
           muted
           loop
           playsInline
-          preload="metadata"
+          preload="none"
           className="absolute inset-0 w-full h-full object-cover bg-[#0a0a0a] pointer-events-none"
         />
-      ) : (
-        <div className="absolute inset-0 bg-[#0a0a0a]" />
       )}
 
       {/* Play badge (top-right corner, subtle) */}
