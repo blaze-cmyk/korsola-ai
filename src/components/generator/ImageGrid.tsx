@@ -11,6 +11,7 @@ import { useLayoutStore, ZOOM_ROW_HEIGHTS } from '@/store/layoutStore';
 import { AlertCircle, Eye, RefreshCw, Trash2, Loader2, Download, Link2, Heart, MoreHorizontal, Maximize2, Search, X, ImageIcon, FolderInput, Image as ImageLucide, Check, Play } from 'lucide-react';
 import { useGridSelectionStore } from '@/store/gridSelectionStore';
 import { useState, useRef, useEffect, useLayoutEffect, useMemo } from 'react';
+import { useInView } from '@/hooks/useInView';
 import { create } from 'zustand';
 import { VideoDetailModal } from '@/components/marketingstudio/VideoDetailModal';
 import { supabase } from '@/integrations/supabase/client';
