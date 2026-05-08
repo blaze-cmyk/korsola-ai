@@ -747,7 +747,19 @@ function VideoCard({ video }: { video: GeneratedVideo & { kind: 'video' } }) {
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => { setHovering(false); const v = videoRef.current; if (v) { v.pause(); v.currentTime = 0.1; } }}
     >
-      {video.thumbnailUrl ? (
+      {video.videoUrl && inView ? (
+        <video
+          ref={videoRef}
+          src={`${video.videoUrl}#t=0.1`}
+          poster={video.thumbnailUrl}
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          className="absolute inset-0 w-full h-full object-cover bg-[#0a0a0a] pointer-events-none"
+          onLoadedMetadata={(e) => { try { e.currentTarget.currentTime = 0.1; } catch {} }}
+        />
+      ) : video.thumbnailUrl ? (
         <img
           src={thumbUrl(video.thumbnailUrl, 640, 72)}
           alt=""
@@ -758,20 +770,6 @@ function VideoCard({ video }: { video: GeneratedVideo & { kind: 'video' } }) {
         />
       ) : (
         <div className="absolute inset-0 bg-[#0a0a0a]" />
-      )}
-
-      {video.videoUrl && inView && hovering && (
-        <video
-          ref={videoRef}
-          src={`${video.videoUrl}#t=0.1`}
-          poster={video.thumbnailUrl}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="none"
-          className="absolute inset-0 w-full h-full object-cover bg-[#0a0a0a] pointer-events-none"
-        />
       )}
 
       {/* Play badge (top-right corner, subtle) */}
