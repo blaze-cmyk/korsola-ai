@@ -736,14 +736,17 @@ function VideoCard({ video }: { video: GeneratedVideo & { kind: 'video' } }) {
     );
   }
 
+  const [inViewRef, inView] = useInView<HTMLDivElement>('400px');
+
   return (
     <div
+      ref={inViewRef}
       className="group relative w-full h-full overflow-hidden bg-ms-surface-2 cursor-pointer"
       onClick={() => setSelectedVideoId(video.id)}
       onMouseEnter={() => { videoRef.current?.play().catch(() => {}); }}
       onMouseLeave={() => { const v = videoRef.current; if (v) { v.pause(); v.currentTime = 0.1; } }}
     >
-      {video.videoUrl ? (
+      {video.videoUrl && inView ? (
         <video
           ref={videoRef}
           src={`${video.videoUrl}#t=0.1`}
