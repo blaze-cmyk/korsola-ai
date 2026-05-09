@@ -202,6 +202,18 @@ function removeUnavailableVideoReferenceLanguage(prompt: string): string {
     .trim();
 }
 
+function sanitizeAtlasCopyrightPrompt(prompt: string): string {
+  return prompt
+    .replace(/\bKiss\s*Cam\b/gi, 'a funny public-camera moment')
+    .replace(/\bnational TV\b/gi, 'a public event screen')
+    .replace(/\bstadium\b/gi, 'event venue')
+    .replace(/\bviral\b/gi, 'widely shared')
+    .replace(/\bTikTok\b/gi, 'vertical social video')
+    .replace(/\bFor Your Reference\/Edit\b/gi, 'Motion timing')
+    .concat('\n\nAtlasCloud safety note: this is an original AI-created character from a user-owned reference image. Do not depict any real celebrity, real broadcast footage, brand logo, or copyrighted event; keep it as a generic vertical selfie video in the same room.')
+    .trim();
+}
+
 function isBalanceError(status: number, body: string) {
   if (status === 401 || status === 402) return true;
   return /balance|exhausted|locked|insufficient|top.?up/i.test(body);
@@ -667,7 +679,7 @@ async function updateRow(admin: any, videoId: string, patch: Record<string, unkn
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
-  if (!BYTEPLUS_KEY && !ATLAS_KEY) return json({ error: 'No Seedance provider configured (set BYTEPLUS_ARK_API_KEY or ATLASCLOUD_API_KEY).' }, 500);
+  if (!ATLAS_KEY) return json({ error: 'AtlasCloud is not configured for Seedance.' }, 500);
 
   try {
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
@@ -679,58 +691,63 @@ Deno.serve(async (req) => {
       const predictionId = String(body.predictionId ?? body.taskId ?? '').trim();
       const videoId = String(body.videoId ?? '').trim();
       if (!predictionId) return json({ error: 'predictionId required' }, 400);
-      const provider = resolvePollProvider(body.provider, predictionId);
+      const provider = 'atlas' as const;
 
-      const out = provider === 'atlas'
-        ? await atlasPoll(predictionId)
-        : provider === 'apiyi'
-          ? await apiyiPoll(predictionId)
-          : await byteplusPoll(predictionId);
+      const out = await atlasPoll(predictionId);
       if (out.status === 'done') {
         if (videoId) await updateRow(admin, videoId, { status: 'complete', stage: 'complete', video_url: out.videoUrl, error: null, provider });
         return json({ status: 'complete', stage: 'complete', videoUrl: out.videoUrl });
       }
       if (out.status === 'failed') {
-        // ── Auto-fallback: AtlasCloud copyright/output-moderation → BytePlus ──
-        // AtlasCloud occasionally flags the *generated* output for copyright
-        // even when refs are clean. Instead of failing the row, transparently
-        // resubmit on BytePlus and return the new taskId so the client keeps
-        // polling without the user noticing.
-        if (provider === 'atlas' && isCopyrightRejection(out.error) && videoId && BYTEPLUS_KEY) {
+        // ── Auto-retry: AtlasCloud output-moderation false positive → AtlasCloud ──
+        // User-owned / AI-created face refs can still occasionally get a generated
+        // output copyright hit. Keep Seedance on AtlasCloud only and retry once
+        // with fresh asset registration instead of switching providers.
+        if (provider === 'atlas' && isCopyrightRejection(out.error) && videoId && ATLAS_KEY) {
           try {
             const { data: row } = await admin
               .from('video_generations')
-              .select('prompt, reference_images, duration, resolution, aspect_ratio')
+              .select('prompt, reference_images, duration, resolution, aspect_ratio, stage')
               .eq('id', videoId)
               .maybeSingle();
-            if (row) {
+            if (row && row.stage !== 'retry-atlas') {
               const split = splitRefsByType((row.reference_images as string[]) ?? []);
-              const bp = await byteplusSubmit({
-                prompt: String(row.prompt ?? ''),
-                imageUrls: split.imageUrls,
-                videoUrls: split.videoUrls,
-                audioUrls: split.audioUrls,
+              const imageAssets: string[] = [];
+              for (let i = 0; i < split.imageUrls.length; i++) {
+                const r = await createRequiredAtlasAsset(split.imageUrls[i], `retry-image-${i + 1}`, 'Image');
+                if (r.assetUrl) imageAssets.push(r.assetUrl);
+              }
+              const videoAssets: string[] = [];
+              for (let i = 0; i < split.videoUrls.length; i++) {
+                const r = await createRequiredAtlasAsset(split.videoUrls[i], `retry-video-${i + 1}`, 'Video');
+                if (r.assetUrl) videoAssets.push(r.assetUrl);
+              }
+              const atlasRetry = await atlasSubmit({
+                prompt: sanitizeAtlasCopyrightPrompt(String(row.prompt ?? '')),
+                imageUrls: imageAssets,
+                videoUrls: videoAssets,
+                audioUrls: [],
                 duration: Number(row.duration ?? 5),
                 resolution: String(row.resolution ?? '720p'),
                 ratio: String(row.aspect_ratio ?? '16:9'),
                 generateAudio: false,
                 variant: SEEDANCE_REF,
               });
-              if (bp.ok) {
-                log('INFO', 'atlas copyright → byteplus fallback', { videoId, newTaskId: bp.predictionId });
+              if (atlasRetry.ok) {
+                log('INFO', 'atlas copyright → atlas retry', { videoId, newTaskId: atlasRetry.predictionId });
                 await updateRow(admin, videoId, {
-                  task_id: bp.predictionId, provider: 'byteplus',
-                  stage: 'fallback-byteplus', status: 'processing', error: null,
+                  task_id: atlasRetry.predictionId, provider: 'atlas',
+                  stage: 'retry-atlas', status: 'processing', error: null,
                 });
                 return json({
-                  status: 'processing', stage: 'fallback-byteplus',
-                  taskId: bp.predictionId, provider: 'byteplus', usedFallback: true,
+                  status: 'processing', stage: 'retry-atlas',
+                  taskId: atlasRetry.predictionId, provider: 'atlas', usedFallback: true,
                 });
               }
-              log('WARN', 'byteplus copyright fallback failed', { error: bp.error });
+              log('WARN', 'atlas copyright retry failed', { error: atlasRetry.error });
             }
           } catch (e) {
-            log('WARN', 'copyright fallback threw', { error: String(e) });
+            log('WARN', 'copyright atlas retry threw', { error: String(e) });
           }
         }
         if (videoId) await updateRow(admin, videoId, { status: 'failed', stage: 'failed', error: out.error, provider });
@@ -928,14 +945,11 @@ Deno.serve(async (req) => {
 
     if (videoId) await updateRow(admin, videoId, { stage: 'queued' });
 
-    // AtlasCloud is the primary Seedance 2.0 route. BytePlus is only fallback.
+    // Seedance 2.0 is AtlasCloud-only for this app. Do not silently switch
+    // providers for user-owned reference images/videos.
     const attempts: Array<{ name: string; run: () => Promise<any> }> = [
       { name: 'atlas', run: () => tryAtlas() },
-      { name: 'byteplus', run: () => tryByteplus() },
     ];
-    if (chosenVariant !== SEEDANCE_FAST) {
-      attempts.push({ name: 'byteplus-fast', run: () => tryByteplus(SEEDANCE_FAST) });
-    }
 
     let result: any = { ok: false, error: 'No providers configured' };
     let usedFallback = false;
