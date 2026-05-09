@@ -631,16 +631,16 @@ Deno.serve(async (req) => {
     const effectiveGenerateAudio = generateAudio !== false;
     const submittedAudios = effectiveGenerateAudio ? audios : [];
 
-    // ===== BytePlus ModelArk (PRIMARY, only provider) =====
+    // ===== BytePlus ModelArk =====
     // Accepts raw HTTPS URLs in content[]. No asset registration step.
-    const tryByteplus = async (): Promise<{ ok: true; predictionId: string; endpoint: string; provider: 'byteplus'; audioFallbackUsed: boolean } | { ok: false; error: string }> => {
-      if (!BYTEPLUS_KEY) return { ok: false, error: 'BytePlus fallback not configured' };
+    const tryByteplus = async (variantOverride?: string): Promise<{ ok: true; predictionId: string; endpoint: string; provider: 'byteplus'; audioFallbackUsed: boolean } | { ok: false; error: string }> => {
+      if (!BYTEPLUS_KEY) return { ok: false, error: 'BytePlus not configured' };
 
-      // Resolve @-tags using raw counts (no asset registration here).
+      const variantUsed = variantOverride ?? chosenVariant;
       const resolvedPrompt = resolvePromptTags(promptText, {
         images: images.length, videos: videos.length, audios: audios.length,
       });
-      log('INFO', 'byteplus resolved prompt', { resolved: resolvedPrompt.slice(0, 240) });
+      log('INFO', 'byteplus resolved prompt', { resolved: resolvedPrompt.slice(0, 240), variant: variantUsed });
 
       const baseSubmit = {
         prompt: resolvedPrompt || 'The character in image 1 dances gracefully to the music',
@@ -650,7 +650,7 @@ Deno.serve(async (req) => {
         duration: safeDuration,
         resolution: normRes(resolution),
         ratio: normRatio(ratio),
-        variant: chosenVariant,
+        variant: variantUsed,
       };
       let submission = await byteplusSubmit({ ...baseSubmit, generateAudio: effectiveGenerateAudio });
       let audioFallbackUsed = false;
@@ -660,6 +660,55 @@ Deno.serve(async (req) => {
       }
       if (!submission.ok) return { ok: false, error: submission.error };
       return { ok: true, predictionId: submission.predictionId, endpoint: submission.endpoint, provider: 'byteplus', audioFallbackUsed };
+    };
+
+    // ===== AtlasCloud Seedance 2.0 fallback =====
+    // Requires sd/assets registration for images (avoids real-person moderation).
+    const tryAtlas = async (): Promise<{ ok: true; predictionId: string; endpoint: string; provider: 'atlas'; audioFallbackUsed: boolean } | { ok: false; error: string }> => {
+      if (!ATLAS_KEY) return { ok: false, error: 'AtlasCloud not configured' };
+
+      const imageAssets: string[] = [];
+      for (let i = 0; i < images.length; i++) {
+        const r = await createRequiredAtlasAsset(images[i], `ref-image-${i + 1}`, 'Image');
+        if (r.error || !r.assetUrl) return { ok: false, error: r.error ?? 'AtlasCloud asset registration failed' };
+        imageAssets.push(r.assetUrl);
+      }
+      const videoAssets: string[] = [];
+      for (let i = 0; i < videos.length; i++) {
+        const r = await createRequiredAtlasAsset(videos[i], `ref-video-${i + 1}`, 'Video');
+        if (r.error || !r.assetUrl) return { ok: false, error: r.error ?? 'AtlasCloud video upload failed' };
+        videoAssets.push(r.assetUrl);
+      }
+      const audioAssets: string[] = [];
+      for (let i = 0; i < submittedAudios.length; i++) {
+        const r = await createRequiredAtlasAsset(submittedAudios[i], `ref-audio-${i + 1}`, 'Audio');
+        if (r.error || !r.assetUrl) return { ok: false, error: r.error ?? 'AtlasCloud audio upload failed' };
+        audioAssets.push(r.assetUrl);
+      }
+
+      const resolvedPrompt = resolvePromptTags(promptText, {
+        images: images.length, videos: videos.length, audios: submittedAudios.length,
+      });
+      log('INFO', 'atlas resolved prompt', { resolved: resolvedPrompt.slice(0, 240), variant: chosenVariant });
+
+      const baseSubmit = {
+        prompt: resolvedPrompt || 'The character in image 1 dances gracefully to the music',
+        imageUrls: imageAssets,
+        videoUrls: videoAssets,
+        audioUrls: audioAssets,
+        duration: safeDuration,
+        resolution: normRes(resolution),
+        ratio: normRatio(ratio),
+        variant: chosenVariant,
+      };
+      let submission = await atlasSubmit({ ...baseSubmit, generateAudio: effectiveGenerateAudio });
+      let audioFallbackUsed = false;
+      if (!submission.ok && isGeneratedAudioModeration(submission.error)) {
+        audioFallbackUsed = true;
+        submission = await atlasSubmit({ ...baseSubmit, generateAudio: false });
+      }
+      if (!submission.ok) return { ok: false, error: submission.error };
+      return { ok: true, predictionId: submission.predictionId, endpoint: submission.endpoint, provider: 'atlas', audioFallbackUsed };
     };
 
     // ===== Attempt 0 (PRIMARY): Apiyi / laozhang.ai =====
