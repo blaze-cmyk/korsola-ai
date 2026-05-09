@@ -595,11 +595,11 @@ Deno.serve(async (req) => {
           ? await apiyiPoll(predictionId)
           : await byteplusPoll(predictionId);
       if (out.status === 'done') {
-        if (videoId) await updateRow(admin, videoId, { status: 'complete', stage: 'complete', video_url: out.videoUrl, error: null });
+        if (videoId) await updateRow(admin, videoId, { status: 'complete', stage: 'complete', video_url: out.videoUrl, error: null, provider });
         return json({ status: 'complete', stage: 'complete', videoUrl: out.videoUrl });
       }
       if (out.status === 'failed') {
-        if (videoId) await updateRow(admin, videoId, { status: 'failed', stage: 'failed', error: out.error });
+        if (videoId) await updateRow(admin, videoId, { status: 'failed', stage: 'failed', error: out.error, provider });
         return json({ status: 'failed', stage: 'failed', error: out.error });
       }
       return json({ status: 'processing', stage: 'processing' });
