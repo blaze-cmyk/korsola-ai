@@ -288,8 +288,17 @@ async function pollGenericVideo(videoId: string, pollBody: Record<string, unknow
   }
 }
 
-async function pollSeedanceVideo(videoId: string, taskId: string, get: () => VideoState, set: (s: Partial<VideoState>) => void, provider: string = 'byteplus') {
+function normalizeSeedanceProvider(provider?: string | null, taskId?: string | null): string {
+  const value = String(provider ?? '').toLowerCase().trim();
+  if (value.startsWith('atlas')) return 'atlas';
+  if (value.startsWith('apiyi') || value.includes('laozhang')) return 'apiyi';
+  if (value.startsWith('byteplus')) return 'byteplus';
+  return taskId && /^[a-f0-9]{32}$/i.test(taskId) ? 'atlas' : 'byteplus';
+}
+
+async function pollSeedanceVideo(videoId: string, taskId: string, get: () => VideoState, set: (s: Partial<VideoState>) => void, provider?: string | null) {
   if (!taskId || activeSeedancePolls.has(videoId)) return;
+  const pollProvider = normalizeSeedanceProvider(provider, taskId);
   activeSeedancePolls.add(videoId);
   try {
     const maxAttempts = 360;
@@ -298,7 +307,7 @@ async function pollSeedanceVideo(videoId: string, taskId: string, get: () => Vid
       await new Promise(r => setTimeout(r, delay));
       delay = Math.min(8000, delay + 250);
       const { data: poll } = await supabase.functions.invoke('seedance-generate-video', {
-        body: { action: 'poll', predictionId: taskId, videoId, provider },
+        body: { action: 'poll', predictionId: taskId, videoId, provider: pollProvider },
       });
       if (poll?.status === 'complete' && poll.videoUrl) {
         updateVideoAndSave(videoId, { status: 'complete', stage: 'complete', videoUrl: poll.videoUrl, progress: 100 }, get, set);
