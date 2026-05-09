@@ -41,6 +41,7 @@ const SEEDANCE_REF = 'bytedance/seedance-2.0/reference-to-video';
 const SEEDANCE_TEXT = 'bytedance/seedance-2.0/text-to-video';
 const SEEDANCE_FAST = 'bytedance/seedance-2.0-fast/text-to-video';
 
+const MAX_TOTAL_REFERENCE_VIDEO_SECONDS = 15;
 const ALLOWED_RES = new Set(['480p', '720p', '1080p', '1080p-SR', '1440p-SR']);
 const ALLOWED_RATIO = new Set(['16:9', '4:3', '1:1', '3:4', '9:16', '21:9', 'adaptive']);
 const ALLOWED_VARIANT = new Set([SEEDANCE_REF, SEEDANCE_TEXT, SEEDANCE_FAST]);
@@ -180,6 +181,10 @@ function isGeneratedAudioModeration(raw: string | undefined): boolean {
 
 function isAtlasReferenceRejection(raw: string | undefined): boolean {
   return /AtlasCloud rejected a reference file|reference asset was rejected|check the URL, format, and size|unsupported format/i.test(raw ?? '');
+}
+
+function isReferenceVideoDurationError(raw: string | undefined): boolean {
+  return /video total duration|total video reference duration|reference videos?.*(?:15|too long|duration)/i.test(raw ?? '');
 }
 
 function removeUnavailableVideoReferenceLanguage(prompt: string): string {
@@ -385,6 +390,41 @@ function splitRefsByType(refs: unknown[]) {
     videoUrls: videoUrls.slice(0, 3),
     audioUrls: audioUrls.slice(0, 3),
   };
+}
+
+function videoDurationHintSeconds(rawUrl: string): number | null {
+  try {
+    const url = new URL(rawUrl);
+    const path = decodeURIComponent(url.pathname);
+    const last = path.split('/').pop() ?? '';
+    const candidates = [last, url.searchParams.get('duration'), url.searchParams.get('dur'), url.searchParams.get('t')].filter(Boolean) as string[];
+    for (const candidate of candidates) {
+      const match = candidate.match(/(?:^|[-_?&])(?:d|dur|duration)?([0-9]+(?:\.[0-9]+)?)s(?:\.|-|_|$)/i);
+      if (match) {
+        const value = Number(match[1]);
+        if (Number.isFinite(value) && value > 0) return value;
+      }
+    }
+  } catch { /* ignore hints */ }
+  return null;
+}
+
+function capReferenceVideosByKnownDuration(videoUrls: string[]) {
+  const accepted: string[] = [];
+  const skipped: string[] = [];
+  let knownTotal = 0;
+
+  for (const url of videoUrls) {
+    const hint = videoDurationHintSeconds(url);
+    if (hint !== null && knownTotal + hint > MAX_TOTAL_REFERENCE_VIDEO_SECONDS) {
+      skipped.push(url);
+      continue;
+    }
+    accepted.push(url);
+    if (hint !== null) knownTotal += hint;
+  }
+
+  return { accepted, skipped, knownTotal };
 }
 
 async function atlasSubmit(p: SubmitParams) {
@@ -673,7 +713,8 @@ Deno.serve(async (req) => {
     const fromVideos = splitRefsByType(videoUrls);
     const fromAudios = splitRefsByType(audioUrls);
     const images = uniqueUrls([...fromImages.imageUrls, ...fromVideos.imageUrls, ...fromAudios.imageUrls], 9);
-    const videos = uniqueUrls([...fromImages.videoUrls, ...fromVideos.videoUrls, ...fromAudios.videoUrls], 3);
+    const rawVideos = uniqueUrls([...fromImages.videoUrls, ...fromVideos.videoUrls, ...fromAudios.videoUrls], 3);
+    const { accepted: videos, skipped: durationSkippedVideos, knownTotal: knownReferenceVideoSeconds } = capReferenceVideosByKnownDuration(rawVideos);
     const audios = uniqueUrls([...fromImages.audioUrls, ...fromVideos.audioUrls, ...fromAudios.audioUrls], 3);
 
     if (!promptText && images.length === 0 && videos.length === 0) {
@@ -682,6 +723,16 @@ Deno.serve(async (req) => {
     if (audios.length && images.length === 0 && videos.length === 0) {
       return json({ error: 'Reference audios require at least one reference image or video.' }, 400);
     }
+
+    if (durationSkippedVideos.length > 0) {
+      log('WARN', 'skipped reference videos over total duration cap', {
+        providedVideos: rawVideos.length,
+        acceptedVideos: videos.length,
+        skippedVideos: durationSkippedVideos.length,
+        knownReferenceVideoSeconds,
+      });
+    }
+    const effectivePromptText = durationSkippedVideos.length > 0 ? removeUnavailableVideoReferenceLanguage(promptText) : promptText;
 
     const hasRefs = images.length > 0 || videos.length > 0 || audios.length > 0;
     const chosenVariant = normVariant(variant, hasRefs);
@@ -702,7 +753,7 @@ Deno.serve(async (req) => {
       if (!BYTEPLUS_KEY) return { ok: false, error: 'BytePlus not configured' };
 
       const variantUsed = variantOverride ?? chosenVariant;
-      const resolvedPrompt = resolvePromptTags(promptText, {
+      const resolvedPrompt = resolvePromptTags(effectivePromptText, {
         images: images.length, videos: videos.length, audios: audios.length,
       });
       log('INFO', 'byteplus resolved prompt', { resolved: resolvedPrompt.slice(0, 240), variant: variantUsed });
@@ -722,6 +773,10 @@ Deno.serve(async (req) => {
       if (!submission.ok && isGeneratedAudioModeration(submission.error)) {
         audioFallbackUsed = true;
         submission = await byteplusSubmit({ ...baseSubmit, generateAudio: false });
+      }
+      if (!submission.ok && videos.length > 1 && isReferenceVideoDurationError(submission.error)) {
+        log('WARN', 'byteplus video references over duration cap; retrying first clip only', { videos: videos.length });
+        submission = await byteplusSubmit({ ...baseSubmit, videoUrls: videos.slice(0, 1), generateAudio: false });
       }
       if (!submission.ok) return { ok: false, error: submission.error };
       return { ok: true, predictionId: submission.predictionId, endpoint: submission.endpoint, provider: 'byteplus', audioFallbackUsed };
@@ -751,7 +806,7 @@ Deno.serve(async (req) => {
         audioAssets.push(r.assetUrl);
       }
 
-      const resolvedPrompt = resolvePromptTags(promptText, {
+      const resolvedPrompt = resolvePromptTags(effectivePromptText, {
         images: images.length, videos: videos.length, audios: submittedAudios.length,
       });
       log('INFO', 'atlas resolved prompt', { resolved: resolvedPrompt.slice(0, 240), variant: chosenVariant });
@@ -773,6 +828,11 @@ Deno.serve(async (req) => {
         audioFallbackUsed = true;
         submission = await atlasSubmit({ ...baseSubmit, generateAudio: false });
       }
+      if (!submission.ok && videoAssets.length > 1 && (isReferenceVideoDurationError(submission.error) || isAtlasReferenceRejection(submission.error))) {
+        log('WARN', 'atlas video references rejected; retrying first clip only', { videos: videoAssets.length });
+        videoFallbackUsed = true;
+        submission = await atlasSubmit({ ...baseSubmit, videoUrls: videoAssets.slice(0, 1), generateAudio: false });
+      }
       if (!submission.ok && videoAssets.length > 0 && isAtlasReferenceRejection(submission.error)) {
         log('WARN', 'atlas video reference rejected; retrying visual-only', { videos: videoAssets.length });
         videoFallbackUsed = true;
@@ -792,7 +852,7 @@ Deno.serve(async (req) => {
     // no asset registration. Currently the main test path.
     const tryApiyi = async (): Promise<{ ok: true; predictionId: string; endpoint: string; provider: 'apiyi'; audioFallbackUsed: boolean } | { ok: false; error: string }> => {
       if (!APIYI_KEY) return { ok: false, error: 'Apiyi not configured' };
-      const resolvedPrompt = resolvePromptTags(promptText, {
+      const resolvedPrompt = resolvePromptTags(effectivePromptText, {
         images: images.length, videos: videos.length, audios: audios.length,
       });
       log('INFO', 'apiyi resolved prompt', { resolved: resolvedPrompt.slice(0, 240) });
@@ -860,7 +920,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    log('INFO', 'submit ok', { provider: result.provider, predictionId: result.predictionId, endpoint: result.endpoint, usedFallback, audioFallbackUsed: result.audioFallbackUsed, videoFallbackUsed: result.videoFallbackUsed });
+    const videoFallbackUsed = Boolean(result.videoFallbackUsed || durationSkippedVideos.length > 0);
+    log('INFO', 'submit ok', { provider: result.provider, predictionId: result.predictionId, endpoint: result.endpoint, usedFallback, audioFallbackUsed: result.audioFallbackUsed, videoFallbackUsed });
 
     return json({
       submitted: true,
@@ -870,7 +931,7 @@ Deno.serve(async (req) => {
       status: 'processing',
       stage: 'processing',
       audioFallbackUsed: result.audioFallbackUsed,
-      videoFallbackUsed: result.videoFallbackUsed,
+      videoFallbackUsed,
       usedFallback,
     });
   } catch (e) {

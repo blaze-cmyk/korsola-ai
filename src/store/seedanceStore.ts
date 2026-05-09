@@ -66,6 +66,12 @@ function readFileToDataUrl(file: File): Promise<string> {
   });
 }
 
+function withDurationHint(url: string, durationSec?: number): string {
+  if (!durationSec || !Number.isFinite(durationSec)) return url;
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}duration=${durationSec.toFixed(2)}s`;
+}
+
 function probeMedia(file: File, kind: 'video' | 'audio'): Promise<{ duration: number; width?: number; height?: number }> {
   return new Promise((resolve) => {
     try {
@@ -226,6 +232,15 @@ export const useSeedanceStore = create<SeedanceState>((set, get) => ({
         });
         return;
       }
+      if (kind === 'video') {
+        const totalVideoSeconds = state.videos.reduce((sum, asset) => sum + (asset.durationSec || 0), 0) + (dur || 0);
+        if (totalVideoSeconds > MAX_MEDIA_SECONDS) {
+          toast.error('Reference videos too long together', {
+            description: `Seedance accepts ≤ ${MAX_MEDIA_SECONDS}s total video references — this would be ${totalVideoSeconds.toFixed(1)}s. Remove or trim a clip.`,
+          });
+          return;
+        }
+      }
       const url = await readFileToDataUrl(file);
       const asset: SeedanceAsset = {
         id: nextTagId(list, kind), kind, name: file.name, url, durationSec: dur,
@@ -291,7 +306,8 @@ export const useSeedanceStore = create<SeedanceState>((set, get) => ({
     let audioUrls: string[] = [];
     try {
       imageUrls = await resolveAllToUrls(s.images.map(a => a.url));
-      videoUrls = await resolveAllToUrls(s.videos.map(a => a.url));
+      const rawVideoUrls = await resolveAllToUrls(s.videos.map(a => a.url));
+      videoUrls = rawVideoUrls.map((url, index) => withDurationHint(url, s.videos[index]?.durationSec));
       audioUrls = s.generateAudio ? await resolveAllToUrls(s.audios.map(a => a.url)) : [];
     } catch (e: any) {
       set({ isSubmitting: false });
