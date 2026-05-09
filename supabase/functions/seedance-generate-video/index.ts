@@ -157,6 +157,9 @@ function friendly(raw: string | undefined): string {
   if (/input image.*sensitive|input image.*real person|sensitive content/i.test(raw)) {
     return 'BytePlus Seedance 2.0 rejected the reference image because it may contain a real person/privacy information. Try a different photo, crop/blur the face, or remove that reference.';
   }
+  if (/reference asset was rejected|check the URL, format, and size|unsupported format/i.test(raw)) {
+    return 'AtlasCloud rejected a reference file. Reference videos must be MP4/MOV at 480p/720p, under 50MB, and total video reference duration must stay under 15s.';
+  }
   return raw;
 }
 
