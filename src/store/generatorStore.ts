@@ -208,7 +208,7 @@ function loadPersistedReferenceImages(): string[] {
 
 // Save a completed generation to the database
 async function saveToDb(img: GeneratedImage, storageUrl: string, projectId: string | null) {
-  const { error } = await supabase.from('generations').insert({
+  const { error } = await supabase.from('generations').upsert({
     id: img.id,
     prompt: img.prompt,
     model: img.model,
@@ -219,8 +219,8 @@ async function saveToDb(img: GeneratedImage, storageUrl: string, projectId: stri
     error: img.error || null,
     project_id: projectId,
     create_project_id: projectId,
-  } as any);
-  if (error) console.error('DB insert error:', error);
+  } as any, { onConflict: 'id' });
+  if (error) console.error('DB upsert error:', error);
 
   // Set/refresh project thumbnail with the latest image — only if user hasn't locked one
   if (projectId && storageUrl) {
