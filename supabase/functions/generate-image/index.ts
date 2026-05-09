@@ -220,6 +220,7 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  let requestGenerationId: string | undefined;
   try {
     const body = await req.json();
     const prompt = typeof body?.prompt === "string" ? body.prompt : "";
@@ -230,6 +231,7 @@ serve(async (req) => {
     const quality = typeof body?.quality === "string" ? body.quality : "2K";
     const aspectRatio = typeof body?.aspectRatio === "string" ? body.aspectRatio : "1:1";
     const generationId = typeof body?.generationId === "string" ? body.generationId : undefined;
+    requestGenerationId = generationId;
     const projectId = typeof body?.projectId === "string" ? body.projectId : null;
 
     if (!prompt.trim()) {
@@ -719,7 +721,7 @@ serve(async (req) => {
     });
   } catch (e) {
     console.error("generate-image error:", e);
-    try { await updateGenerationRow(typeof (await req.clone().json())?.generationId === "string" ? (await req.clone().json()).generationId : undefined, { status: "failed", error: e instanceof Error ? e.message : "Unknown error" }); } catch { /* request body already consumed or invalid */ }
+    await updateGenerationRow(requestGenerationId, { status: "failed", error: e instanceof Error ? e.message : "Unknown error" });
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
