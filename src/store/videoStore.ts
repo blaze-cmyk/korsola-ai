@@ -555,7 +555,7 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
         if (error || data?.error) {
           updateVideoAndSave(id, { status: 'failed', error: (data?.error || error?.message) ?? 'Seedance retry failed' }, get, set);
         } else if (data?.taskId) {
-          pollSeedanceVideo(id, data.taskId, get, set);
+          pollSeedanceVideo(id, data.taskId, get, set, data?.provider ?? 'byteplus');
         }
       } catch (e: any) {
         updateVideoAndSave(id, { status: 'failed', error: e?.message ?? 'Seedance retry failed' }, get, set);
