@@ -760,7 +760,13 @@ function VideoCard({ video }: { video: GeneratedVideo & { kind: 'video' } }) {
           playsInline
           preload="metadata"
           className="absolute inset-0 w-full h-full object-cover bg-[#0a0a0a] pointer-events-none"
-          onLoadedMetadata={(e) => { try { e.currentTarget.currentTime = 0.1; } catch {} }}
+          onLoadedMetadata={(e) => {
+            try {
+              e.currentTarget.currentTime = 0.1;
+            } catch {
+              // Some browsers disallow seeking before enough metadata is available.
+            }
+          }}
         />
       ) : video.thumbnailUrl ? (
         <img
@@ -868,7 +874,9 @@ function MarketingCard({ gen, createProjectId }: { gen: MSGeneration & { kind: '
         .update({ status: 'queued', stage: 'scripting', error: null, updated_at: new Date().toISOString() } as any)
         .eq('id', gen.id);
       await supabase.functions.invoke('ms-retry-generation', { body: { id: gen.id } });
-    } catch {}
+    } catch {
+      // Realtime/polling will surface the existing failure state if retry cannot start.
+    }
   };
 
   const [mcInViewRef, mcInView] = useInView<HTMLDivElement>('400px');
@@ -891,7 +899,13 @@ function MarketingCard({ gen, createProjectId }: { gen: MSGeneration & { kind: '
             playsInline
             preload="metadata"
             className="absolute inset-0 w-full h-full object-cover bg-[#0a0a0a] pointer-events-none"
-            onLoadedMetadata={(e) => { try { e.currentTarget.currentTime = 0.1; } catch {} }}
+            onLoadedMetadata={(e) => {
+              try {
+                e.currentTarget.currentTime = 0.1;
+              } catch {
+                // Some browsers disallow seeking before enough metadata is available.
+              }
+            }}
           />
         ) : gen.thumbUrl && !isPending && !isFailed ? (
           <img src={thumbUrl(gen.thumbUrl, 640, 72)} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" />
