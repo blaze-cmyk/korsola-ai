@@ -559,7 +559,7 @@ async function updateRow(admin: any, videoId: string, patch: Record<string, unkn
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
-  if (!BYTEPLUS_KEY) return json({ error: 'BytePlus not configured (set BYTEPLUS_ARK_API_KEY).' }, 500);
+  if (!BYTEPLUS_KEY && !ATLAS_KEY) return json({ error: 'No Seedance provider configured (set BYTEPLUS_ARK_API_KEY or ATLASCLOUD_API_KEY).' }, 500);
 
   try {
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
