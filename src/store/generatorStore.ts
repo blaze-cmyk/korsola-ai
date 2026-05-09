@@ -331,12 +331,21 @@ export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
   },
 
   generate: async () => {
-    const { prompt, referenceImages, model, quality, aspectRatio, quantity } = get();
+    const { prompt, referenceImages, model, quality, aspectRatio: rawAr, quantity } = get();
     if (!prompt.trim()) return;
 
+    // Auto AR: derive from first reference image's natural dimensions
+    let aspectRatio = rawAr;
+    if (rawAr === 'Auto' && referenceImages.length > 0) {
+      try {
+        aspectRatio = await detectAspectRatio(referenceImages[0]);
+        console.log('[generator] Auto AR resolved →', aspectRatio);
+      } catch { aspectRatio = '1:1'; }
+    } else if (rawAr === 'Auto') {
+      aspectRatio = '1:1';
+    }
+
     // Resolve active project FIRST so placeholders carry the correct projectId.
-    // Otherwise the grid (which filters by activeProjectId) would hide them the
-    // moment a brand-new project is auto-created and becomes active.
     const projStore = useCreateProjectsStore.getState();
     let projectId: string | null = projStore.activeProjectId;
     if (!projectId) {
@@ -362,6 +371,22 @@ export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
     }));
 
     set({ images: [...newImages, ...get().images] });
+
+    // Persist placeholder rows immediately so a refresh mid-generation doesn't lose them.
+    const placeholderRows = newImages.map((img) => ({
+      id: img.id,
+      prompt: img.prompt,
+      model: img.model,
+      quality: img.quality,
+      aspect_ratio: img.aspectRatio,
+      image_url: null,
+      status: 'generating',
+      project_id: projectId,
+      create_project_id: projectId,
+    }));
+    supabase.from('generations').upsert(placeholderRows as any, { onConflict: 'id' }).then(({ error }) => {
+      if (error) console.error('Placeholder insert error:', error);
+    });
 
     newImages.forEach(async (img) => {
       try {
