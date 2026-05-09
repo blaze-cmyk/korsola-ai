@@ -745,11 +745,34 @@ Deno.serve(async (req) => {
 
     if (videoId) await updateRow(admin, videoId, { stage: 'queued' });
 
-    // BytePlus only — no fallbacks. If it fails, surface the real error.
-    const result: any = await tryByteplus();
-    const usedFallback = false;
+    // Fallback chain: BytePlus (chosen variant) → BytePlus Seedance 2.0 fast →
+    // AtlasCloud Seedance 2.0 (with asset registration). Each step only triggers
+    // when the previous one fails (privacy moderation, balance, transient errors).
+    const attempts: Array<{ name: string; run: () => Promise<any> }> = [
+      { name: 'byteplus', run: () => tryByteplus() },
+    ];
+    if (chosenVariant !== SEEDANCE_FAST) {
+      attempts.push({ name: 'byteplus-fast', run: () => tryByteplus(SEEDANCE_FAST) });
+    }
+    attempts.push({ name: 'atlas', run: () => tryAtlas() });
+
+    let result: any = { ok: false, error: 'No providers configured' };
+    let usedFallback = false;
+    const errors: string[] = [];
+    for (let i = 0; i < attempts.length; i++) {
+      const step = attempts[i];
+      log('INFO', 'attempt', { step: step.name, index: i });
+      result = await step.run();
+      if (result.ok) {
+        usedFallback = i > 0;
+        break;
+      }
+      errors.push(`${step.name}: ${result.error}`);
+      log('WARN', 'attempt failed', { step: step.name, error: result.error });
+    }
+
     if (!result.ok) {
-      const finalErr = result.error;
+      const finalErr = errors.join(' | ');
       if (videoId) await updateRow(admin, videoId, { status: 'failed', stage: 'failed', error: finalErr, provider: 'byteplus' });
       return json({ status: 'failed', stage: 'failed', error: finalErr, provider: 'byteplus' });
     }
