@@ -31,6 +31,7 @@ export const MAX_IMAGES = 9;
 export const MAX_VIDEOS = 3;
 export const MAX_AUDIOS = 3;
 export const MAX_MEDIA_SECONDS = 15;
+const MAX_REFERENCE_VIDEO_EDGE = 1280;
 
 type SeedanceState = {
   prompt: string;
@@ -216,6 +217,12 @@ export const useSeedanceStore = create<SeedanceState>((set, get) => ({
       if (dur && dur > MAX_MEDIA_SECONDS) {
         toast.error(`${kind} too long`, {
           description: `Seedance accepts ≤ ${MAX_MEDIA_SECONDS}s — got ${dur.toFixed(1)}s. Trim and re-upload.`,
+        });
+        return;
+      }
+      if (kind === 'video' && media.width && media.height && Math.max(media.width, media.height) > MAX_REFERENCE_VIDEO_EDGE) {
+        toast.error('Reference video too high-res', {
+          description: 'AtlasCloud accepts 480p/720p references. Upload 720×1280 or smaller.',
         });
         return;
       }
