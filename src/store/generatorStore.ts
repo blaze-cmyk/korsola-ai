@@ -158,6 +158,31 @@ async function uploadToStorage(imageData: string, id: string): Promise<string | 
 }
 
 // Upload a reference image (base64) to storage and return a persistent URL
+// Detect aspect ratio from a reference image and snap to closest supported value
+const SUPPORTED_ARS: Array<[string, number]> = [
+  ['1:1', 1], ['3:4', 3/4], ['4:3', 4/3], ['2:3', 2/3], ['3:2', 3/2],
+  ['9:16', 9/16], ['16:9', 16/9], ['5:4', 5/4], ['4:5', 4/5], ['21:9', 21/9],
+];
+async function detectAspectRatio(url: string): Promise<string> {
+  return new Promise((resolve) => {
+    try {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        const r = img.naturalWidth / img.naturalHeight;
+        let best = '1:1', bestDiff = Infinity;
+        for (const [label, val] of SUPPORTED_ARS) {
+          const d = Math.abs(Math.log(r / val));
+          if (d < bestDiff) { bestDiff = d; best = label; }
+        }
+        resolve(best);
+      };
+      img.onerror = () => resolve('1:1');
+      img.src = url;
+    } catch { resolve('1:1'); }
+  });
+}
+
 async function uploadReferenceImage(dataUri: string): Promise<string> {
   if (!dataUri.startsWith('data:')) return dataUri; // already a URL
   const id = `ref-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
