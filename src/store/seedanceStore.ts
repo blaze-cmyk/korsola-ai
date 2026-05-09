@@ -226,6 +226,15 @@ export const useSeedanceStore = create<SeedanceState>((set, get) => ({
         });
         return;
       }
+      if (kind === 'video') {
+        const totalVideoSeconds = state.videos.reduce((sum, asset) => sum + (asset.durationSec || 0), 0) + (dur || 0);
+        if (totalVideoSeconds > MAX_MEDIA_SECONDS) {
+          toast.error('Reference videos too long together', {
+            description: `Seedance accepts ≤ ${MAX_MEDIA_SECONDS}s total video references — this would be ${totalVideoSeconds.toFixed(1)}s. Remove or trim a clip.`,
+          });
+          return;
+        }
+      }
       const url = await readFileToDataUrl(file);
       const asset: SeedanceAsset = {
         id: nextTagId(list, kind), kind, name: file.name, url, durationSec: dur,
