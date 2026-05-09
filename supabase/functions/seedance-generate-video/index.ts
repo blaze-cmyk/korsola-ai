@@ -906,7 +906,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    log('INFO', 'submit ok', { provider: result.provider, predictionId: result.predictionId, endpoint: result.endpoint, usedFallback, audioFallbackUsed: result.audioFallbackUsed, videoFallbackUsed: result.videoFallbackUsed });
+    const videoFallbackUsed = Boolean(result.videoFallbackUsed || durationSkippedVideos.length > 0);
+    log('INFO', 'submit ok', { provider: result.provider, predictionId: result.predictionId, endpoint: result.endpoint, usedFallback, audioFallbackUsed: result.audioFallbackUsed, videoFallbackUsed });
 
     return json({
       submitted: true,
@@ -916,7 +917,7 @@ Deno.serve(async (req) => {
       status: 'processing',
       stage: 'processing',
       audioFallbackUsed: result.audioFallbackUsed,
-      videoFallbackUsed: result.videoFallbackUsed,
+      videoFallbackUsed,
       usedFallback,
     });
   } catch (e) {
