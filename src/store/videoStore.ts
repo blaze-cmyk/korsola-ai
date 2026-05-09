@@ -288,8 +288,17 @@ async function pollGenericVideo(videoId: string, pollBody: Record<string, unknow
   }
 }
 
-async function pollSeedanceVideo(videoId: string, taskId: string, get: () => VideoState, set: (s: Partial<VideoState>) => void, provider: string = 'byteplus') {
+function normalizeSeedanceProvider(provider?: string | null, taskId?: string | null): string {
+  const value = String(provider ?? '').toLowerCase().trim();
+  if (value.startsWith('atlas')) return 'atlas';
+  if (value.startsWith('apiyi') || value.includes('laozhang')) return 'apiyi';
+  if (value.startsWith('byteplus')) return 'byteplus';
+  return taskId && /^[a-f0-9]{32}$/i.test(taskId) ? 'atlas' : 'byteplus';
+}
+
+async function pollSeedanceVideo(videoId: string, taskId: string, get: () => VideoState, set: (s: Partial<VideoState>) => void, provider?: string | null) {
   if (!taskId || activeSeedancePolls.has(videoId)) return;
+  const pollProvider = normalizeSeedanceProvider(provider, taskId);
   activeSeedancePolls.add(videoId);
   try {
     const maxAttempts = 360;
@@ -298,7 +307,7 @@ async function pollSeedanceVideo(videoId: string, taskId: string, get: () => Vid
       await new Promise(r => setTimeout(r, delay));
       delay = Math.min(8000, delay + 250);
       const { data: poll } = await supabase.functions.invoke('seedance-generate-video', {
-        body: { action: 'poll', predictionId: taskId, videoId, provider },
+        body: { action: 'poll', predictionId: taskId, videoId, provider: pollProvider },
       });
       if (poll?.status === 'complete' && poll.videoUrl) {
         updateVideoAndSave(videoId, { status: 'complete', stage: 'complete', videoUrl: poll.videoUrl, progress: 100 }, get, set);
@@ -628,7 +637,7 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
         error: row.status === 'processing' && !row.task_id && Date.now() - new Date(row.created_at).getTime() > orphanMs
           ? orphanError
           : row.error || undefined,
-        provider: row.provider || null,
+        provider: normalizeSeedanceProvider(row.provider, row.task_id),
         taskId: row.task_id || null,
         responseUrl: row.response_url || null,
         statusUrl: row.status_url || null,
@@ -655,7 +664,7 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
         });
       (data || []).forEach((row: any) => {
         if (row.model === 'seedance-2.0' && row.status === 'processing' && row.task_id) {
-          pollSeedanceVideo(row.id, row.task_id, get, set, row.provider ?? 'byteplus');
+          pollSeedanceVideo(row.id, row.task_id, get, set, row.provider);
         } else if (row.status === 'processing' && row.provider && row.task_id) {
           const pollBody: Record<string, unknown> = { provider: row.provider, taskId: row.task_id };
           if (row.response_url) pollBody.responseUrl = row.response_url;
@@ -685,7 +694,7 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
       thumbnailUrl: fallbackVideoThumbnail(row),
       createdAt: new Date(row.created_at).getTime(),
       error: row.error || undefined,
-      provider: row.provider || null,
+      provider: row.model === 'seedance-2.0' ? normalizeSeedanceProvider(row.provider, row.task_id) : row.provider || null,
       taskId: row.task_id || null,
       responseUrl: row.response_url || null,
       statusUrl: row.status_url || null,

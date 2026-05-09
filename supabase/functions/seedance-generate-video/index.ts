@@ -173,6 +173,22 @@ function isBalanceError(status: number, body: string) {
   return /balance|exhausted|locked|insufficient|top.?up/i.test(body);
 }
 
+function normalizeProvider(raw: unknown): 'atlas' | 'byteplus' | 'apiyi' | '' {
+  const v = String(raw ?? '').toLowerCase().trim();
+  if (!v) return '';
+  if (v.startsWith('atlas')) return 'atlas';
+  if (v.startsWith('apiyi') || v.includes('laozhang')) return 'apiyi';
+  if (v.startsWith('byteplus')) return 'byteplus';
+  return '';
+}
+
+function inferProviderFromTaskId(taskId: string): 'atlas' | 'byteplus' {
+  // AtlasCloud prediction ids are 32-char lowercase hex. BytePlus task ids are
+  // not, so this prevents legacy rows with provider=null from polling BytePlus
+  // with an Atlas id and getting permanent "resource not found" failures.
+  return /^[a-f0-9]{32}$/i.test(taskId) ? 'atlas' : 'byteplus';
+}
+
 function toWsrvJpg(rawUrl: string, w = 1024, h = 1024): string {
   if (!rawUrl) return rawUrl;
   if (rawUrl.includes('wsrv.nl')) return rawUrl;
@@ -570,20 +586,20 @@ Deno.serve(async (req) => {
     if (action === 'poll') {
       const predictionId = String(body.predictionId ?? body.taskId ?? '').trim();
       const videoId = String(body.videoId ?? '').trim();
-      const providerRaw = String(body.provider ?? 'byteplus').toLowerCase();
-      // Accept 'atlas' or 'atlascloud' (legacy clients) as the AtlasCloud route.
-      const provider = providerRaw.startsWith('atlas') ? 'atlas' : providerRaw;
+      const provider = normalizeProvider(body.provider) || inferProviderFromTaskId(predictionId);
       if (!predictionId) return json({ error: 'predictionId required' }, 400);
 
       const out = provider === 'atlas'
         ? await atlasPoll(predictionId)
-        : await byteplusPoll(predictionId);
+        : provider === 'apiyi'
+          ? await apiyiPoll(predictionId)
+          : await byteplusPoll(predictionId);
       if (out.status === 'done') {
-        if (videoId) await updateRow(admin, videoId, { status: 'complete', stage: 'complete', video_url: out.videoUrl, error: null });
+        if (videoId) await updateRow(admin, videoId, { status: 'complete', stage: 'complete', video_url: out.videoUrl, error: null, provider });
         return json({ status: 'complete', stage: 'complete', videoUrl: out.videoUrl });
       }
       if (out.status === 'failed') {
-        if (videoId) await updateRow(admin, videoId, { status: 'failed', stage: 'failed', error: out.error });
+        if (videoId) await updateRow(admin, videoId, { status: 'failed', stage: 'failed', error: out.error, provider });
         return json({ status: 'failed', stage: 'failed', error: out.error });
       }
       return json({ status: 'processing', stage: 'processing' });
