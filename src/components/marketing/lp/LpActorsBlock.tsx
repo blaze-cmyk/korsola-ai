@@ -96,45 +96,50 @@ export function LpActorsBlock() {
             </p>
           </div>
 
-          <div className="rounded-3xl bg-[#0e0e10] border border-white/10 p-7 w-full mx-auto flex flex-col" style={{ maxWidth: 486 }}>
-            <div className="relative -mx-7 -mt-7 pt-10 pb-4 overflow-hidden rounded-t-3xl">
-              <div className="absolute inset-x-0 top-0 h-10 bg-[#0e0e10] z-20 pointer-events-none" />
-              <div className="flex items-center justify-center gap-4 px-6">
-                {[
-                  { src: "/videos/actors/edit_1.mp4", label: "EXISTING VIDEO", pos: "top" },
-                  { src: "/videos/actors/edit_2.mp4", label: "WITH YOUR PRODUCT", pos: "bottom" },
-                ].map((v, i) => (
-                  <div
-                    key={i}
-                    className="relative shrink-0 rounded-2xl overflow-hidden bg-black"
-                    style={{ width: 190, aspectRatio: "9 / 16" }}
-                  >
-                    <video
-                      src={v.src}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      preload="auto"
-                      className="w-full h-full object-cover"
-                    />
-                    <span
-                      className={`absolute left-1/2 -translate-x-1/2 font-serif italic text-white text-[15px] drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)] whitespace-nowrap ${
-                        v.pos === "top" ? "top-3" : "bottom-3"
-                      }`}
-                    >
-                      {v.label}
-                    </span>
-                  </div>
-                ))}
+          <div className="rounded-3xl bg-[#0e0e10] border border-white/10 p-7 w-full mx-auto flex flex-col min-h-[623px]" style={{ maxWidth: 486 }}>
+            <div className="relative -mx-7 -mt-7 h-[430px] overflow-hidden rounded-t-3xl">
+              <div className="absolute inset-x-0 top-0 h-12 bg-[#0e0e10] z-20 pointer-events-none" />
+              <div className="absolute left-[9%] top-[126px] sm:left-[10%] sm:top-[128px]">
+                <span className="absolute left-1/2 -top-7 -translate-x-1/2 font-serif italic text-white text-[15px] drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)] whitespace-nowrap z-10">
+                  EXISTING VIDEO
+                </span>
+                <div className="relative rounded-2xl overflow-hidden bg-black" style={{ width: "clamp(174px, 40vw, 205px)", aspectRatio: "9 / 16" }}>
+                  <video
+                    src="/videos/actors/edit_1.mp4"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="auto"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+              <div className="absolute right-[9%] top-[66px] sm:right-[10%] sm:top-[68px]">
+                <div className="relative rounded-2xl overflow-hidden bg-black" style={{ width: "clamp(174px, 40vw, 205px)", aspectRatio: "9 / 16" }}>
+                  <video
+                    src="/videos/actors/edit_2.mp4"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="auto"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <span className="absolute left-1/2 -bottom-7 -translate-x-1/2 font-serif italic text-white text-[15px] drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)] whitespace-nowrap z-10">
+                  WITH YOUR PRODUCT
+                </span>
               </div>
             </div>
-            <h3 className="mt-6 font-display font-extrabold text-white text-2xl">
+            <div className="mt-auto">
+            <h3 className="font-display font-extrabold text-white text-2xl">
               AI Video <span className="font-serif italic font-normal">Editing</span>
             </h3>
             <p className="mt-2 text-white/60 text-[14px] leading-relaxed">
               Edit any AI video — drop in your product, swap faces, tweak motion, and add B-rolls or music in one click.
             </p>
+            </div>
           </div>
         </div>
       </div>
