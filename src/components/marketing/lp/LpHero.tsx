@@ -35,7 +35,7 @@ export function LpHero() {
       />
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/50" />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-28 md:pt-36 pb-20 md:pb-24">
+      <div className="relative w-full px-4 sm:px-8 lg:px-16 xl:px-24 pt-28 md:pt-36 pb-20 md:pb-24">
         <div className="grid md:grid-cols-2 gap-10 md:gap-12 items-center min-h-[460px] md:min-h-[540px]">
           {/* LEFT */}
           <div className="mk-fade-up text-left">
@@ -139,7 +139,7 @@ function SteppedPhrases() {
 
   return (
     <div
-      className="relative h-[320px] md:h-[420px] overflow-hidden mk-fade-up md:pl-[420px] lg:pl-[560px]"
+      className="relative h-[320px] md:h-[420px] overflow-hidden mk-fade-up md:pl-[640px] lg:pl-[860px] xl:pl-[1040px]"
       style={{
         animationDelay: "0.1s",
         maskImage:
