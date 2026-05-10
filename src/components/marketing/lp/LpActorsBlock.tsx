@@ -39,28 +39,34 @@ export function LpActorsBlock() {
 
         {/* 2 sub cards */}
         <div className="grid md:grid-cols-2 gap-5">
-          <div className="rounded-3xl bg-[#0e0e10] border border-white/10 p-7 w-full max-w-[468px] mx-auto" style={{ minHeight: 623 }}>
-            <div className="grid grid-cols-3 gap-2">
-              {["/videos/actors/actor_1.mp4", "/videos/actors/actor_2.mp4", "/videos/actors/actor_3.mp4"].map((src, i) => (
-                <video
-                  key={i}
-                  src={src}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload="auto"
-                  className="w-full aspect-[187/331] rounded-xl object-cover bg-black"
-                />
-              ))}
+          <div className="rounded-3xl bg-[#0e0e10] border border-white/10 p-7 w-full mx-auto flex flex-col" style={{ maxWidth: 486, height: 623 }}>
+            <div className="relative -mx-7 -mt-7 px-7 pt-10 pb-6">
+              {/* Top solid black band */}
+              <div className="absolute inset-x-0 top-0 h-10 bg-[#0e0e10] z-10 pointer-events-none" />
+              <div className="grid grid-cols-3 gap-2">
+                {["/videos/actors/actor_1.mp4", "/videos/actors/actor_2.mp4", "/videos/actors/actor_3.mp4"].map((src, i) => (
+                  <video
+                    key={i}
+                    src={src}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="auto"
+                    className="w-full aspect-[187/331] rounded-xl object-cover bg-black"
+                  />
+                ))}
+              </div>
+              {/* Bottom black-to-transparent gradient fade over videos */}
+              <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#0e0e10] via-[#0e0e10]/80 to-transparent pointer-events-none" />
             </div>
-            <p className="mt-3 text-white/70 text-[13px] text-center">Actors holding your product</p>
+            <p className="text-white/80 text-[13px] text-center">Actors holding your product</p>
             <div className="mt-2 flex justify-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-white/25" />
               <span className="w-1.5 h-1.5 rounded-full bg-white/80" />
               <span className="w-1.5 h-1.5 rounded-full bg-white/25" />
             </div>
-            <h3 className="mt-5 font-display font-extrabold text-white text-2xl">
+            <h3 className="mt-6 font-display font-extrabold text-white text-2xl">
               Create your own <span className="font-serif italic font-normal">AI Actor</span>
             </h3>
             <p className="mt-2 text-white/60 text-[14px] leading-relaxed">
