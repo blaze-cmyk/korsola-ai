@@ -64,17 +64,22 @@ export function LpFeaturesBento() {
             </div>
           </div>
 
-          {/* Card 3 — oxblood */}
-          <div className="rounded-3xl p-7 text-white relative overflow-hidden border-[#e3e3e3]" style={{ background: "var(--mk-oxblood)" }}>
-            <h3 className="font-display font-extrabold text-xl">One place, whole team</h3>
-            <p className="mt-2 text-white/75 text-[14px] leading-relaxed">
-              Organize brand assets, generated content, and workflows with Projects.
-              Your team works together, your work stays together.
-            </p>
-            <div className="mt-6 grid grid-cols-2 gap-2">
-              {[REEL_GRADIENTS[7], REEL_GRADIENTS[2]].map((g, i) => (
-                <div key={i} className="aspect-[4/5] rounded-lg" style={{ background: g }} />
-              ))}
+          {/* Card 3 — video bg */}
+          <div className="rounded-3xl p-7 text-white relative overflow-hidden border-[#e3e3e3] min-h-[320px]" style={{ background: "var(--mk-oxblood)" }}>
+            <video
+              src="/videos/creative-suite-spaces.webm"
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/40" />
+            <div className="relative z-10">
+              <h3 className="font-display font-extrabold text-xl">One place, whole team</h3>
+              <p className="mt-2 text-white/85 text-[14px] leading-relaxed">
+                Shared credits, shared avatars, shared brand assets. Your media buyer and creative director work from the same platform. Your brand stays consistent across every ad.
+              </p>
             </div>
           </div>
 
