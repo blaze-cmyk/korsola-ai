@@ -107,10 +107,24 @@ function Card({ m }: { m: Model }) {
       ) : (
         <img src={m.media} alt={m.name} className="absolute inset-0 w-full h-full object-cover" />
       )}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-black/30 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/30 pointer-events-none" />
       <div className="absolute inset-0 flex items-center justify-center gap-2 text-white">
         <m.Icon className="w-5 h-5 shrink-0 drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]" />
-        <span className="font-semibold text-[15px] drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">{m.name}</span>
+        <span className="font-semibold text-[15px] drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]" style={{ fontFamily: "Manrope, sans-serif" }}>{m.name}</span>
+      </div>
+      <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+        <div
+          className="italic text-[13px] leading-tight text-white/95 drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)]"
+          style={{ fontFamily: "'Playfair Display', serif" }}
+        >
+          {m.tag}
+        </div>
+        <div
+          className="text-[12px] text-white/75 leading-snug drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]"
+          style={{ fontFamily: "Manrope, sans-serif" }}
+        >
+          {m.desc}
+        </div>
       </div>
     </div>
   );
