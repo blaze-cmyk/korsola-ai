@@ -82,6 +82,7 @@ export function LpEmotionLocalize() {
             />
           </div>
         </div>
+      </div>
     </section>
   );
 }
