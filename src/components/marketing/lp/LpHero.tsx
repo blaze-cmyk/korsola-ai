@@ -10,16 +10,18 @@ const HERO_LOGOS = [
 ];
 
 const PHRASES = [
-  "Cast AI actors",
+  "Cast AI avatars",
+  "Generate UGC ads",
+  "Shoot product videos",
+  "Try-on with avatars",
+  "Unbox like a creator",
+  "Tutorials in one click",
+  "Spaces workflows",
   "Stay on brand",
-  "Upscale to 4K",
-  "Draft storyboards",
-  "Scale campaigns",
-  "Generate images",
-  "Shoot cinematic videos",
-  "Build workflows",
   "Localize in 30 languages",
   "Batch 100 variations",
+  "Winning ads library",
+  "Static ads in seconds",
 ];
 
 export function LpHero() {
@@ -137,7 +139,7 @@ function SteppedPhrases() {
 
   return (
     <div
-      className="relative h-[320px] md:h-[420px] overflow-hidden mk-fade-up md:pl-[320px] lg:pl-[420px]"
+      className="relative h-[320px] md:h-[420px] overflow-hidden mk-fade-up md:pl-[420px] lg:pl-[560px]"
       style={{
         animationDelay: "0.1s",
         maskImage:
