@@ -100,7 +100,7 @@ export function LpActorsBlock() {
             <div className="relative flex justify-center items-center gap-5 pt-6 pb-2">
               {/* Video 1 */}
               <div className="relative pb-7">
-                <div className="relative rounded-2xl overflow-hidden bg-black" style={{ width: "clamp(150px, 36vw, 180px)", aspectRatio: "9 / 16" }}>
+                <div className="relative rounded-2xl overflow-hidden bg-black" style={{ width: "clamp(170px, 42vw, 215px)", aspectRatio: "9 / 16" }}>
                   <video
                     src="/videos/actors/edit_1.mp4"
                     autoPlay
@@ -117,7 +117,7 @@ export function LpActorsBlock() {
               </div>
               {/* Video 2 */}
               <div className="relative pb-7">
-                <div className="relative rounded-2xl overflow-hidden bg-black" style={{ width: "clamp(150px, 36vw, 180px)", aspectRatio: "9 / 16" }}>
+                <div className="relative rounded-2xl overflow-hidden bg-black" style={{ width: "clamp(170px, 42vw, 215px)", aspectRatio: "9 / 16" }}>
                   <video
                     src="/videos/actors/edit_2.mp4"
                     autoPlay
