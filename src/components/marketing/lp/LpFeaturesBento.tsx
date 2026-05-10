@@ -22,27 +22,20 @@ export function LpFeaturesBento() {
 
         <div className="mt-12 grid md:grid-cols-3 grid-rows-2 gap-4 md:auto-rows-fr">
           {/* Card 1 — tall light */}
-          <div className="md:row-span-2 rounded-3xl bg-bone-2 border border-line p-7 flex flex-col">
+          <div className="md:row-span-2 rounded-3xl bg-bone-2 border border-line p-7 flex flex-col overflow-hidden">
             <h3 className="font-display font-extrabold text-ink text-2xl">Every tool, ready to go</h3>
             <p className="mt-3 text-ink-soft text-[14px] leading-relaxed">
               Image, video, audio, 3D — thirty tools, no setup. Open what you need,
               make what you want.
             </p>
-            <div className="mt-6 flex-1 rounded-2xl bg-white p-4 flex flex-col gap-3">
-              <div className="flex gap-2">
-                {["ALL", "IMAGE", "VIDEO", "AUDIO"].map((t, i) => (
-                  <span key={t} className={`px-3 h-7 rounded-full grid place-items-center text-[11px] font-bold ${i === 0 ? "bg-ink text-white" : "text-ink-soft"}`}>{t}</span>
-                ))}
-              </div>
-              <div className="grid grid-cols-2 gap-2 flex-1">
-                {REEL_GRADIENTS.slice(0, 4).map((g, i) => (
-                  <div key={i} className="rounded-lg relative overflow-hidden aspect-square" style={{ background: g }}>
-                    <span className="absolute bottom-1.5 left-1.5 text-[8px] uppercase font-bold text-white/90 tracking-wider">
-                      {["Image gen", "Video gen", "Video edit", "Audio"][i]}
-                    </span>
-                  </div>
-                ))}
-              </div>
+            <div className="mt-6 flex-1 -mx-3 -mb-3 sm:-mx-4 sm:-mb-4 flex items-end justify-center min-h-[280px]">
+              <img
+                src="/images/tools-grid.png"
+                alt="Tools grid showing image generator, video generator, video editor, and audio tools"
+                loading="lazy"
+                className="w-full h-auto max-h-full object-contain object-bottom select-none pointer-events-none"
+                draggable={false}
+              />
             </div>
           </div>
 
