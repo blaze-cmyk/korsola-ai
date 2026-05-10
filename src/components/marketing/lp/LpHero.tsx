@@ -45,7 +45,7 @@ export function LpHero() {
               <span className="text-[color:var(--mk-violet,#c084fc)]">Read release →</span>
             </span>
 
-            <h1 className="mt-6 font-display font-extrabold text-white tracking-tight text-[40px] sm:text-[52px] md:text-[64px] leading-[1.04] drop-shadow-[0_4px_24px_rgba(0,0,0,0.35)] px-[31px]">
+            <h1 className="mt-6 font-display font-extrabold text-white tracking-tight text-[46px] sm:text-[60px] md:text-[74px] leading-[1.04] drop-shadow-[0_4px_24px_rgba(0,0,0,0.35)] px-[31px] max-w-[10ch]">
               Create winning ads{" "}
               <span className="font-serif italic font-normal">with AI</span>
             </h1>
