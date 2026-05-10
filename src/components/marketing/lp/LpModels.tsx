@@ -34,6 +34,34 @@ const SoraIcon = (props: { className?: string }) => (
   </svg>
 );
 
+const WanIcon = (props: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" className={props.className} aria-hidden="true">
+    <path fillRule="evenodd" clipRule="evenodd" fill="currentColor" d="M248.813 28.444c3.976 0 7.653 2.12 9.604 5.605l28.732 50.288h121.385c2.026 0 3.901.53 5.552 1.515s3.076 2.348 4.051 4.09l31.958 55.817c.976 1.742 1.501 3.635 1.501 5.604s-.525 3.862-1.501 5.604l-28.732 50.213 6.376 11.209 54.241 94.897.075.152c.975 1.741 1.501 3.635 1.501 5.604-.001 1.969-.526 3.862-1.501 5.604l-31.96 55.817c-.975 1.742-2.4 3.105-4.051 4.09a10.9 10.9 0 0 1-5.551 1.515h-57.466l-60.692 106.105c-.975 1.742-2.402 3.105-4.052 4.09a10.9 10.9 0 0 1-5.552 1.515h-63.843c-3.976 0-7.652-2.121-9.602-5.605l-28.734-50.288H89.243c-2.025 0-3.9-.53-5.551-1.515-1.65-.985-3.076-2.348-4.051-4.09l-31.96-55.817c-.975-1.742-1.5-3.635-1.5-5.604s.525-3.863 1.5-5.604l28.734-50.289L15.723 212.86c-.976-1.742-1.5-3.635-1.5-5.604s.524-3.862 1.5-5.604l31.883-55.893c.975-1.742 2.402-3.105 4.052-4.09a10.9 10.9 0 0 1 5.552-1.515h57.466l60.692-106.105c.975-1.742 2.4-3.105 4.051-4.09a10.9 10.9 0 0 1 5.551-1.515zm89.426 189.945L216.93 430.6l31.883 55.817.037-.065.038.065L376.59 263.1l31.944 55.79h63.919l-57.467-100.501zm-281.03-67.026 127.674 223.269h-63.755l-31.96 55.892h.043l-.043.076h114.933l38.336-67.026-121.31-212.211zM184.97 39.653l-57.541 100.501 38.336 67.026h242.769l31.96-55.817H184.971l31.959-55.817z"/>
+  </svg>
+);
+
+const MiniMaxIcon = (props: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={props.className} aria-hidden="true">
+    <path fill="currentColor" d="M21.883 14.418c-.17-5.9-.992-8.025-3.715-10.123C12.355-.13 3.904 2.96 2.317 10.023 1.21 14.9 4.075 19.92 8.838 21.452c1.021.312 3.716.481 6.522.454 4.623-.085 4.934-.142 5.786-1.22.793-.991.907-1.615.709-6.266h.028zm-2.41.624c-.48 1.248-1.53.794-1.53-.624 0-1.417-.992-4.027-2.185-5.104-1.388-1.248-4.85-1.446-6.635-.312-2.637 1.645-2.779 6.267-.227 7.6 3.488 1.872 7.288-1.645 5.02-4.566-1.021-1.304-2.156-1.531-3.716-.71-.907.398-.851.369.143-.48.793-.71 1.446-.908 2.41-.71 3.772.767 4.425 5.162 1.22 8.055-1.333 1.248-4.424 1.389-6.125.368C.672 14.02 4.925 3.103 13.291 4.35c2.325.312 4.935 2.382 5.813 4.566.624 1.476.851 4.877.368 6.125z"/>
+  </svg>
+);
+
+const SeedanceIcon = (props: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" className={props.className} fill="none" aria-hidden="true">
+    <path d="M4.14371 15.8529L1 16.6612V2.33789L4.14371 3.14627V15.8529Z" fill="currentColor"/>
+    <path d="M19.3294 16.6916L16.1797 17.5V1.5L19.3294 2.30239V16.6916Z" fill="currentColor"/>
+    <path d="M9.13395 16.2908L5.99023 17.0992V8.66211L9.13395 9.47045V16.2908Z" fill="currentColor"/>
+    <path d="M11.1816 7.40802L14.3313 6.59961V15.0367L11.1816 14.2283V7.40802Z" fill="currentColor"/>
+  </svg>
+);
+
+const KlingMotionIcon = (props: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" className={props.className} fill="none" aria-hidden="true">
+    <path fill="currentColor" d="M9.45555 0.524246C9.90955 0.499535 10.171 0.495512 10.5672 0.504132C12.5781 0.594931 15.4532 1.77532 16.674 3.41143C17.8965 5.04926 16.6075 7.93012 15.5863 9.41796L19 12.7965C16.6746 17.656 10.5865 20.042 5.62459 17.4192C4.85898 17.0146 3.53492 16.0986 3.12643 15.3481C2.18985 13.6258 3.44913 11.1018 4.37522 9.59726L1 6.29459V6.12276C1.50477 4.70675 2.65435 3.44189 3.86345 2.52527C5.4256 1.34086 7.31803 0.68688 9.45555 0.524246Z"/>
+  </svg>
+);
+
+
 type Model = {
   name: string;
   Icon: (p: { className?: string }) => JSX.Element;
@@ -50,6 +78,12 @@ const models: Model[] = [
   { name: "ElevenLabs", Icon: ElevenIcon, media: "/videos/models/elevenlabs.png", type: "image" },
   { name: "Nano Banana Pro", Icon: GoogleG, media: "/videos/models/nano-banana-pro.png", type: "image" },
   { name: "Sora 2 Pro", Icon: SoraIcon, media: "/videos/models/sora.png", type: "image" },
+  { name: "Wan", Icon: WanIcon, media: "/videos/models/wan.webm", type: "video" },
+  { name: "MiniMax", Icon: MiniMaxIcon, media: "/videos/models/minimax.webm", type: "video" },
+  { name: "Seedance 2.0", Icon: SeedanceIcon, media: "/videos/models/seedance-2.mp4", type: "video" },
+  { name: "Kling 3.0 Motion Control", Icon: KlingMotionIcon, media: "/videos/models/kling-motion.png", type: "image" },
+  { name: "Kling 2.6 Pro", Icon: KlingMotionIcon, media: "/videos/models/kling-26-pro.png", type: "image" },
+  { name: "Seedance 5.0", Icon: SeedanceIcon, media: "/videos/models/seedance-5.png", type: "image" },
 ];
 
 function Card({ m }: { m: Model }) {
