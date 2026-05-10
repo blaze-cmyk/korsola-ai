@@ -2,14 +2,17 @@ const cards = [
   {
     caption: "Choose your model",
     body: "Pick the AI model that fits your creative goal. From realistic UGC videos to cinematic product visuals, every leading model, one platform.",
+    video: "/videos/how/card_1.mp4",
   },
   {
     caption: "Cast the script & generate",
     body: "Choose your avatar, set your angle, and hit generate. Korsola writes the hook, builds the script, and delivers your full ad batch, ready to run.",
+    video: null,
   },
   {
     caption: "Get your winning ads",
     body: "Download, test, and scale. Every variation ready to run on Meta and TikTok. Same avatar, same brand, zero billing surprises.",
+    video: null,
   },
 ];
 
@@ -35,7 +38,19 @@ export function LpHowItWorks() {
         <div className="mt-14 grid md:grid-cols-3 gap-6">
           {cards.map((c) => (
             <div key={c.caption}>
-              <div className="aspect-[4/5] rounded-[28px] bg-[#0f0f10]" />
+              <div className="aspect-[4/5] rounded-[28px] bg-[#0f0f10] overflow-hidden">
+                {c.video && (
+                  <video
+                    src={c.video}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="auto"
+                    className="w-full h-full object-cover"
+                  />
+                )}
+              </div>
               <div className="mt-6">
                 <h3
                   className="italic text-[22px] md:text-[24px] text-[#0f0f10]"
