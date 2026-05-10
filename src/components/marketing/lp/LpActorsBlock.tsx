@@ -97,13 +97,13 @@ export function LpActorsBlock() {
           </div>
 
           <div className="rounded-3xl bg-[#0e0e10] border border-white/10 p-7 w-full mx-auto flex flex-col min-h-[623px]" style={{ maxWidth: 486 }}>
-            <div className="relative -mx-7 -mt-7 h-[430px] overflow-hidden rounded-t-3xl">
-              <div className="absolute inset-x-0 top-0 h-12 bg-[#0e0e10] z-20 pointer-events-none" />
-              <div className="absolute left-[9%] top-[126px] sm:left-[10%] sm:top-[128px]">
-                <span className="absolute left-1/2 -top-7 -translate-x-1/2 font-serif italic text-white text-[15px] drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)] whitespace-nowrap z-10">
+            <div className="relative flex justify-center items-end gap-5 pt-6 pb-2">
+              {/* Video 1 — lower position */}
+              <div className="relative pt-7" style={{ marginTop: 40 }}>
+                <span className="absolute left-1/2 top-0 -translate-x-1/2 font-serif italic text-white text-[15px] whitespace-nowrap">
                   EXISTING VIDEO
                 </span>
-                <div className="relative rounded-2xl overflow-hidden bg-black" style={{ width: "clamp(174px, 40vw, 205px)", aspectRatio: "9 / 16" }}>
+                <div className="relative rounded-2xl overflow-hidden bg-black" style={{ width: "clamp(150px, 36vw, 180px)", aspectRatio: "9 / 16" }}>
                   <video
                     src="/videos/actors/edit_1.mp4"
                     autoPlay
@@ -115,8 +115,9 @@ export function LpActorsBlock() {
                   />
                 </div>
               </div>
-              <div className="absolute right-[9%] top-[66px] sm:right-[10%] sm:top-[68px]">
-                <div className="relative rounded-2xl overflow-hidden bg-black" style={{ width: "clamp(174px, 40vw, 205px)", aspectRatio: "9 / 16" }}>
+              {/* Video 2 — higher position */}
+              <div className="relative pb-7">
+                <div className="relative rounded-2xl overflow-hidden bg-black" style={{ width: "clamp(150px, 36vw, 180px)", aspectRatio: "9 / 16" }}>
                   <video
                     src="/videos/actors/edit_2.mp4"
                     autoPlay
@@ -127,12 +128,12 @@ export function LpActorsBlock() {
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <span className="absolute left-1/2 -bottom-7 -translate-x-1/2 font-serif italic text-white text-[15px] drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)] whitespace-nowrap z-10">
+                <span className="absolute left-1/2 bottom-0 -translate-x-1/2 font-serif italic text-white text-[15px] whitespace-nowrap">
                   WITH YOUR PRODUCT
                 </span>
               </div>
             </div>
-            <div className="mt-auto">
+            <div className="mt-auto pt-6">
             <h3 className="font-display font-extrabold text-white text-2xl">
               AI Video <span className="font-serif italic font-normal">Editing</span>
             </h3>
