@@ -14,21 +14,51 @@ export function LpEmotionLocalize() {
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-5">
         <div className="grid md:grid-cols-2 gap-5">
-          <div className="rounded-3xl bg-[#0e0e10] border border-white/10 p-7">
-            <div className="grid grid-cols-2 gap-2">
-              <div className="aspect-[9/16] rounded-xl relative overflow-hidden" style={{ background: REEL_GRADIENTS[3] }}>
-                <span className="absolute inset-0 grid place-items-center text-white text-3xl">😲</span>
+          <div className="rounded-3xl bg-[#0e0e10] border border-white/10 p-7 w-full mx-auto flex flex-col min-h-[623px]" style={{ maxWidth: 486 }}>
+            <div className="relative flex justify-center items-end gap-5 pt-6 pb-2">
+              {/* Video 1 — lower position */}
+              <div className="relative pt-7" style={{ marginTop: 40 }}>
+                <span className="absolute left-1/2 top-0 -translate-x-1/2 font-serif italic text-white text-[15px] whitespace-nowrap">
+                  REFERENCE MOTION
+                </span>
+                <div className="relative rounded-2xl overflow-hidden bg-black" style={{ width: "clamp(150px, 36vw, 180px)", aspectRatio: "9 / 16" }}>
+                  <video
+                    src="/videos/actors/motion_1.mp4"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="auto"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
               </div>
-              <div className="aspect-[9/16] rounded-xl relative overflow-hidden" style={{ background: REEL_GRADIENTS[7] }}>
-                <span className="absolute bottom-3 left-3 text-white text-xs font-semibold">[Excited]</span>
+              {/* Video 2 — higher position */}
+              <div className="relative pb-7">
+                <div className="relative rounded-2xl overflow-hidden bg-black" style={{ width: "clamp(150px, 36vw, 180px)", aspectRatio: "9 / 16" }}>
+                  <video
+                    src="/videos/actors/motion_2.mp4"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="auto"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <span className="absolute left-1/2 bottom-0 -translate-x-1/2 font-serif italic text-white text-[15px] whitespace-nowrap">
+                  YOUR AI ACTOR
+                </span>
               </div>
             </div>
-            <h3 className="mt-5 font-display font-extrabold text-white text-2xl">
-              Emotion <span className="font-serif italic font-normal">control</span>
-            </h3>
-            <p className="mt-2 text-white/60 text-[14px] leading-relaxed">
-              You have full emotion control. Just write how you want it.
-            </p>
+            <div className="mt-auto pt-6">
+              <h3 className="font-display font-extrabold text-white text-2xl">
+                Motion <span className="font-serif italic font-normal">control</span>
+              </h3>
+              <p className="mt-2 text-white/60 text-[14px] leading-relaxed">
+                Drop any reference clip and your AI actor mirrors the exact motion — gestures, pacing, vibe, all of it.
+              </p>
+            </div>
           </div>
 
           <div className="rounded-3xl bg-[#0e0e10] border border-white/10 p-7 relative overflow-hidden">
