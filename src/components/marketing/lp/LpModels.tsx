@@ -67,23 +67,25 @@ type Model = {
   Icon: (p: { className?: string }) => JSX.Element;
   media: string;
   type: "video" | "image";
+  tag: string;
+  desc: string;
 };
 
 const models: Model[] = [
-  { name: "ChatGPT", Icon: OpenAIIcon, media: "/videos/models/chatgpt.png", type: "image" },
-  { name: "Nano Banana 2", Icon: GoogleG, media: "/videos/models/nano-banana-2.webm", type: "video" },
-  { name: "Veo", Icon: GoogleG, media: "/videos/models/veo.webm", type: "video" },
-  { name: "Kling 3.0", Icon: KlingIcon, media: "/videos/models/kling.webm", type: "video" },
-  { name: "Flux", Icon: FluxIcon, media: "/videos/models/flux.webm", type: "video" },
-  { name: "ElevenLabs", Icon: ElevenIcon, media: "/videos/models/elevenlabs.png", type: "image" },
-  { name: "Nano Banana Pro", Icon: GoogleG, media: "/videos/models/nano-banana-pro.png", type: "image" },
-  { name: "Sora 2 Pro", Icon: SoraIcon, media: "/videos/models/sora.png", type: "image" },
-  { name: "Wan", Icon: WanIcon, media: "/videos/models/wan.webm", type: "video" },
-  { name: "MiniMax", Icon: MiniMaxIcon, media: "/videos/models/minimax.webm", type: "video" },
-  { name: "Seedance 2.0", Icon: SeedanceIcon, media: "/videos/models/seedance-2.mp4", type: "video" },
-  { name: "Kling 3.0 Motion Control", Icon: KlingMotionIcon, media: "/videos/models/kling-motion.png", type: "image" },
-  { name: "Kling 2.6 Pro", Icon: KlingMotionIcon, media: "/videos/models/kling-26-pro.png", type: "image" },
-  { name: "Seedance 5.0", Icon: SeedanceIcon, media: "/videos/models/seedance-5.png", type: "image" },
+  { name: "ChatGPT", Icon: OpenAIIcon, media: "/videos/models/chatgpt.png", type: "image", tag: "scripts", desc: "writes the hook" },
+  { name: "Nano Banana 2", Icon: GoogleG, media: "/videos/models/nano-banana-2.webm", type: "video", tag: "edits", desc: "swap product, keep brand" },
+  { name: "Veo", Icon: GoogleG, media: "/videos/models/veo.webm", type: "video", tag: "video", desc: "cinematic ad shots" },
+  { name: "Kling 3.0", Icon: KlingIcon, media: "/videos/models/kling.webm", type: "video", tag: "video", desc: "fast UGC reels" },
+  { name: "Flux", Icon: FluxIcon, media: "/videos/models/flux.webm", type: "video", tag: "image", desc: "pixel-perfect product shots" },
+  { name: "ElevenLabs", Icon: ElevenIcon, media: "/videos/models/elevenlabs.png", type: "image", tag: "voice", desc: "lifelike voiceovers" },
+  { name: "Nano Banana Pro", Icon: GoogleG, media: "/videos/models/nano-banana-pro.png", type: "image", tag: "image", desc: "consistent on-brand visuals" },
+  { name: "Sora 2 Pro", Icon: SoraIcon, media: "/videos/models/sora.png", type: "image", tag: "video", desc: "premium hero spots" },
+  { name: "Wan", Icon: WanIcon, media: "/videos/models/wan.webm", type: "video", tag: "video", desc: "expressive lip-sync" },
+  { name: "MiniMax", Icon: MiniMaxIcon, media: "/videos/models/minimax.webm", type: "video", tag: "video", desc: "lifelike avatar motion" },
+  { name: "Seedance 2.0", Icon: SeedanceIcon, media: "/videos/models/seedance-2.mp4", type: "video", tag: "video", desc: "viral TikTok format" },
+  { name: "Kling 3.0 Motion Control", Icon: KlingMotionIcon, media: "/videos/models/kling-motion.png", type: "image", tag: "motion", desc: "mirror any reference" },
+  { name: "Kling 2.6 Pro", Icon: KlingMotionIcon, media: "/videos/models/kling-26-pro.png", type: "image", tag: "video", desc: "high-fidelity product demo" },
+  { name: "Seedance 5.0", Icon: SeedanceIcon, media: "/videos/models/seedance-5.png", type: "image", tag: "video", desc: "next-gen UGC realism" },
 ];
 
 function Card({ m }: { m: Model }) {
