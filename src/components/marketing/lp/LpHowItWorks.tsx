@@ -22,14 +22,14 @@ export function LpHowItWorks() {
             className="font-extrabold text-[#0f0f10] tracking-tight text-4xl md:text-6xl leading-[1.05]"
             style={{ fontFamily: "Manrope, sans-serif" }}
           >
-            Create better video ads{" "}
+            How Korsola{" "}
             <span className="italic font-normal" style={{ fontFamily: "'Playfair Display', serif" }}>
-              with AI
+              works
             </span>
           </h2>
           <p className="mt-5 text-[#5b5b60] text-[17px] md:text-[19px] leading-relaxed max-w-2xl">
-            Forget switching between dozens of tools, complex timelines, and slow production.
-            Korsola gives you everything you need to create, refine, and launch video ads with AI.
+            From product page to scroll-stopping ad in three steps. No vendor chains, no creator
+            wait times, no surprise bills — just on-brand UGC and product videos at the volume your ad account needs.
           </p>
         </div>
 
