@@ -6,7 +6,7 @@ const results = [
 
 export function LpResults() {
   return (
-    <section className="bg-bone py-20 md:py-28">
+    <section className="bg-bone py-20 md:py-28 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center max-w-2xl mx-auto">
           <h2 className="font-display font-extrabold text-ink text-4xl md:text-5xl tracking-tight leading-[1.05]">
