@@ -12,8 +12,8 @@ export function LpClosingCTA() {
       />
       <div className="relative h-full grid place-items-center px-4 text-center">
         <div>
-          <h2 className="font-display font-extrabold text-white text-5xl md:text-7xl tracking-tight drop-shadow-[0_4px_24px_rgba(0,0,0,0.35)]">
-            Be Korsola
+          <h2 className="font-display font-extrabold text-white md:text-7xl tracking-tight drop-shadow-[0_4px_24px_rgba(0,0,0,0.35)] text-6xl">
+            Your next winning ad is one click away.
           </h2>
           <div className="mt-8 flex justify-center">
             <a
