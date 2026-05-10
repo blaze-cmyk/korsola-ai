@@ -47,28 +47,25 @@ export function LpFeaturesBento() {
           </div>
 
           {/* Card 2 — wide dark */}
-          <div className="md:col-span-2 rounded-3xl bg-ink text-white p-7 relative overflow-hidden min-h-[300px]">
-            <h3 className="font-display font-extrabold text-2xl max-w-md">
-              Your entire creative process on one node-based canvas
-            </h3>
-            <p className="mt-3 text-white/70 text-[14px] max-w-md leading-relaxed">
-              All your tools. All your workflows. One infinite, node-based canvas.
-              Branch ideas, compare versions, work with your team — all in Spaces.
-            </p>
-            {/* mini node diagram */}
-            <svg viewBox="0 0 400 220" className="absolute right-0 bottom-0 w-[60%] max-w-md h-auto opacity-90">
-              <path d="M40,170 Q 150,170 200,100 T 360,40" stroke="#7c3aed" strokeWidth="2" fill="none" />
-              <path d="M40,170 Q 150,170 220,150 T 360,180" stroke="#ec4899" strokeWidth="2" fill="none" />
-              <rect x="20" y="155" width="40" height="30" rx="6" fill="#1f2937" stroke="#374151" />
-              <rect x="320" y="20" width="80" height="50" rx="6" fill="url(#gA)" />
-              <rect x="320" y="160" width="80" height="50" rx="6" fill="url(#gB)" />
-              <defs>
-                <linearGradient id="gA" x1="0" x2="1"><stop stopColor="#7c3aed" /><stop offset="1" stopColor="#3b82f6" /></linearGradient>
-                <linearGradient id="gB" x1="0" x2="1"><stop stopColor="#ec4899" /><stop offset="1" stopColor="#f97316" /></linearGradient>
-              </defs>
-            </svg>
-            <span className="absolute top-7 right-24 px-2 py-0.5 rounded bg-violet text-white text-[10px] font-bold">Paolo</span>
-            <span className="absolute bottom-16 right-32 px-2 py-0.5 rounded bg-pink-500 text-white text-[10px] font-bold">Marina</span>
+          <div className="md:col-span-2 rounded-3xl bg-ink text-white p-7 relative overflow-hidden min-h-[300px] flex flex-col md:flex-row md:items-stretch gap-6">
+            <div className="md:w-[42%] flex-shrink-0 relative z-10">
+              <h3 className="font-display font-extrabold text-2xl max-w-md">
+                Your entire creative process on one node-based canvas
+              </h3>
+              <p className="mt-3 text-white/70 text-[14px] max-w-md leading-relaxed">
+                All your tools. All your workflows. One infinite, node-based canvas.
+                Branch ideas, compare versions, work with your team — all in Spaces.
+              </p>
+            </div>
+            <div className="md:flex-1 md:absolute md:right-0 md:top-0 md:bottom-0 md:w-[58%] relative">
+              <img
+                src="/images/spaces-canvas.png"
+                alt="Node-based canvas showing prompt connected to assistant, image generators, and a video generator"
+                loading="lazy"
+                className="w-full h-full object-cover object-left rounded-2xl md:rounded-l-2xl md:rounded-r-none"
+              />
+              <div className="hidden md:block absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-ink to-transparent pointer-events-none" />
+            </div>
           </div>
 
           {/* Card 3 — oxblood */}
