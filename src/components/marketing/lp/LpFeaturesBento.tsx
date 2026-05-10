@@ -4,7 +4,7 @@ import { REEL_GRADIENTS } from "./reels";
 
 export function LpFeaturesBento() {
   return (
-    <section className="bg-paper py-20 md:py-28">
+    <section className="bg-white py-20 md:py-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-end justify-between gap-6 flex-wrap">
           <h2 className="font-display font-extrabold text-oxblood tracking-tight text-4xl md:text-6xl leading-[1.02] max-w-2xl">
