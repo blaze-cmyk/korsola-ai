@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 const GoogleG = (props: { className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 340" className={props.className} aria-hidden="true">
     <path d="M0 170C0 76.3 76.3 0 170 0c37.8 0 73.7 12.2 103.7 35.2l-39.5 51.3c-18.6-14.3-40.8-21.8-64.2-21.8-58.1 0-105.3 47.2-105.3 105.3S111.9 275.3 170 275.3c46.8 0 86.4-30.7 100.2-72.9H170v-64.7h170V170c0 93.7-76.3 170-170 170S0 263.7 0 170" fill="currentColor" />
@@ -54,11 +52,40 @@ const models: Model[] = [
   { name: "Sora 2 Pro", Icon: SoraIcon, media: "/videos/models/sora.png", type: "image" },
 ];
 
+function Card({ m }: { m: Model }) {
+  return (
+    <div
+      className="relative rounded-2xl overflow-hidden bg-[#f4f1ec] shrink-0"
+      style={{ width: 220, height: 280 }}
+    >
+      {m.type === "video" ? (
+        <video
+          src={m.media}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      ) : (
+        <img src={m.media} alt={m.name} className="absolute inset-0 w-full h-full object-cover" />
+      )}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 p-4 flex items-center gap-2 text-white">
+        <m.Icon className="w-4 h-4 shrink-0" />
+        <span className="font-semibold text-[14px]">{m.name}</span>
+      </div>
+    </div>
+  );
+}
+
 export function LpModels() {
-  const [active, setActive] = useState<number>(1);
+  // Duplicate list for seamless loop
+  const loop = [...models, ...models];
 
   return (
-    <section className="bg-white py-20 md:py-28" style={{ fontFamily: "Manrope, sans-serif" }}>
+    <section className="bg-white py-20 md:py-28 overflow-hidden" style={{ fontFamily: "Manrope, sans-serif" }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2
           className="font-extrabold text-[#0f0f10] tracking-tight text-4xl md:text-6xl leading-[1.05]"
@@ -75,82 +102,33 @@ export function LpModels() {
         </p>
       </div>
 
-      {/* Desktop expand-on-hover slider */}
-      <div className="hidden md:flex mt-14 gap-3 px-4 sm:px-6 lg:px-8 max-w-[1400px] mx-auto h-[420px]">
-        {models.map((m, i) => {
-          const isActive = active === i;
-          return (
-            <div
-              key={m.name}
-              onMouseEnter={() => setActive(i)}
-              className={`relative rounded-2xl overflow-hidden bg-[#f4f1ec] cursor-pointer transition-[flex-grow,flex-basis] duration-700 ease-out ${
-                isActive ? "flex-[4]" : "flex-[1]"
-              }`}
-            >
-              {/* Media */}
-              <div className={`absolute inset-0 transition-opacity duration-500 ${isActive ? "opacity-100" : "opacity-0"}`}>
-                {m.type === "video" ? (
-                  <video
-                    src={m.media}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="auto"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <img src={m.media} alt={m.name} className="w-full h-full object-cover" />
-                )}
-              </div>
-
-              {/* Label */}
-              <div
-                className={`absolute bottom-0 left-0 right-0 p-5 flex items-center gap-2 ${
-                  isActive ? "text-white" : "text-[#0f0f10]"
-                }`}
-              >
-                {isActive && (
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent pointer-events-none" />
-                )}
-                <div className="relative flex items-center gap-2 whitespace-nowrap">
-                  <m.Icon className="w-4 h-4 shrink-0" />
-                  <span className="font-semibold text-[15px]">{m.name}</span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+      {/* Auto-scrolling marquee */}
+      <div
+        className="mt-14 relative w-full"
+        style={{
+          maskImage:
+            "linear-gradient(to right, transparent, black 6%, black 94%, transparent)",
+          WebkitMaskImage:
+            "linear-gradient(to right, transparent, black 6%, black 94%, transparent)",
+        }}
+      >
+        <div className="flex gap-4 w-max animate-lp-marquee hover:[animation-play-state:paused]">
+          {loop.map((m, i) => (
+            <Card key={`${m.name}-${i}`} m={m} />
+          ))}
+        </div>
       </div>
 
-      {/* Mobile horizontal scroll */}
-      <div className="md:hidden mt-10 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-6 px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {models.map((m) => (
-          <div
-            key={m.name}
-            className="snap-start shrink-0 w-[260px] aspect-[3/4] rounded-2xl overflow-hidden relative bg-[#f4f1ec]"
-          >
-            {m.type === "video" ? (
-              <video
-                src={m.media}
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="auto"
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-            ) : (
-              <img src={m.media} alt={m.name} className="absolute inset-0 w-full h-full object-cover" />
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-4 flex items-center gap-2 text-white">
-              <m.Icon className="w-4 h-4 shrink-0" />
-              <span className="font-semibold text-[14px]">{m.name}</span>
-            </div>
-          </div>
-        ))}
-      </div>
+      <style>{`
+        @keyframes lp-marquee {
+          from { transform: translate3d(0,0,0); }
+          to   { transform: translate3d(-50%,0,0); }
+        }
+        .animate-lp-marquee {
+          animation: lp-marquee 40s linear infinite;
+          will-change: transform;
+        }
+      `}</style>
     </section>
   );
 }
