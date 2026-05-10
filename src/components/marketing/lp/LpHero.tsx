@@ -139,7 +139,7 @@ function SteppedPhrases() {
 
   return (
     <div
-      className="relative h-[320px] md:h-[420px] overflow-hidden mk-fade-up md:pl-[760px] lg:pl-[1040px] xl:pl-[1240px]"
+      className="relative h-[320px] md:h-[420px] overflow-hidden mk-fade-up md:pl-[760px] lg:pl-[1040px] xl:pl-[1240px] text-right ml-[119px]"
       style={{
         animationDelay: "0.1s",
         maskImage:
