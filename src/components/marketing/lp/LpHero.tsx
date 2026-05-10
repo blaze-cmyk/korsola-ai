@@ -36,16 +36,16 @@ export function LpHero() {
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/50" />
 
       <div className="relative w-full px-4 sm:px-8 lg:px-16 xl:px-24 pt-28 md:pt-36 pb-20 md:pb-24">
-        <div className="grid md:grid-cols-2 gap-10 md:gap-12 items-center min-h-[460px] md:min-h-[540px]">
+        <div className="grid md:grid-cols-2 gap-10 md:gap-12 items-center min-h-[460px] md:min-h-[540px] ml-[35px]">
           {/* LEFT */}
-          <div className="mk-fade-up text-left">
+          <div className="mk-fade-up text-left ml-[292px]">
             <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur border border-white/20 text-[12px] text-white shadow-sm">
               <span className="font-serif italic">Seedance 2.0</span> is live
               <span className="text-white/60">·</span>
               <span className="text-[color:var(--mk-violet,#c084fc)]">Read release →</span>
             </span>
 
-            <h1 className="mt-6 font-display font-extrabold text-white tracking-tight text-[40px] sm:text-[52px] md:text-[64px] leading-[1.04] drop-shadow-[0_4px_24px_rgba(0,0,0,0.35)]">
+            <h1 className="mt-6 font-display font-extrabold text-white tracking-tight text-[40px] sm:text-[52px] md:text-[64px] leading-[1.04] drop-shadow-[0_4px_24px_rgba(0,0,0,0.35)] px-[31px]">
               Create winning ads{" "}
               <span className="font-serif italic font-normal">with AI</span>
             </h1>
