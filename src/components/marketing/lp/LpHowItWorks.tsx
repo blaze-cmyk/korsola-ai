@@ -38,7 +38,7 @@ export function LpHowItWorks() {
         <div className="mt-14 grid md:grid-cols-3 gap-6">
           {cards.map((c) => (
             <div key={c.caption}>
-              <div className="aspect-[4/5] rounded-[28px] bg-[#0f0f10] overflow-hidden">
+              <div className="aspect-[1820/2160] rounded-[28px] bg-[#0f0f10] overflow-hidden">
                 {c.video && (
                   <video
                     src={c.video}
