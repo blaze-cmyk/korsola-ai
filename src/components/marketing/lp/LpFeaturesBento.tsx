@@ -79,7 +79,7 @@ export function LpFeaturesBento() {
           </div>
 
           {/* Card 4 — teal */}
-          <div className="rounded-3xl p-7 text-white relative overflow-hidden" style={{ background: "var(--mk-teal)" }}>
+          <div className="rounded-3xl p-7 text-white relative overflow-hidden border-[#e3e3e3]" style={{ background: "var(--mk-teal)" }}>
             <h3 className="font-display font-extrabold text-xl">Workflow in one click</h3>
             <p className="mt-2 text-white/75 text-[14px] leading-relaxed">
               Save any complex on-brand workflow as an App. The next person runs it
