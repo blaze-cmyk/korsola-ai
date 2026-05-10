@@ -1,5 +1,6 @@
 import { ReelCard } from "./ReelCard";
 import { REEL_GRADIENTS } from "./reels";
+import { LpMarketingStudioCard } from "./LpMarketingStudioCard";
 
 const brands = ["arcads", "Eleven", "Seedance", "Veo", "Kling"];
 
@@ -55,22 +56,7 @@ export function LpEmotionLocalize() {
             </div>
           </div>
 
-          <div className="rounded-3xl bg-[#0e0e10] border border-white/10 p-7 relative overflow-hidden">
-            <div className="text-white/40 text-[13px] absolute top-6 left-6 select-none">Salut, ce mai faci?</div>
-            <div className="text-white/40 text-[13px] absolute top-12 right-6 select-none">¿cómo estás?</div>
-            <div className="text-white/40 text-[13px] absolute bottom-32 left-6 select-none">Selam, nasılsın?</div>
-            <div className="text-white/40 text-[13px] absolute bottom-40 right-6 select-none">Cześć, jak się</div>
-            <div className="mx-auto w-[140px] aspect-[9/16] rounded-xl relative overflow-hidden" style={{ background: REEL_GRADIENTS[8] }}>
-              <span className="absolute bottom-3 inset-x-0 text-center text-white text-[10px] font-semibold">J'AI ÉTÉ MÉCANICIEN</span>
-            </div>
-            <p className="mt-3 text-center text-white/80 text-[13px]">French · 🇫🇷 🇬🇧 🇪🇸 🇩🇪 🇮🇹</p>
-            <h3 className="mt-5 font-display font-extrabold text-white text-2xl">
-              Localize in every <span className="font-serif italic font-normal">language</span>
-            </h3>
-            <p className="mt-2 text-white/60 text-[14px] leading-relaxed">
-              Accurate translation in more than 30 languages. Reach the world.
-            </p>
-          </div>
+          <LpMarketingStudioCard />
         </div>
 
         {/* Wide AI agent card */}
