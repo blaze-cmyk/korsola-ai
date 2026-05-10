@@ -1,6 +1,7 @@
 import { ReelCard } from "./ReelCard";
 import { REEL_GRADIENTS } from "./reels";
 import { LpMarketingStudioCard } from "./LpMarketingStudioCard";
+import { GradientCTAButton } from "../GradientCTAButton";
 import agentCluster from "@/assets/lp-agent-cluster.png";
 
 export function LpEmotionLocalize() {
@@ -68,9 +69,7 @@ export function LpEmotionLocalize() {
               Connect Korsola to your entire stack. Shopify, TikTok, Meta, Slack, your ad workflow runs automatically so your team focuses on what wins.
             </p>
             <div className="mt-6">
-              <a href="/shopify" className="inline-flex items-center gap-2 h-10 px-5 rounded-full bg-white/10 text-white text-[14px] font-semibold border border-white/15 hover:bg-white/15">
-                Create Your AI Ad ✨
-              </a>
+              <GradientCTAButton href="/shopify">Create Your AI Ad</GradientCTAButton>
             </div>
           </div>
           <div className="relative flex items-center justify-center min-h-[260px]">
