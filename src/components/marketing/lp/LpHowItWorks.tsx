@@ -12,7 +12,7 @@ const cards = [
   {
     caption: "Get your winning ads",
     body: "Download, test, and scale. Every variation ready to run on Meta and TikTok. Same avatar, same brand, zero billing surprises.",
-    video: null,
+    video: "/videos/how/card_3.mp4",
   },
 ];
 
