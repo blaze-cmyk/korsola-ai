@@ -4,7 +4,13 @@ import { REEL_GRADIENTS } from "./reels";
 
 export function LpActorsBlock() {
   return (
-    <section className="bg-ink text-white py-20 md:py-28">
+    <section
+      className="text-white py-20 md:py-28 relative"
+      style={{
+        background:
+          "radial-gradient(120% 80% at 50% 0%, #2a2a2e 0%, #141416 45%, #050505 100%)",
+      }}
+    >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-5">
         {/* Big hero card */}
         <div className="rounded-3xl bg-[#0e0e10] border border-white/10 p-8 md:p-12 relative overflow-hidden grid md:grid-cols-2 items-center gap-8 min-h-[360px]">
