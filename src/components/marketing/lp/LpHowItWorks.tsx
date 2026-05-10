@@ -30,6 +30,7 @@ export function LpHowItWorks() {
           <p className="mt-5 text-[#5b5b60] text-[17px] md:text-[19px] leading-relaxed max-w-2xl">
             Pick your starting point. Every tool, every model, every format — all in one workflow.
           </p>
+        </div>
 
         <div className="mt-14 grid md:grid-cols-3 gap-6">
           {cards.map((c) => (
