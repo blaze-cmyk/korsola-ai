@@ -1,10 +1,10 @@
 const cards = [
   {
-    caption: "Drop in your product",
-    body: "Paste a Shopify URL or upload your product images. Korsola auto-pulls every detail and learns your brand.",
+    caption: "Bring your brand in",
+    body: "Drop a Shopify URL or upload your product. Korsola learns your visuals, voice and offer in seconds — no setup, no spreadsheets.",
   },
   {
-    caption: "Cast an avatar & generate",
+    caption: "Cast, script & generate",
     body: "Pick from 1,000+ AI actors or your own avatar, choose a format, and batch UGC, try-ons, unboxings and tutorials in one click.",
   },
   {
@@ -22,16 +22,14 @@ export function LpHowItWorks() {
             className="font-extrabold text-[#0f0f10] tracking-tight text-4xl md:text-6xl leading-[1.05]"
             style={{ fontFamily: "Manrope, sans-serif" }}
           >
-            How Korsola{" "}
+            One place to create{" "}
             <span className="italic font-normal" style={{ fontFamily: "'Playfair Display', serif" }}>
-              works
+              anything
             </span>
           </h2>
           <p className="mt-5 text-[#5b5b60] text-[17px] md:text-[19px] leading-relaxed max-w-2xl">
-            From product page to scroll-stopping ad in three steps. No vendor chains, no creator
-            wait times, no surprise bills — just on-brand UGC and product videos at the volume your ad account needs.
+            Pick your starting point. Every tool, every model, every format — all in one workflow.
           </p>
-        </div>
 
         <div className="mt-14 grid md:grid-cols-3 gap-6">
           {cards.map((c) => (
