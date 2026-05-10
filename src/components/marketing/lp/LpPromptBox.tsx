@@ -3,7 +3,7 @@ import { Sparkles } from "lucide-react";
 // Placeholder — animated edit-video prompt box ships in a follow-up loop.
 export function LpPromptBox() {
   return (
-    <section className="bg-bone py-20 md:py-28">
+    <section className="bg-bone py-20 md:py-28 bg-white">
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         <div className="text-center max-w-2xl mx-auto">
           <span className="inline-flex items-center gap-1.5 px-3 h-7 rounded-full bg-violet/10 text-violet text-[11px] font-bold uppercase tracking-wider">
