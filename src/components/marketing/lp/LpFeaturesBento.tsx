@@ -28,12 +28,12 @@ export function LpFeaturesBento() {
               Image, video, audio, 3D — thirty tools, no setup. Open what you need,
               make what you want.
             </p>
-            <div className="mt-6 flex-1 -mx-3 -mb-3 sm:-mx-4 sm:-mb-4 flex items-end justify-center min-h-[280px]">
+            <div className="mt-6 flex-1 flex items-end justify-center min-h-[280px] overflow-hidden">
               <img
                 src="/images/tools-grid.png"
                 alt="Tools grid showing image generator, video generator, video editor, and audio tools"
                 loading="lazy"
-                className="w-full h-auto max-h-full object-contain object-bottom select-none pointer-events-none rounded-2xl"
+                className="w-full h-auto max-h-full object-contain object-bottom rounded-2xl select-none pointer-events-none"
                 draggable={false}
               />
             </div>
