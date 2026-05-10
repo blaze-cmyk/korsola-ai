@@ -102,19 +102,6 @@ export function LpReelCarousel() {
         <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-bone to-transparent pointer-events-none" />
       </div>
 
-      {/* Stat pill */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-12">
-        <div className="rounded-3xl bg-bone-2 border border-line px-6 md:px-12 py-10 grid grid-cols-3 gap-4 text-center">
-          {stats.map((s) => (
-            <div key={s.l}>
-              <div className="font-display font-extrabold text-ink text-3xl md:text-5xl tracking-tight">
-                {s.n}
-              </div>
-              <div className="mt-1 text-ink-soft text-[13px] md:text-[15px]">{s.l}</div>
-            </div>
-          ))}
-        </div>
-      </div>
     </section>
   );
 }
