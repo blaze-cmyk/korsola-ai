@@ -96,24 +96,44 @@ export function LpActorsBlock() {
             </p>
           </div>
 
-          <div className="rounded-3xl bg-[#0e0e10] border border-white/10 p-7 relative">
-            <span className="absolute top-5 right-5 px-3 py-1 rounded-full bg-white/10 text-white text-[11px] font-bold">Soon!</span>
-            <div className="grid grid-cols-2 gap-2">
-              {[REEL_GRADIENTS[1], REEL_GRADIENTS[5]].map((g, i) => (
-                <div key={i} className="aspect-[9/16] rounded-xl relative overflow-hidden" style={{ background: g }}>
-                  {i === 1 && (
-                    <span className="absolute inset-0 grid place-items-end p-3 text-white text-xs font-semibold text-center">
-                      like I know the fires are over
+          <div className="rounded-3xl bg-[#0e0e10] border border-white/10 p-7 w-full mx-auto flex flex-col" style={{ maxWidth: 486 }}>
+            <div className="relative -mx-7 -mt-7 pt-10 pb-4 overflow-hidden rounded-t-3xl">
+              <div className="absolute inset-x-0 top-0 h-10 bg-[#0e0e10] z-20 pointer-events-none" />
+              <div className="flex items-center justify-center gap-4 px-6">
+                {[
+                  { src: "/videos/actors/edit_1.mp4", label: "EXISTING VIDEO", pos: "top" },
+                  { src: "/videos/actors/edit_2.mp4", label: "WITH YOUR PRODUCT", pos: "bottom" },
+                ].map((v, i) => (
+                  <div
+                    key={i}
+                    className="relative shrink-0 rounded-2xl overflow-hidden bg-black"
+                    style={{ width: 190, aspectRatio: "9 / 16" }}
+                  >
+                    <video
+                      src={v.src}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      preload="auto"
+                      className="w-full h-full object-cover"
+                    />
+                    <span
+                      className={`absolute left-1/2 -translate-x-1/2 font-serif italic text-white text-[15px] drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)] whitespace-nowrap ${
+                        v.pos === "top" ? "top-3" : "bottom-3"
+                      }`}
+                    >
+                      {v.label}
                     </span>
-                  )}
-                </div>
-              ))}
+                  </div>
+                ))}
+              </div>
             </div>
-            <h3 className="mt-5 font-display font-extrabold text-white text-2xl">
+            <h3 className="mt-6 font-display font-extrabold text-white text-2xl">
               AI Video <span className="font-serif italic font-normal">Editing</span>
             </h3>
             <p className="mt-2 text-white/60 text-[14px] leading-relaxed">
-              Add B-rolls, music, captions and transitions in one click.
+              Edit any AI video — drop in your product, swap faces, tweak motion, and add B-rolls or music in one click.
             </p>
           </div>
         </div>
