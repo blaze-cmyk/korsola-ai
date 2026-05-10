@@ -56,10 +56,11 @@ export function LpHero() {
             <div className="mt-7 flex flex-wrap items-center gap-3">
               <a
                 href="/shopify"
-                className="inline-flex items-center justify-center gap-2 h-12 w-[220px] rounded-full text-[15px] font-semibold bg-white text-[#0f0f10] border border-black/5 shadow-[0_8px_24px_rgba(0,0,0,0.18)] hover:bg-white/90 transition-colors whitespace-nowrap"
+                className="group relative inline-flex items-center justify-center gap-2 h-12 w-[220px] rounded-full text-[15px] font-semibold text-white whitespace-nowrap overflow-hidden border border-white/30 backdrop-blur-xl bg-gradient-to-br from-white/25 via-white/10 to-white/5 shadow-[inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(168,85,247,0.45)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.6),inset_0_-1px_0_rgba(255,255,255,0.15),0_12px_40px_rgba(168,85,247,0.6)] transition-all duration-300"
               >
-                Create Your AI Ad
-                <Sparkles className="w-4 h-4 text-[hsl(var(--primary))]" />
+                <span className="absolute inset-0 rounded-full bg-gradient-to-t from-transparent via-white/10 to-white/30 opacity-60 pointer-events-none" />
+                <span className="relative">Create Your AI Ad</span>
+                <Sparkles className="relative w-4 h-4 text-[hsl(var(--primary))] drop-shadow-[0_0_6px_hsl(var(--primary))]" />
               </a>
               <a
                 href="#how"
