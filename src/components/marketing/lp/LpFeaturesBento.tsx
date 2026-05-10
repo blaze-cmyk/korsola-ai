@@ -48,13 +48,18 @@ export function LpFeaturesBento() {
 
           {/* Card 2 — wide dark */}
           <div className="md:col-span-2 rounded-3xl bg-ink text-white relative overflow-hidden min-h-[320px] md:min-h-[380px]">
-            <img
-              src="/images/spaces-canvas.png"
-              alt="Node-based canvas showing prompt connected to assistant, image generators, and a video generator"
-              loading="lazy"
-              className="absolute inset-0 w-full h-full object-cover object-right"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/85 md:via-ink/70 to-transparent" />
+            {/* Image pinned right */}
+            <div className="absolute inset-y-0 right-0 w-full md:w-[62%]">
+              <img
+                src="/images/spaces-canvas.png"
+                alt="Node-based canvas showing prompt connected to assistant, image generators, and a video generator"
+                loading="lazy"
+                className="w-full h-full object-cover object-left"
+              />
+              {/* Fade into ink on the left edge so text reads cleanly */}
+              <div className="absolute inset-y-0 left-0 w-32 md:w-48 bg-gradient-to-r from-ink via-ink/80 to-transparent pointer-events-none" />
+            </div>
+            {/* Text overlay */}
             <div className="relative z-10 p-7 md:p-10 max-w-md">
               <h3 className="font-display font-extrabold text-2xl md:text-3xl">
                 Your entire creative process on one node-based canvas
