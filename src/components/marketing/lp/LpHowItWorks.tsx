@@ -1,57 +1,55 @@
-import { ReelCard } from "./ReelCard";
-import { REEL_GRADIENTS } from "./reels";
-
-const steps = [
+const cards = [
   {
-    n: "01",
-    eyebrow: "Connect",
-    title: "Drop your Shopify product URL",
-    body: "We auto-pull every image, price, and detail. No setup, no spreadsheets.",
-    grad: REEL_GRADIENTS[2],
+    caption: "Choose your model",
+    body: "Pick the AI model that fits your creative goal. From cinematic video to realistic product visuals.",
   },
   {
-    n: "02",
-    eyebrow: "Generate",
-    title: "Pick an AI actor and a script",
-    body: "10–20 UGC variations in one batch — voiceover, captions, hook, CTA, all done.",
-    grad: REEL_GRADIENTS[0],
+    caption: "Shape your ad",
+    body: "Edit, translate, extend, subtitle, upscale and remix your video using AI tools.",
   },
   {
-    n: "03",
-    eyebrow: "Ship",
-    title: "Download and launch",
-    body: "Export 9:16, 1:1, 16:9. Plug straight into Meta, TikTok, and YouTube ads.",
-    grad: REEL_GRADIENTS[5],
+    caption: "Start from proven formats",
+    body: "Use ready-made ad presets built for performance marketers.",
   },
 ];
 
 export function LpHowItWorks() {
   return (
-    <section id="how" className="bg-paper py-20 md:py-28">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="max-w-2xl">
-          <h2 className="font-display font-extrabold text-ink tracking-tight text-4xl md:text-6xl leading-[1.05]">
-            From Shopify URL to{" "}
-            <span className="font-serif italic font-normal">scroll-stopping ad</span>{" "}
-            in 90 seconds.
+    <section id="how" className="bg-white py-20 md:py-28" style={{ fontFamily: "Manrope, sans-serif" }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl">
+          <h2
+            className="font-extrabold text-[#0f0f10] tracking-tight text-4xl md:text-6xl leading-[1.05]"
+            style={{ fontFamily: "Manrope, sans-serif" }}
+          >
+            Create better video ads{" "}
+            <span className="italic font-normal" style={{ fontFamily: "'Playfair Display', serif" }}>
+              with AI
+            </span>
           </h2>
-          <p className="mt-4 text-ink-soft text-[16px] md:text-[18px]">
-            No vendor chain. No creator wait. No surprise bills.
+          <p className="mt-5 text-[#5b5b60] text-[17px] md:text-[19px] leading-relaxed max-w-2xl">
+            Forget switching between dozens of tools, complex timelines, and slow production.
+            Korsola gives you everything you need to create, refine, and launch video ads with AI.
           </p>
         </div>
 
-        <div className="mt-14 grid md:grid-cols-3 gap-5">
-          {steps.map((s) => (
-            <div key={s.n} className="rounded-3xl bg-white border border-line p-3 mk-card">
-              <ReelCard gradient={s.grad} caption={s.eyebrow.toUpperCase()} tag={`STEP ${s.n}`} />
-              <div className="px-3 py-5">
-                <div className="text-[11px] uppercase tracking-wider text-ink-soft font-semibold">
-                  {s.eyebrow}
-                </div>
-                <h3 className="mt-1 font-display font-extrabold text-ink text-xl">
-                  {s.title}
+        <div className="mt-14 grid md:grid-cols-3 gap-6">
+          {cards.map((c) => (
+            <div key={c.caption}>
+              <div className="aspect-[4/5] rounded-[28px] bg-[#0f0f10]" />
+              <div className="mt-6">
+                <h3
+                  className="italic text-[22px] md:text-[24px] text-[#0f0f10]"
+                  style={{ fontFamily: "'Playfair Display', serif" }}
+                >
+                  {c.caption}
                 </h3>
-                <p className="mt-2 text-ink-soft text-[14px] leading-relaxed">{s.body}</p>
+                <p
+                  className="mt-3 text-[#5b5b60] text-[15px] md:text-[16px] leading-relaxed max-w-sm"
+                  style={{ fontFamily: "Manrope, sans-serif" }}
+                >
+                  {c.body}
+                </p>
               </div>
             </div>
           ))}
