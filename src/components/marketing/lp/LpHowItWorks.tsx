@@ -7,6 +7,7 @@ const cards = [
   {
     caption: "Cast the script & generate",
     body: "Choose your avatar, set your angle, and hit generate. Korsola writes the hook, builds the script, and delivers your full ad batch, ready to run.",
+    image: "/videos/how/card_2.png",
     video: null,
   },
   {
