@@ -5,7 +5,7 @@ import { REEL_GRADIENTS } from "./reels";
 export function LpActorsBlock() {
   return (
     <section
-      className="text-white py-20 md:py-28 relative pt-[50px]"
+      className="text-white py-20 relative pt-[20px] md:py-[2px]"
       style={{
         background:
           "radial-gradient(120% 80% at 50% 0%, #2a2a2e 0%, #141416 45%, #050505 100%)",
