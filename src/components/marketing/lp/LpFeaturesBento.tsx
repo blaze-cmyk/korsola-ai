@@ -22,7 +22,7 @@ export function LpFeaturesBento() {
 
         <div className="mt-12 grid md:grid-cols-3 grid-rows-2 gap-4 md:auto-rows-fr">
           {/* Card 1 — tall light */}
-          <div className="md:row-span-2 rounded-3xl bg-bone-2 border border-line p-7 flex flex-col overflow-hidden">
+          <div className="md:row-span-2 rounded-3xl bg-bone-2 border border-line p-7 flex flex-col overflow-hidden border-[#e3e3e3]">
             <h3 className="font-display font-extrabold text-ink text-2xl">Every tool, ready to go</h3>
             <p className="mt-3 text-ink-soft text-[14px] leading-relaxed">
               Image, video, audio, 3D — thirty tools, no setup. Open what you need,
@@ -65,7 +65,7 @@ export function LpFeaturesBento() {
           </div>
 
           {/* Card 3 — oxblood */}
-          <div className="rounded-3xl p-7 text-white relative overflow-hidden" style={{ background: "var(--mk-oxblood)" }}>
+          <div className="rounded-3xl p-7 text-white relative overflow-hidden border-[#e3e3e3]" style={{ background: "var(--mk-oxblood)" }}>
             <h3 className="font-display font-extrabold text-xl">One place, whole team</h3>
             <p className="mt-2 text-white/75 text-[14px] leading-relaxed">
               Organize brand assets, generated content, and workflows with Projects.
@@ -79,7 +79,7 @@ export function LpFeaturesBento() {
           </div>
 
           {/* Card 4 — teal */}
-          <div className="rounded-3xl p-7 text-white relative overflow-hidden" style={{ background: "var(--mk-teal)" }}>
+          <div className="rounded-3xl p-7 text-white relative overflow-hidden border-[#e3e3e3]" style={{ background: "var(--mk-teal)" }}>
             <h3 className="font-display font-extrabold text-xl">Workflow in one click</h3>
             <p className="mt-2 text-white/75 text-[14px] leading-relaxed">
               Save any complex on-brand workflow as an App. The next person runs it
