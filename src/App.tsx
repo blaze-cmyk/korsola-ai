@@ -14,6 +14,7 @@ import MarketingStudio from "./pages/MarketingStudio.tsx";
 import MarketingStudioProject from "./pages/MarketingStudioProject.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Auth from "./pages/Auth.tsx";
+import Landingpage from "./pages/Landingpage.tsx";
 import { AuthProvider } from "@/hooks/useAuth";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/home" element={<Home />} />
+          <Route path="/landingpage" element={<Landingpage />} />
           <Route path="/create" element={<Generator />} />
           <Route path="/create/:slug" element={<Generator />} />
           <Route path="/image" element={<Navigate to="/create" replace />} />
