@@ -1,15 +1,15 @@
 const cards = [
   {
-    caption: "Choose your model",
-    body: "Pick the AI model that fits your creative goal. From cinematic video to realistic product visuals.",
+    caption: "Drop in your product",
+    body: "Paste a Shopify URL or upload your product images. Korsola auto-pulls every detail and learns your brand.",
   },
   {
-    caption: "Shape your ad",
-    body: "Edit, translate, extend, subtitle, upscale and remix your video using AI tools.",
+    caption: "Cast an avatar & generate",
+    body: "Pick from 1,000+ AI actors or your own avatar, choose a format, and batch UGC, try-ons, unboxings and tutorials in one click.",
   },
   {
-    caption: "Start from proven formats",
-    body: "Use ready-made ad presets built for performance marketers.",
+    caption: "Get winning ads",
+    body: "Export 9:16, 1:1 and 16:9 ready for Meta, TikTok and YouTube — on-brand, on-budget, no surprise bills.",
   },
 ];
 
