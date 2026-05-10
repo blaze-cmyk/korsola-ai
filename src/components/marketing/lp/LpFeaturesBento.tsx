@@ -28,7 +28,7 @@ export function LpFeaturesBento() {
               Image, video, audio, 3D — thirty tools, no setup. Open what you need,
               make what you want.
             </p>
-            <div className="mt-6 flex-1 flex items-end justify-end -mr-40 -mb-7 min-h-[280px] overflow-hidden">
+            <div className="mt-6 flex-1 flex items-end justify-end -mr-12 -mb-7 min-h-[280px] overflow-hidden">
               <img
                 src="/images/tools-grid.png"
                 alt="Tools grid showing image generator, video generator, video editor, and audio tools"
