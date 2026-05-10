@@ -39,7 +39,7 @@ export function LpActorsBlock() {
 
         {/* 2 sub cards */}
         <div className="grid md:grid-cols-2 gap-5">
-          <div className="rounded-3xl bg-[#0e0e10] border border-white/10 p-7 w-full mx-auto flex flex-col" style={{ maxWidth: 486, height: 623 }}>
+          <div className="rounded-3xl bg-[#0e0e10] border border-white/10 p-7 w-full mx-auto flex flex-col" style={{ maxWidth: 486 }}>
             <div className="relative -mx-7 -mt-7 px-7 pt-10 pb-6">
               {/* Top solid black band */}
               <div className="absolute inset-x-0 top-0 h-10 bg-[#0e0e10] z-10 pointer-events-none" />
