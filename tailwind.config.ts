@@ -87,9 +87,9 @@ export default {
         paper: "oklch(0.96 0.012 70)",
       },
       fontFamily: {
-        display: ['Manrope', 'system-ui', 'sans-serif'],
+        display: ['Degular', 'system-ui', 'sans-serif'],
         serif: ['"Playfair Display"', '"Times New Roman"', 'serif'],
-        body: ['Manrope', 'system-ui', 'sans-serif'],
+        body: ['Degular', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius)",
