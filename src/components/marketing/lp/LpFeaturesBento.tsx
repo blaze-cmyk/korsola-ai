@@ -33,7 +33,7 @@ export function LpFeaturesBento() {
                 src="/images/tools-grid.png"
                 alt="Tools grid showing image generator, video generator, video editor, and audio tools"
                 loading="lazy"
-                className="w-full h-auto max-h-full object-contain object-bottom select-none pointer-events-none"
+                className="w-full h-auto max-h-full object-contain object-bottom select-none pointer-events-none rounded-2xl"
                 draggable={false}
               />
             </div>
