@@ -47,24 +47,22 @@ export function LpFeaturesBento() {
           </div>
 
           {/* Card 2 — wide dark */}
-          <div className="md:col-span-2 rounded-3xl bg-ink text-white p-7 relative overflow-hidden min-h-[300px] flex flex-col md:flex-row md:items-stretch gap-6">
-            <div className="md:w-[42%] flex-shrink-0 relative z-10">
-              <h3 className="font-display font-extrabold text-2xl max-w-md">
+          <div className="md:col-span-2 rounded-3xl bg-ink text-white relative overflow-hidden min-h-[320px] md:min-h-[380px]">
+            <img
+              src="/images/spaces-canvas.png"
+              alt="Node-based canvas showing prompt connected to assistant, image generators, and a video generator"
+              loading="lazy"
+              className="absolute inset-0 w-full h-full object-cover object-right"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/85 md:via-ink/70 to-transparent" />
+            <div className="relative z-10 p-7 md:p-10 max-w-md">
+              <h3 className="font-display font-extrabold text-2xl md:text-3xl">
                 Your entire creative process on one node-based canvas
               </h3>
-              <p className="mt-3 text-white/70 text-[14px] max-w-md leading-relaxed">
+              <p className="mt-3 text-white/75 text-[14px] leading-relaxed">
                 All your tools. All your workflows. One infinite, node-based canvas.
                 Branch ideas, compare versions, work with your team — all in Spaces.
               </p>
-            </div>
-            <div className="md:flex-1 md:absolute md:right-0 md:top-0 md:bottom-0 md:w-[58%] relative">
-              <img
-                src="/images/spaces-canvas.png"
-                alt="Node-based canvas showing prompt connected to assistant, image generators, and a video generator"
-                loading="lazy"
-                className="w-full h-full object-cover object-left rounded-2xl md:rounded-l-2xl md:rounded-r-none"
-              />
-              <div className="hidden md:block absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-ink to-transparent pointer-events-none" />
             </div>
           </div>
 
