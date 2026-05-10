@@ -1,8 +1,7 @@
 import { ReelCard } from "./ReelCard";
 import { REEL_GRADIENTS } from "./reels";
 import { LpMarketingStudioCard } from "./LpMarketingStudioCard";
-
-const brands = ["arcads", "Eleven", "Seedance", "Veo", "Kling"];
+import agentCluster from "@/assets/lp-agent-cluster.png";
 
 export function LpEmotionLocalize() {
   return (
@@ -60,14 +59,13 @@ export function LpEmotionLocalize() {
         </div>
 
         {/* Wide AI agent card */}
-        <div className="rounded-3xl bg-[#0e0e10] border border-white/10 p-8 md:p-12 grid md:grid-cols-2 items-center gap-8 min-h-[280px]">
+        <div className="rounded-3xl bg-[#0e0e10] border border-white/10 p-8 md:p-12 grid md:grid-cols-2 items-center gap-8 min-h-[360px] overflow-hidden">
           <div>
             <h3 className="font-display font-extrabold text-white text-3xl md:text-4xl tracking-tight">
-              Build your own AI Agent <span className="font-serif italic font-normal">for marketing</span>
+              Scale your ad operation <span className="font-serif italic font-normal">with AI workflows</span>
             </h3>
-            <p className="mt-3 text-white/60 text-[15px] max-w-md">
-              Chain models, scripts, and templates into one repeatable workflow your
-              team runs in a click.
+            <p className="mt-3 text-white/60 text-[15px] max-w-md leading-relaxed">
+              Connect Korsola to your entire stack. Shopify, TikTok, Meta, Slack, your ad workflow runs automatically so your team focuses on what wins.
             </p>
             <div className="mt-6">
               <a href="/shopify" className="inline-flex items-center gap-2 h-10 px-5 rounded-full bg-white/10 text-white text-[14px] font-semibold border border-white/15 hover:bg-white/15">
@@ -75,26 +73,13 @@ export function LpEmotionLocalize() {
               </a>
             </div>
           </div>
-          {/* model cluster */}
-          <div className="relative h-[200px]">
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-300/40 to-violet-500/40 backdrop-blur grid place-items-center font-display font-extrabold text-white text-sm border border-white/20">
-              korsola
-            </div>
-            {[
-              { top: "0%", left: "35%", label: "S" },
-              { top: "30%", left: "5%", label: "11" },
-              { top: "30%", right: "5%", label: "K" },
-              { bottom: "0%", left: "30%", label: "G" },
-              { bottom: "5%", right: "25%", label: "V" },
-            ].map((p, i) => (
-              <div
-                key={i}
-                className="absolute w-14 h-14 rounded-2xl bg-[#1a1a1d] border border-white/10 grid place-items-center text-white font-bold"
-                style={p as React.CSSProperties}
-              >
-                {brands[i][0]}
-              </div>
-            ))}
+          <div className="relative flex items-center justify-center min-h-[260px]">
+            <img
+              src={agentCluster}
+              alt="Korsola connected with Shopify, TikTok, Slack and more"
+              className="w-full max-w-[520px] h-auto object-contain select-none pointer-events-none"
+              draggable={false}
+            />
           </div>
         </div>
       </div>
