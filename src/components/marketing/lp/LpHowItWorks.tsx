@@ -7,6 +7,7 @@ const cards = [
   {
     caption: "Cast the script & generate",
     body: "Choose your avatar, set your angle, and hit generate. Korsola writes the hook, builds the script, and delivers your full ad batch, ready to run.",
+    image: "/videos/how/card_2.png",
     video: null,
   },
   {
@@ -39,7 +40,7 @@ export function LpHowItWorks() {
           {cards.map((c) => (
             <div key={c.caption}>
               <div className="aspect-[1820/2160] rounded-[28px] bg-[#0f0f10] overflow-hidden">
-                {c.video && (
+                {c.video ? (
                   <video
                     src={c.video}
                     autoPlay
@@ -49,7 +50,9 @@ export function LpHowItWorks() {
                     preload="auto"
                     className="w-full h-full object-cover"
                   />
-                )}
+                ) : c.image ? (
+                  <img src={c.image} alt={c.caption} className="w-full h-full object-cover" />
+                ) : null}
               </div>
               <div className="mt-6">
                 <h3
