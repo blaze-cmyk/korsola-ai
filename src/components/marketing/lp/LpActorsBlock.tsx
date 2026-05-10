@@ -39,13 +39,27 @@ export function LpActorsBlock() {
 
         {/* 2 sub cards */}
         <div className="grid md:grid-cols-2 gap-5">
-          <div className="rounded-3xl bg-[#0e0e10] border border-white/10 p-7">
+          <div className="rounded-3xl bg-[#0e0e10] border border-white/10 p-7 w-full max-w-[468px] mx-auto" style={{ minHeight: 623 }}>
             <div className="grid grid-cols-3 gap-2">
-              {REEL_GRADIENTS.slice(0, 3).map((g, i) => (
-                <div key={i} className="aspect-[9/16] rounded-xl" style={{ background: g }} />
+              {["/videos/actors/actor_1.mp4", "/videos/actors/actor_2.mp4", "/videos/actors/actor_3.mp4"].map((src, i) => (
+                <video
+                  key={i}
+                  src={src}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                  className="w-full aspect-[187/331] rounded-xl object-cover bg-black"
+                />
               ))}
             </div>
-            <p className="mt-3 text-white/50 text-[12px] text-center">Actors holding your product · ◦ ●</p>
+            <p className="mt-3 text-white/70 text-[13px] text-center">Actors holding your product</p>
+            <div className="mt-2 flex justify-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-white/25" />
+              <span className="w-1.5 h-1.5 rounded-full bg-white/80" />
+              <span className="w-1.5 h-1.5 rounded-full bg-white/25" />
+            </div>
             <h3 className="mt-5 font-display font-extrabold text-white text-2xl">
               Create your own <span className="font-serif italic font-normal">AI Actor</span>
             </h3>
