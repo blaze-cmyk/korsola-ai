@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { GradientCTAButton, GhostButton } from "../GradientCTAButton";
+import { Sparkles } from "lucide-react";
 import heroBg from "@/assets/lp-hero-bg.avif";
 
 const HERO_LOGOS = [
