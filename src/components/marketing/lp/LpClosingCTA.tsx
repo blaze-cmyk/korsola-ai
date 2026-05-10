@@ -1,30 +1,30 @@
-import { ArrowRight } from "lucide-react";
+import { Sparkles } from "lucide-react";
+import closingBg from "@/assets/closing-cta-bg.png";
 
 export function LpClosingCTA() {
   return (
     <section className="relative h-[420px] md:h-[480px] overflow-hidden">
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "linear-gradient(135deg, #4c1d95 0%, #7c3aed 30%, #ec4899 60%, #f97316 100%)",
-        }}
+      <img
+        src={closingBg}
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover"
+        aria-hidden
       />
-      {/* faint cliff silhouette */}
-      <svg viewBox="0 0 1200 480" className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
-        <path d="M0,480 L0,360 L300,340 L600,300 L850,260 L900,250 L950,260 L1000,280 L1100,310 L1200,340 L1200,480 Z" fill="rgba(0,0,0,0.45)" />
-        <circle cx="900" cy="240" r="6" fill="rgba(0,0,0,0.6)" />
-        <line x1="0" y1="0" x2="900" y2="240" stroke="rgba(236,72,153,0.7)" strokeWidth="2" />
-        <line x1="1200" y1="0" x2="900" y2="240" stroke="rgba(236,72,153,0.7)" strokeWidth="2" />
-      </svg>
       <div className="relative h-full grid place-items-center px-4 text-center">
         <div>
-          <h2 className="font-display font-extrabold text-white text-5xl md:text-7xl tracking-tight">
+          <h2 className="font-display font-extrabold text-white text-5xl md:text-7xl tracking-tight drop-shadow-[0_4px_24px_rgba(0,0,0,0.35)]">
             Be Korsola
           </h2>
-          <a href="/shopify" className="mt-8 inline-flex items-center gap-2 h-12 px-6 rounded-full bg-ink text-white text-[15px] font-semibold hover:bg-ink/85">
-            Start creating <ArrowRight className="w-4 h-4" />
-          </a>
+          <div className="mt-8 flex justify-center">
+            <a
+              href="/shopify"
+              className="group relative inline-flex items-center justify-center gap-2 h-12 w-[220px] rounded-full text-[15px] font-semibold text-white whitespace-nowrap overflow-hidden border border-white/40 bg-gradient-to-b from-[#cfc4ff] via-[#8b7bff] to-[#4f3bd6] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-2px_4px_rgba(40,20,120,0.5),0_10px_30px_rgba(99,58,232,0.55)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,1),inset_0_-2px_4px_rgba(40,20,120,0.6),0_14px_38px_rgba(99,58,232,0.7)] transition-all duration-300"
+            >
+              <span className="absolute top-0 left-3 right-3 h-1/2 rounded-t-full bg-gradient-to-b from-white/60 to-transparent pointer-events-none" />
+              <span className="relative drop-shadow-[0_1px_1px_rgba(40,20,120,0.4)]">Create Your AI Ad</span>
+              <Sparkles className="relative w-4 h-4 text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]" />
+            </a>
+          </div>
         </div>
       </div>
     </section>
