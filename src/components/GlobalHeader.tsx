@@ -49,8 +49,9 @@ export function GlobalHeader() {
   const deleteProject = useCreateProjectsStore((s) => s.deleteProject);
   const activeProject = projects.find((p) => p.id === activeProjectId);
 
-  // Hide on marketing studio routes
+  // Hide on marketing studio + landing page routes
   if (location.pathname.startsWith('/marketingstudio')) return null;
+  if (location.pathname.startsWith('/landingpage')) return null;
 
   const isCreate = location.pathname.startsWith('/create');
   const sidebarWidth = sidebarCollapsed ? 64 : 256;
