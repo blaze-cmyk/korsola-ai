@@ -8,7 +8,7 @@ import agentCluster from "@/assets/lp-agent-cluster.png";
 export function LpEmotionLocalize() {
   return (
     <section
-      className="text-white pb-20 md:pb-28 relative"
+      className="text-white pb-20 md:pb-28 relative pt-[60px]"
       style={{
         background:
           "radial-gradient(120% 80% at 50% 100%, #2a2a2e 0%, #141416 45%, #050505 100%)",
