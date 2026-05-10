@@ -1,6 +1,4 @@
-import { ReelCard } from "./ReelCard";
 import { GradientCTAButton } from "../GradientCTAButton";
-import { REEL_GRADIENTS } from "./reels";
 
 export function LpActorsBlock() {
   return (
