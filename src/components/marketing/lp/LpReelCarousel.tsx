@@ -75,7 +75,7 @@ export function LpReelCarousel() {
   ];
 
   return (
-    <section className="bg-bone py-16 md:py-24 overflow-hidden bg-white">
+    <section className="bg-bone py-16 md:py-24 overflow-hidden bg-white mt-0 pt-[30px]">
       {/* Marquee */}
       <div
         className="relative"
