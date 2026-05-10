@@ -119,11 +119,11 @@ export function LpModels() {
   const loop = [...models, ...models];
 
   return (
-    <section className="bg-white py-20 md:py-28 overflow-hidden" style={{ fontFamily: "Manrope, sans-serif" }}>
+    <section className="bg-white py-20 md:py-28 overflow-hidden" style={{ fontFamily: "Degular, sans-serif" }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2
           className="font-extrabold text-[#0f0f10] tracking-tight text-4xl md:text-6xl leading-[1.05]"
-          style={{ fontFamily: "Manrope, sans-serif" }}
+          style={{ fontFamily: "Degular, sans-serif" }}
         >
           With all the{" "}
           <span className="italic font-normal" style={{ fontFamily: "'Playfair Display', serif" }}>

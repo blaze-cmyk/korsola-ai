@@ -77,7 +77,7 @@ export function LpHero() {
         </div>
 
         {/* LOGOS BELOW */}
-        <div className="relative mt-14 md:mt-20 text-center" style={{ fontFamily: "Manrope, sans-serif" }}>
+        <div className="relative mt-14 md:mt-20 text-center" style={{ fontFamily: "Degular, sans-serif" }}>
           <p className="text-[13px] md:text-[14px] text-white/85">
             Trusted by 18,000+ brands and agencies — DTC, performance teams, studios
           </p>
