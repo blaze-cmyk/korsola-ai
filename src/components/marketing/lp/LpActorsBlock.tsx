@@ -1,4 +1,6 @@
+import { ReelCard } from "./ReelCard";
 import { GradientCTAButton } from "../GradientCTAButton";
+import { REEL_GRADIENTS } from "./reels";
 
 export function LpActorsBlock() {
   return (
@@ -11,17 +13,33 @@ export function LpActorsBlock() {
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-5">
         {/* Big hero card */}
-        <div className="rounded-3xl bg-[#0e0e10] border border-white/10 p-8 md:p-12 relative overflow-hidden grid md:grid-cols-[1fr_auto] items-center gap-8 min-h-[260px]">
+        <div className="rounded-3xl bg-[#0e0e10] border border-white/10 p-8 md:p-12 relative overflow-hidden grid md:grid-cols-2 items-center gap-8 min-h-[360px]">
           <div>
-            <h2 className="font-serif font-normal text-white text-3xl md:text-5xl tracking-tight leading-[1.05]">
-              The most realistic and captivating AI videos
+            <h2 className="font-display font-extrabold text-white text-3xl md:text-5xl tracking-tight leading-[1.05]">
+              The most realistic and{" "}
+              <span className="font-serif italic font-normal">captivating AI Actors</span>
             </h2>
-            <p className="mt-4 text-white/60 text-[15px] max-w-2xl">
-              Motion control, video generation, image studio, emotional control, AI editing. Every creative tool your brand needs, in one place. Use 1,000+ ready-made avatars or upload one photo and build your own.
+            <p className="mt-4 text-white/60 text-[15px] max-w-md">
+              The best AI UGC library with 1,000+ AI Actors trained on real
+              creators.
             </p>
+            <div className="mt-6">
+              <GradientCTAButton href="/shopify">Create Your AI Ad</GradientCTAButton>
+            </div>
           </div>
-          <div className="md:justify-self-end">
-            <GradientCTAButton href="/shopify">Create Your AI Ad</GradientCTAButton>
+          {/* isometric stack of reels */}
+          <div className="relative h-[260px] md:h-[320px]">
+            {[
+              { top: "0%", left: "30%", w: "35%", rot: 8 },
+              { top: "10%", left: "55%", w: "30%", rot: -10 },
+              { top: "25%", left: "5%", w: "32%", rot: -6 },
+              { top: "40%", left: "40%", w: "30%", rot: 4 },
+              { top: "50%", left: "70%", w: "28%", rot: 12 },
+            ].map((p, i) => (
+              <div key={i} className="absolute" style={{ top: p.top, left: p.left, width: p.w, transform: `rotate(${p.rot}deg)` }}>
+                <ReelCard gradient={REEL_GRADIENTS[i + 2]} tag="" />
+              </div>
+            ))}
           </div>
         </div>
 
