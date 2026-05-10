@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Sparkles } from "lucide-react";
-import heroBg from "@/assets/lp-hero-bg.avif";
+import heroBg from "@/assets/lp-hero-bg.png";
 
 const HERO_LOGOS = [
   { type: "image" as const, src: "/logos/comfrt.png", alt: "Comfrt" },
