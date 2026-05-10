@@ -1,5 +1,5 @@
+import { Sparkles } from "lucide-react";
 import { ReelCard } from "./ReelCard";
-import { GradientCTAButton } from "../GradientCTAButton";
 import { REEL_GRADIENTS } from "./reels";
 
 export function LpActorsBlock() {
@@ -12,34 +12,26 @@ export function LpActorsBlock() {
       }}
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-5">
-        {/* Big hero card */}
-        <div className="rounded-3xl bg-[#0e0e10] border border-white/10 p-8 md:p-12 relative overflow-hidden grid md:grid-cols-2 items-center gap-8 min-h-[360px]">
+        {/* Hero heading */}
+        <div className="grid md:grid-cols-[1fr_auto] items-center gap-8 px-2 md:px-4 py-10 md:py-14">
           <div>
             <h2 className="font-display font-extrabold text-white text-3xl md:text-5xl tracking-tight leading-[1.05]">
               The most realistic and{" "}
-              <span className="font-serif italic font-normal">captivating AI Actors</span>
+              <span className="font-serif italic font-normal">captivating AI videos</span>
             </h2>
-            <p className="mt-4 text-white/60 text-[15px] max-w-md">
-              The best AI UGC library with 1,000+ AI Actors trained on real
-              creators.
+            <p className="mt-4 text-white/60 text-[15px] max-w-xl leading-relaxed">
+              Motion control, video generation, image studio, emotional control, AI editing. Every creative tool your brand needs, in one place. Use 1,000+ ready-made avatars or upload one photo and build your own.
             </p>
-            <div className="mt-6">
-              <GradientCTAButton href="/shopify">Create Your AI Ad</GradientCTAButton>
-            </div>
           </div>
-          {/* isometric stack of reels */}
-          <div className="relative h-[260px] md:h-[320px]">
-            {[
-              { top: "0%", left: "30%", w: "35%", rot: 8 },
-              { top: "10%", left: "55%", w: "30%", rot: -10 },
-              { top: "25%", left: "5%", w: "32%", rot: -6 },
-              { top: "40%", left: "40%", w: "30%", rot: 4 },
-              { top: "50%", left: "70%", w: "28%", rot: 12 },
-            ].map((p, i) => (
-              <div key={i} className="absolute" style={{ top: p.top, left: p.left, width: p.w, transform: `rotate(${p.rot}deg)` }}>
-                <ReelCard gradient={REEL_GRADIENTS[i + 2]} tag="" />
-              </div>
-            ))}
+          <div className="md:justify-self-end">
+            <a
+              href="/shopify"
+              className="group relative inline-flex items-center justify-center gap-2 h-12 w-[220px] rounded-full text-[15px] font-semibold text-white whitespace-nowrap overflow-hidden border border-white/40 bg-gradient-to-b from-[#cfc4ff] via-[#8b7bff] to-[#4f3bd6] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-2px_4px_rgba(40,20,120,0.5),0_10px_30px_rgba(99,58,232,0.55)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,1),inset_0_-2px_4px_rgba(40,20,120,0.6),0_14px_38px_rgba(99,58,232,0.7)] transition-all duration-300"
+            >
+              <span className="absolute top-0 left-3 right-3 h-1/2 rounded-t-full bg-gradient-to-b from-white/60 to-transparent pointer-events-none" />
+              <span className="relative drop-shadow-[0_1px_1px_rgba(40,20,120,0.4)]">Create Your AI Ad</span>
+              <Sparkles className="relative w-4 h-4 text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]" />
+            </a>
           </div>
         </div>
 
