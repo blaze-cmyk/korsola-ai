@@ -1,15 +1,15 @@
 const cards = [
   {
-    caption: "Bring your brand in",
-    body: "Drop a Shopify URL or upload your product. Korsola learns your visuals, voice and offer in seconds — no setup, no spreadsheets.",
+    caption: "Choose your model",
+    body: "Pick the AI model that fits your creative goal. From realistic UGC videos to cinematic product visuals, every leading model, one platform.",
   },
   {
-    caption: "Cast, script & generate",
-    body: "Pick from 1,000+ AI actors or your own avatar, choose a format, and batch UGC, try-ons, unboxings and tutorials in one click.",
+    caption: "Cast the script & generate",
+    body: "Choose your avatar, set your angle, and hit generate. Korsola writes the hook, builds the script, and delivers your full ad batch, ready to run.",
   },
   {
-    caption: "Get winning ads",
-    body: "Export 9:16, 1:1 and 16:9 ready for Meta, TikTok and YouTube — on-brand, on-budget, no surprise bills.",
+    caption: "Get your winning ads",
+    body: "Download, test, and scale. Every variation ready to run on Meta and TikTok. Same avatar, same brand, zero billing surprises.",
   },
 ];
 
@@ -22,13 +22,13 @@ export function LpHowItWorks() {
             className="font-extrabold text-[#0f0f10] tracking-tight text-4xl md:text-6xl leading-[1.05]"
             style={{ fontFamily: "Manrope, sans-serif" }}
           >
-            One place to create{" "}
+            Create winning ads{" "}
             <span className="italic font-normal" style={{ fontFamily: "'Playfair Display', serif" }}>
-              anything
+              with AI
             </span>
           </h2>
           <p className="mt-5 text-[#5b5b60] text-[17px] md:text-[19px] leading-relaxed max-w-2xl">
-            Pick your starting point. Every tool, every model, every format — all in one workflow.
+            One place to create anything. Every tool, every model, every format. Forget switching between dozens of platforms.
           </p>
         </div>
 
