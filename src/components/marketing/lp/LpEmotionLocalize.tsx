@@ -1,8 +1,7 @@
 import { ReelCard } from "./ReelCard";
 import { REEL_GRADIENTS } from "./reels";
 import { LpMarketingStudioCard } from "./LpMarketingStudioCard";
-
-const brands = ["arcads", "Eleven", "Seedance", "Veo", "Kling"];
+import agentCluster from "@/assets/lp-agent-cluster.png";
 
 export function LpEmotionLocalize() {
   return (
