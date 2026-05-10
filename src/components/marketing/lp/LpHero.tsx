@@ -56,11 +56,11 @@ export function LpHero() {
             <div className="mt-7 flex flex-wrap items-center gap-3">
               <a
                 href="/shopify"
-                className="group relative inline-flex items-center justify-center gap-2 h-12 w-[220px] rounded-full text-[15px] font-semibold text-white whitespace-nowrap overflow-hidden border border-white/30 backdrop-blur-xl bg-gradient-to-br from-white/25 via-white/10 to-white/5 shadow-[inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(168,85,247,0.45)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.6),inset_0_-1px_0_rgba(255,255,255,0.15),0_12px_40px_rgba(168,85,247,0.6)] transition-all duration-300"
+                className="group relative inline-flex items-center justify-center gap-2 h-12 w-[220px] rounded-full text-[15px] font-semibold text-white whitespace-nowrap overflow-hidden border border-white/40 bg-gradient-to-b from-[#cfc4ff] via-[#8b7bff] to-[#4f3bd6] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-2px_4px_rgba(40,20,120,0.5),0_10px_30px_rgba(99,58,232,0.55)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,1),inset_0_-2px_4px_rgba(40,20,120,0.6),0_14px_38px_rgba(99,58,232,0.7)] transition-all duration-300"
               >
-                <span className="absolute inset-0 rounded-full bg-gradient-to-t from-transparent via-white/10 to-white/30 opacity-60 pointer-events-none" />
-                <span className="relative">Create Your AI Ad</span>
-                <Sparkles className="relative w-4 h-4 text-[hsl(var(--primary))] drop-shadow-[0_0_6px_hsl(var(--primary))]" />
+                <span className="absolute top-0 left-3 right-3 h-1/2 rounded-t-full bg-gradient-to-b from-white/60 to-transparent pointer-events-none" />
+                <span className="relative drop-shadow-[0_1px_1px_rgba(40,20,120,0.4)]">Create Your AI Ad</span>
+                <Sparkles className="relative w-4 h-4 text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]" />
               </a>
               <a
                 href="#how"
