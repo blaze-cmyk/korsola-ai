@@ -1,6 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { ReelCard } from "./ReelCard";
 import { REEL_GRADIENTS } from "./reels";
+import workflowBubbles from "@/assets/workflow-bubbles.png";
 
 export function LpFeaturesBento() {
   return (
