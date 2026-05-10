@@ -65,7 +65,7 @@ export function LpFeaturesBento() {
           </div>
 
           {/* Card 3 — oxblood */}
-          <div className="rounded-3xl p-7 text-white relative overflow-hidden" style={{ background: "var(--mk-oxblood)" }}>
+          <div className="rounded-3xl p-7 text-white relative overflow-hidden border-[#e3e3e3]" style={{ background: "var(--mk-oxblood)" }}>
             <h3 className="font-display font-extrabold text-xl">One place, whole team</h3>
             <p className="mt-2 text-white/75 text-[14px] leading-relaxed">
               Organize brand assets, generated content, and workflows with Projects.
