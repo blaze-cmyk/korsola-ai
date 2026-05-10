@@ -40,30 +40,45 @@ export function LpActorsBlock() {
         {/* 2 sub cards */}
         <div className="grid md:grid-cols-2 gap-5">
           <div className="rounded-3xl bg-[#0e0e10] border border-white/10 p-7 w-full mx-auto flex flex-col" style={{ maxWidth: 486 }}>
-            <div className="relative -mx-7 -mt-7 px-7 pt-10 pb-6">
+            <div className="relative -mx-7 -mt-7 pt-10 pb-4 overflow-hidden rounded-t-3xl">
               {/* Top solid black band */}
-              <div className="absolute inset-x-0 top-0 h-10 bg-[#0e0e10] z-10 pointer-events-none" />
-              <div className="grid grid-cols-3 gap-2">
-                {["/videos/actors/actor_1.mp4", "/videos/actors/actor_2.mp4", "/videos/actors/actor_3.mp4"].map((src, i) => (
-                  <video
-                    key={i}
-                    src={src}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="auto"
-                    className="w-full aspect-[187/331] rounded-xl object-cover bg-black"
-                  />
-                ))}
+              <div className="absolute inset-x-0 top-0 h-10 bg-[#0e0e10] z-20 pointer-events-none" />
+              {/* Videos row — middle is hero, sides overflow & dim */}
+              <div className="flex items-center justify-center gap-3 px-2">
+                {["/videos/actors/actor_1.mp4", "/videos/actors/actor_2.mp4", "/videos/actors/actor_3.mp4"].map((src, i) => {
+                  const isMain = i === 1;
+                  return (
+                    <div
+                      key={i}
+                      className="relative shrink-0 rounded-2xl overflow-hidden bg-black"
+                      style={{
+                        width: isMain ? 230 : 215,
+                        aspectRatio: "9 / 16",
+                        marginLeft: i === 0 ? -40 : 0,
+                        marginRight: i === 2 ? -40 : 0,
+                      }}
+                    >
+                      <video
+                        src={src}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        preload="auto"
+                        className="w-full h-full object-cover"
+                      />
+                      {!isMain && (
+                        <div className="absolute inset-0 bg-black/45 pointer-events-none" />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
-              {/* Bottom black-to-transparent gradient fade over videos */}
-              <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#0e0e10] via-[#0e0e10]/80 to-transparent pointer-events-none" />
             </div>
-            <p className="text-white/80 text-[13px] text-center">Actors holding your product</p>
-            <div className="mt-2 flex justify-center gap-1.5">
+            <p className="mt-3 text-white/85 text-[13px] text-center">Actors holding your product</p>
+            <div className="mt-3 flex justify-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-white/25" />
-              <span className="w-1.5 h-1.5 rounded-full bg-white/80" />
+              <span className="w-1.5 h-1.5 rounded-full bg-white/85" />
               <span className="w-1.5 h-1.5 rounded-full bg-white/25" />
             </div>
             <h3 className="mt-6 font-display font-extrabold text-white text-2xl">
