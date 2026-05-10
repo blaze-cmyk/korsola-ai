@@ -5,7 +5,13 @@ const brands = ["arcads", "Eleven", "Seedance", "Veo", "Kling"];
 
 export function LpEmotionLocalize() {
   return (
-    <section className="bg-ink text-white pb-20 md:pb-28">
+    <section
+      className="text-white pb-20 md:pb-28 relative"
+      style={{
+        background:
+          "radial-gradient(120% 80% at 50% 100%, #2a2a2e 0%, #141416 45%, #050505 100%)",
+      }}
+    >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-5">
         <div className="grid md:grid-cols-2 gap-5">
           <div className="rounded-3xl bg-[#0e0e10] border border-white/10 p-7">
