@@ -139,7 +139,7 @@ function SteppedPhrases() {
 
   return (
     <div
-      className="relative h-[320px] md:h-[420px] overflow-hidden mk-fade-up md:pl-[640px] lg:pl-[860px] xl:pl-[1040px]"
+      className="relative h-[320px] md:h-[420px] overflow-hidden mk-fade-up md:pl-[760px] lg:pl-[1040px] xl:pl-[1240px]"
       style={{
         animationDelay: "0.1s",
         maskImage:
@@ -168,7 +168,7 @@ function SteppedPhrases() {
           return (
             <li
               key={i}
-              className={`flex items-center font-display font-extrabold tracking-tight whitespace-nowrap text-[24px] md:text-[34px] leading-[1.1] transition-opacity duration-400 ${
+              className={`flex items-center font-display font-extrabold tracking-tight whitespace-nowrap text-[20px] md:text-[26px] leading-[1.1] transition-opacity duration-400 ${
                 isActive ? "text-white opacity-100" : "text-white/30"
               }`}
               style={{ height: `${ITEM_H}px` }}
