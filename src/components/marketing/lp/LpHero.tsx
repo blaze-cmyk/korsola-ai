@@ -39,10 +39,8 @@ export function LpHero() {
         <div className="grid md:grid-cols-2 gap-10 md:gap-12 items-center min-h-[460px] md:min-h-[540px]">
           {/* LEFT */}
           <div className="mk-fade-up text-left ml-[260px]">
-            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur border border-white/20 text-[12px] text-white shadow-sm">
+            <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/15 backdrop-blur border border-white/20 text-[15px] md:text-[17px] text-white shadow-sm">
               <span className="font-serif italic">Seedance 2.0</span> is live
-              <span className="text-white/60">·</span>
-              <span className="text-[color:var(--mk-violet,#c084fc)]">Read release →</span>
             </span>
 
             <h1 className="mt-6 font-display font-extrabold text-white tracking-tight text-[40px] sm:text-[52px] md:text-[64px] leading-[1.04] drop-shadow-[0_4px_24px_rgba(0,0,0,0.35)]">
