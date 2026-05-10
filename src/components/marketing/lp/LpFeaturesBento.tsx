@@ -22,7 +22,7 @@ export function LpFeaturesBento() {
 
         <div className="mt-12 grid md:grid-cols-3 grid-rows-2 gap-4 md:auto-rows-fr">
           {/* Card 1 — tall light */}
-          <div className="md:row-span-2 rounded-3xl bg-bone-2 border border-line p-7 flex flex-col overflow-hidden">
+          <div className="md:row-span-2 rounded-3xl bg-bone-2 border border-line p-7 flex flex-col overflow-hidden border-[#e3e3e3]">
             <h3 className="font-display font-extrabold text-ink text-2xl">Every tool, ready to go</h3>
             <p className="mt-3 text-ink-soft text-[14px] leading-relaxed">
               Image, video, audio, 3D — thirty tools, no setup. Open what you need,
