@@ -56,14 +56,14 @@ export function LpHero() {
             <div className="mt-7 flex flex-wrap items-center gap-3">
               <a
                 href="/shopify"
-                className="inline-flex items-center gap-2 h-12 px-7 rounded-full text-[15px] font-semibold bg-[#0f0f10] text-white border border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.35)] hover:bg-[#1a1a1c] transition-colors whitespace-nowrap"
+                className="inline-flex items-center justify-center gap-2 h-12 w-[220px] rounded-full text-[15px] font-semibold bg-white text-[#0f0f10] border border-black/5 shadow-[0_8px_24px_rgba(0,0,0,0.18)] hover:bg-white/90 transition-colors whitespace-nowrap"
               >
                 Create Your AI Ad
                 <Sparkles className="w-4 h-4 text-[hsl(var(--primary))]" />
               </a>
               <a
                 href="#how"
-                className="inline-flex items-center gap-2 h-12 px-7 rounded-full text-[15px] font-semibold bg-white text-[#0f0f10] border border-black/5 shadow-[0_8px_24px_rgba(0,0,0,0.18)] hover:bg-white/90 transition-colors whitespace-nowrap"
+                className="inline-flex items-center justify-center gap-2 h-12 w-[220px] rounded-full text-[15px] font-semibold bg-white text-[#0f0f10] border border-black/5 shadow-[0_8px_24px_rgba(0,0,0,0.18)] hover:bg-white/90 transition-colors whitespace-nowrap"
               >
                 Continue with Google
                 <GoogleG />
