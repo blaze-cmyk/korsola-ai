@@ -86,16 +86,18 @@ export function LpFeaturesBento() {
 
           {/* Card 4 — teal */}
           <div className="rounded-3xl p-7 text-white relative overflow-hidden border-[#e3e3e3]" style={{ background: "var(--mk-teal)" }}>
-            <h3 className="font-display font-extrabold text-xl">Workflow in one click</h3>
+            <h3 className="font-display font-extrabold text-xl">Your winning workflow. One click.</h3>
             <p className="mt-2 text-white/75 text-[14px] leading-relaxed">
-              Save any complex on-brand workflow as an App. The next person runs it
-              in one click.
+              Build your UGC generation flow once. Save it as a template. Every new product runs through it in one click — no rebriefing, no starting over.
             </p>
             <div className="mt-6 relative">
-              <div className="aspect-[4/3] rounded-lg overflow-hidden" style={{ background: REEL_GRADIENTS[3] }} />
-              <span className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-white/95 text-ink text-[11px] font-extrabold tracking-wider border-2 border-pink-400">
-                RUN APP
-              </span>
+              <img
+                src={workflowBubbles}
+                alt="Korsola workflow connecting Meta, TikTok, ChatGPT, Google, Slack, Shopify, Claude, Seedance, and Kling"
+                loading="lazy"
+                className="w-full h-auto rounded-lg object-contain select-none pointer-events-none"
+                draggable={false}
+              />
             </div>
           </div>
         </div>
