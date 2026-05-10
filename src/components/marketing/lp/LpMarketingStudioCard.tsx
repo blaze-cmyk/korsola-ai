@@ -11,20 +11,50 @@ const VIDEOS = [
 
 export function LpMarketingStudioCard() {
   const [index, setIndex] = useState(0);
+  const [drag, setDrag] = useState(0); // px offset while dragging
+  const dragRef = useRef<{ active: boolean; startX: number; moved: boolean }>({
+    active: false,
+    startX: 0,
+    moved: false,
+  });
   const mainVideoRef = useRef<HTMLVideoElement | null>(null);
 
-  // Advance when the active (center) video ends
-  const handleEnded = () => {
-    setIndex((i) => (i + 1) % VIDEOS.length);
+  const advance = (dir: 1 | -1) => {
+    setIndex((i) => (i + dir + VIDEOS.length) % VIDEOS.length);
   };
 
-  // Ensure the new main video starts from beginning & plays
+  // Auto-advance when center video ends
+  const handleEnded = () => advance(1);
+
   useEffect(() => {
     const v = mainVideoRef.current;
     if (!v) return;
     v.currentTime = 0;
     v.play().catch(() => {});
   }, [index]);
+
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    dragRef.current = { active: true, startX: e.clientX, moved: false };
+    (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
+  };
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current.active) return;
+    const dx = e.clientX - dragRef.current.startX;
+    if (Math.abs(dx) > 4) dragRef.current.moved = true;
+    setDrag(dx);
+  };
+  const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current.active) return;
+    const dx = e.clientX - dragRef.current.startX;
+    dragRef.current.active = false;
+    setDrag(0);
+    const threshold = 60;
+    if (dx <= -threshold) advance(1);
+    else if (dx >= threshold) advance(-1);
+    if ((e.currentTarget as HTMLDivElement).hasPointerCapture(e.pointerId)) {
+      (e.currentTarget as HTMLDivElement).releasePointerCapture(e.pointerId);
+    }
+  };
 
   // visible window: prev, current, next
   const prev = (index - 1 + VIDEOS.length) % VIDEOS.length;
@@ -36,29 +66,51 @@ export function LpMarketingStudioCard() {
     { src: VIDEOS[next], pos: "right", key: `r-${next}` },
   ];
 
+  const isDragging = dragRef.current.active;
+
   return (
     <div
       className="rounded-3xl bg-[#0e0e10] border border-white/10 p-7 w-full mx-auto flex flex-col min-h-[623px]"
       style={{ maxWidth: 486 }}
     >
-      <div className="relative flex-1 flex items-center justify-center overflow-hidden">
+      <div
+        className="relative flex-1 flex items-center justify-center overflow-hidden select-none touch-pan-y cursor-grab active:cursor-grabbing"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+      >
         <div className="relative w-full h-[380px] flex items-center justify-center">
           {slots.map(({ src, pos, key }) => {
             const isCenter = pos === "center";
-            const translate =
-              pos === "left" ? "-130%" : pos === "right" ? "130%" : "0%";
+            const basePx = pos === "left" ? -260 : pos === "right" ? 260 : 0;
+            const offset = basePx + drag;
+            // dynamic scale/opacity based on drag distance for smooth feel
+            const dragRatio = Math.min(Math.abs(drag) / 260, 1);
+            let scale = isCenter ? 1 : 0.82;
+            let opacity = isCenter ? 1 : 0.55;
+            if (isCenter) {
+              scale = 1 - dragRatio * 0.18;
+              opacity = 1 - dragRatio * 0.45;
+            } else if (
+              (pos === "left" && drag > 0) ||
+              (pos === "right" && drag < 0)
+            ) {
+              scale = 0.82 + dragRatio * 0.18;
+              opacity = 0.55 + dragRatio * 0.45;
+            }
             return (
               <div
                 key={key}
-                className="absolute transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+                className={isDragging ? "absolute" : "absolute transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"}
                 style={{
-                  transform: `translateX(${translate}) scale(${isCenter ? 1 : 0.82})`,
+                  transform: `translateX(${offset}px) scale(${scale})`,
                   zIndex: isCenter ? 20 : 10,
-                  opacity: isCenter ? 1 : 0.55,
+                  opacity,
                 }}
               >
                 <div
-                  className="relative rounded-2xl overflow-hidden bg-black shadow-[0_20px_50px_-20px_rgba(0,0,0,0.7)]"
+                  className="relative rounded-2xl overflow-hidden bg-black shadow-[0_20px_50px_-20px_rgba(0,0,0,0.7)] pointer-events-none"
                   style={{
                     width: isCenter ? 220 : 180,
                     aspectRatio: "9 / 16",
