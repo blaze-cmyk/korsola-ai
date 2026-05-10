@@ -7,8 +7,7 @@ export function LpActorsBlock() {
     <section
       className="text-white py-20 md:py-28 relative"
       style={{
-        background:
-          "radial-gradient(120% 80% at 50% 0%, #2a2a2e 0%, #141416 45%, #050505 100%)",
+        background: "linear-gradient(180deg, #e8e8ea 0%, #8a8a8e 50%, #2a2a2c 100%)",
       }}
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-5">

@@ -8,8 +8,7 @@ export function LpEmotionLocalize() {
     <section
       className="text-white pb-20 md:pb-28 relative"
       style={{
-        background:
-          "radial-gradient(120% 80% at 50% 100%, #2a2a2e 0%, #141416 45%, #050505 100%)",
+        background: "linear-gradient(180deg, #2a2a2c 0%, #141416 50%, #050505 100%)",
       }}
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-5">
