@@ -50,29 +50,56 @@ export function LpEditScene() {
     generate: useRef<HTMLDivElement>(null),
   };
 
-  // --- measured rects ---------------------------------------------------
-  const stageSize = useRef<{ w: number; h: number }>({ w: 0, h: 0 });
-  const centerR = useRef<Rect>(ZERO);
-  const videoSlotR = useRef<Rect>(ZERO);
-  const productSlotR = useRef<Rect>(ZERO);
-  const textareaR = useRef<Rect>(ZERO);
-  const generateR = useRef<Rect>(ZERO);
+  // --- measured rects (state so useTransform recomputes when measurements arrive) ---
+  type Measured = {
+    stage: { w: number; h: number };
+    center: Rect;
+    videoSlot: Rect;
+    productSlot: Rect;
+    textarea: Rect;
+    generate: Rect;
+  };
+  const [m, setM] = useState<Measured>({
+    stage: { w: 0, h: 0 },
+    center: ZERO,
+    videoSlot: ZERO,
+    productSlot: ZERO,
+    textarea: ZERO,
+    generate: ZERO,
+  });
 
-  const [, force] = useState(0);
   useEffect(() => {
     const measure = () => {
       const stage = stageRef.current;
       if (!stage) return;
       const sr = stage.getBoundingClientRect();
-      stageSize.current = { w: sr.width, h: sr.height };
-      centerR.current = centerRect(sr.width, sr.height);
-      videoSlotR.current = rectFor(stage, slots.videoSlot.current);
-      productSlotR.current = rectFor(stage, slots.productSlot.current);
-      textareaR.current = rectFor(stage, slots.textarea.current);
-      generateR.current = rectFor(stage, slots.generate.current);
-      force((n) => n + 1);
+      const next: Measured = {
+        stage: { w: sr.width, h: sr.height },
+        center: centerRect(sr.width, sr.height),
+        videoSlot: rectFor(stage, slots.videoSlot.current),
+        productSlot: rectFor(stage, slots.productSlot.current),
+        textarea: rectFor(stage, slots.textarea.current),
+        generate: rectFor(stage, slots.generate.current),
+      };
+      setM((prev) => {
+        // shallow check to avoid extra renders
+        if (
+          prev.stage.w === next.stage.w &&
+          prev.stage.h === next.stage.h &&
+          prev.videoSlot.x === next.videoSlot.x &&
+          prev.videoSlot.y === next.videoSlot.y &&
+          prev.productSlot.x === next.productSlot.x &&
+          prev.generate.x === next.generate.x
+        ) {
+          return prev;
+        }
+        return next;
+      });
     };
     measure();
+    // re-measure a couple times after fonts/layout settle
+    const t1 = window.setTimeout(measure, 60);
+    const t2 = window.setTimeout(measure, 240);
     const ro = new ResizeObserver(measure);
     if (stageRef.current) ro.observe(stageRef.current);
     if (barWrapRef.current) ro.observe(barWrapRef.current);
@@ -80,6 +107,8 @@ export function LpEditScene() {
     return () => {
       ro.disconnect();
       window.removeEventListener("resize", measure);
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
     };
   }, []);
 
@@ -121,19 +150,19 @@ export function LpEditScene() {
   // --- VIDEO 1 transforms (centered 9:16 → small chip) -----------------
   const v1X = useTransform(p, (v) => {
     const t = clamp((v - 0.18) / (0.32 - 0.18));
-    return lerp(centerR.current.x, videoSlotR.current.x, t);
+    return lerp(m.center.x, m.videoSlot.x, t);
   });
   const v1Y = useTransform(p, (v) => {
     const t = clamp((v - 0.18) / (0.32 - 0.18));
-    return lerp(centerR.current.y, videoSlotR.current.y, t);
+    return lerp(m.center.y, m.videoSlot.y, t);
   });
   const v1W = useTransform(p, (v) => {
     const t = clamp((v - 0.18) / (0.32 - 0.18));
-    return lerp(centerR.current.w, videoSlotR.current.w || 64, t);
+    return lerp(m.center.w, m.videoSlot.w || 64, t);
   });
   const v1H = useTransform(p, (v) => {
     const t = clamp((v - 0.18) / (0.32 - 0.18));
-    return lerp(centerR.current.h, videoSlotR.current.h || 64, t);
+    return lerp(m.center.h, m.videoSlot.h || 64, t);
   });
   const v1Radius = useTransform(p, [0.18, 0.32], [18, 12]);
 
@@ -156,63 +185,63 @@ export function LpEditScene() {
 
   // --- FakeCursor path: off-right → product slot → textarea → generate -
   const cursorX = useTransform(p, (v) => {
-    const stageW = stageSize.current.w;
+    const stageW = m.stage.w;
     if (v < 0.34) return stageW + 80;
     if (v < 0.46) {
       const t = clamp((v - 0.34) / 0.12);
-      return lerp(stageW + 80, productSlotR.current.x + productSlotR.current.w / 2, t);
+      return lerp(stageW + 80, m.productSlot.x + m.productSlot.w / 2, t);
     }
     if (v < 0.50) {
       const t = clamp((v - 0.46) / 0.04);
       return lerp(
-        productSlotR.current.x + productSlotR.current.w / 2,
-        textareaR.current.x + 24,
+        m.productSlot.x + m.productSlot.w / 2,
+        m.textarea.x + 24,
         t,
       );
     }
     if (v < 0.6) {
       const t = clamp((v - 0.50) / 0.10);
       return lerp(
-        textareaR.current.x + 24,
-        generateR.current.x + generateR.current.w / 2,
+        m.textarea.x + 24,
+        m.generate.x + m.generate.w / 2,
         t,
       );
     }
-    return generateR.current.x + generateR.current.w / 2;
+    return m.generate.x + m.generate.w / 2;
   });
   const cursorY = useTransform(p, (v) => {
-    if (v < 0.34) return productSlotR.current.y + productSlotR.current.h / 2;
+    if (v < 0.34) return m.productSlot.y + m.productSlot.h / 2;
     if (v < 0.46) {
-      return productSlotR.current.y + productSlotR.current.h / 2;
+      return m.productSlot.y + m.productSlot.h / 2;
     }
     if (v < 0.50) {
       const t = clamp((v - 0.46) / 0.04);
       return lerp(
-        productSlotR.current.y + productSlotR.current.h / 2,
-        textareaR.current.y + 16,
+        m.productSlot.y + m.productSlot.h / 2,
+        m.textarea.y + 16,
         t,
       );
     }
     if (v < 0.6) {
       const t = clamp((v - 0.50) / 0.10);
       return lerp(
-        textareaR.current.y + 16,
-        generateR.current.y + generateR.current.h / 2,
+        m.textarea.y + 16,
+        m.generate.y + m.generate.h / 2,
         t,
       );
     }
-    return generateR.current.y + generateR.current.h / 2;
+    return m.generate.y + m.generate.h / 2;
   });
   const cursorOpacity = useTransform(p, [0.32, 0.36, 0.62, 0.66], [0, 1, 1, 0]);
 
   // Chanel image rides with cursor from off-right → product slot, then drops
   const chanelDocked = useTransform(p, [0.44, 0.46], [0, 1]);
   const chanelX = useTransform(p, (v) => {
-    if (v >= 0.46) return productSlotR.current.x;
+    if (v >= 0.46) return m.productSlot.x;
     return cursorX.get() - 32;
   });
   const chanelY = useTransform(p, (v) => {
-    if (v >= 0.46) return productSlotR.current.y;
+    if (v >= 0.46) return m.productSlot.y;
     return cursorY.get() - 32;
   });
   const chanelOpacity = useTransform(p, [0.32, 0.36, 0.46, 0.47], [0, 1, 1, 0]);
@@ -225,19 +254,19 @@ export function LpEditScene() {
   // --- VIDEO 3 — emerges at SAME centered 9:16 rect, holds, plays -----
   const v3X = useTransform(p, (v) => {
     const t = clamp((v - 0.66) / (0.78 - 0.66));
-    return lerp(videoSlotR.current.x, centerR.current.x, t);
+    return lerp(m.videoSlot.x, m.center.x, t);
   });
   const v3Y = useTransform(p, (v) => {
     const t = clamp((v - 0.66) / (0.78 - 0.66));
-    return lerp(videoSlotR.current.y, centerR.current.y, t);
+    return lerp(m.videoSlot.y, m.center.y, t);
   });
   const v3W = useTransform(p, (v) => {
     const t = clamp((v - 0.66) / (0.78 - 0.66));
-    return lerp(videoSlotR.current.w || 64, centerR.current.w, t);
+    return lerp(m.videoSlot.w || 64, m.center.w, t);
   });
   const v3H = useTransform(p, (v) => {
     const t = clamp((v - 0.66) / (0.78 - 0.66));
-    return lerp(videoSlotR.current.h || 64, centerR.current.h, t);
+    return lerp(m.videoSlot.h || 64, m.center.h, t);
   });
   const v3Radius = useTransform(p, [0.66, 0.78], [12, 18]);
   const v3Opacity = useTransform(p, [0.66, 0.70], [0, 1]);
@@ -379,10 +408,10 @@ export function LpEditScene() {
               transition={{ duration: 0.35 }}
               className="absolute top-0 left-0 overflow-hidden z-[35] bg-[#0f0f10] border border-white/10 grid place-items-center shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]"
               style={{
-                x: centerR.current.x,
-                y: centerR.current.y,
-                width: centerR.current.w,
-                height: centerR.current.h,
+                x: m.center.x,
+                y: m.center.y,
+                width: m.center.w,
+                height: m.center.h,
                 borderRadius: 18,
               }}
             >
@@ -401,10 +430,10 @@ export function LpEditScene() {
             <motion.div
               className="absolute top-0 left-0 overflow-hidden bg-black z-[40] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.55)]"
               style={{
-                x: centerR.current.x,
-                y: centerR.current.y,
-                width: centerR.current.w,
-                height: centerR.current.h,
+                x: m.center.x,
+                y: m.center.y,
+                width: m.center.w,
+                height: m.center.h,
                 borderRadius: 18,
                 opacity: complete ? 1 : 0,
                 pointerEvents: complete ? "auto" : "none",
