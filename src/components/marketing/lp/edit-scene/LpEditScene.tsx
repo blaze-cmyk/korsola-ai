@@ -128,7 +128,6 @@ export function LpEditScene() {
 
   // --- PromptBar opacity / lift ----------------------------------------
   const barOpacity = useTransform(p, [0.14, 0.22, 0.85, 0.95], [0, 1, 1, 0]);
-  const barY = useTransform(p, [0.14, 0.22], [40, 0]);
   const productOpacity = useTransform(p, [0.32, 0.42], [0, 1]);
 
   // --- FakeCursor path: off-right → product slot → textarea → generate --
