@@ -163,7 +163,7 @@ export function LpEditScene() {
       playTimerRef.current = window.setTimeout(latchPlayed, 11000);
     }
     // Hard scroll fallback — if user blew past, latch immediately
-    if (v >= 0.32 && !played) {
+    if (v >= 0.28 && !played) {
       latchPlayed();
     }
     // Reverse: scrolled fully back → reset
