@@ -160,10 +160,10 @@ export function LpEditScene() {
       }
       // wall-clock fallback in case timeupdate never fires reliably
       if (playTimerRef.current) window.clearTimeout(playTimerRef.current);
-      playTimerRef.current = window.setTimeout(latchPlayed, 6000);
+      playTimerRef.current = window.setTimeout(latchPlayed, 11000);
     }
     // Hard scroll fallback — if user blew past, latch immediately
-    if (v >= 0.32 && !played) {
+    if (v >= 0.28 && !played) {
       latchPlayed();
     }
     // Reverse: scrolled fully back → reset
@@ -184,7 +184,7 @@ export function LpEditScene() {
     const el = v1Ref.current;
     if (!el) return;
     const onTime = () => {
-      if (!played && el.currentTime >= 6) latchPlayed();
+      if (!played && el.currentTime >= 11) latchPlayed();
     };
     el.addEventListener("timeupdate", onTime);
     return () => el.removeEventListener("timeupdate", onTime);
@@ -202,89 +202,82 @@ export function LpEditScene() {
   });
 
   // --- VIDEO 1 transforms ---
-  // No slide. Centered from the start, just fades in. After `played`, docks into the bar slot.
+  // Centered from start (fades in). After `played`, docks into the bar slot
+  // over a generous 0.00 → 0.12 lp window so it FINISHES before the cursor enters.
+  const SHRINK = 0.12;
   const v1X = useTransform(p, (v) => {
     if (!played || playedAtP == null) return m.center.x;
-    const t = clamp((v - playedAtP) / 0.18);
+    const t = clamp((v - playedAtP) / SHRINK);
     return lerp(m.center.x, m.videoSlot.x, t);
   });
   const v1Y = useTransform(p, (v) => {
     if (!played || playedAtP == null) return m.center.y;
-    const t = clamp((v - playedAtP) / 0.18);
+    const t = clamp((v - playedAtP) / SHRINK);
     return lerp(m.center.y, m.videoSlot.y, t);
   });
   const v1W = useTransform(p, (v) => {
     if (!played || playedAtP == null) return m.center.w;
-    const t = clamp((v - playedAtP) / 0.18);
+    const t = clamp((v - playedAtP) / SHRINK);
     return lerp(m.center.w, m.videoSlot.w || 88, t);
   });
   const v1H = useTransform(p, (v) => {
     if (!played || playedAtP == null) return m.center.h;
-    const t = clamp((v - playedAtP) / 0.18);
+    const t = clamp((v - playedAtP) / SHRINK);
     return lerp(m.center.h, m.videoSlot.h || 88, t);
   });
   const v1Radius = useTransform(p, (v) => {
     if (!played || playedAtP == null) return 22;
-    const t = clamp((v - playedAtP) / 0.18);
+    const t = clamp((v - playedAtP) / SHRINK);
     return lerp(22, 12, t);
   });
   const v1Opacity = useTransform(p, VIDEO_IN, [0, 1]);
 
-  // "existing video" label below the heading — fades in with the clip,
-  // fades out as the clip starts shrinking.
   const labelOpacity = useTransform(p, (v) => {
     const inT = clamp((v - VIDEO_IN[0]) / (VIDEO_IN[1] - VIDEO_IN[0]));
     if (!played || playedAtP == null) return inT;
-    const outT = clamp((v - playedAtP) / 0.06);
+    const outT = clamp((v - playedAtP) / 0.04);
     return inT * (1 - outT);
   });
 
-  // Heading: stays visible the entire scene (congruent with other sections).
-
-  // ============ ACT II/III timeline (anchored at playedAtP) ============
-  // Local progress lp = v - playedAtP. All gates below are gated on `played`.
-  // 0.00 → 0.05  bg darken + bar fade in + video1 shrinks into slot
-  // 0.05 → 0.10  cursor enters from off-right, picks up chanel
-  // 0.10 → 0.12  chanel docks into product slot (productOpacity 1)
-  // 0.12 → 0.20  cursor → textarea, prompt types out
-  // 0.20 → 0.24  cursor → generate, press
-  // 0.24 → 0.34  queue card visible (generating)
-  // 0.34 → 0.40  video3 reveals at centered rect
+  // ============ ACT II/III timeline (lp = v - playedAtP) ============
+  // 0.00 → 0.12  video1 shrinks into slot + bg darken + bar fade in
+  // 0.16 → 0.24  cursor enters off-right (carrying Chanel) toward product slot
+  // 0.24 → 0.28  cursor + Chanel land on product slot, Chanel docks
+  // 0.30 → 0.42  cursor moves to textarea
+  // 0.42 → 0.58  prompt types out
+  // 0.58 → 0.66  cursor moves to GENERATE
+  // 0.66 → 0.69  press flash
+  // 0.66 → 0.84  queue card visible (generating)
+  // 0.84 → 0.92  video3 reveals at center
   const PA = playedAtP ?? 0;
   const lp = (v: number) => v - PA;
 
   const barOpacity = useTransform(p, (v) => {
     if (!played) return 0;
-    return clamp(lp(v) / 0.05);
+    return clamp((lp(v) - 0.02) / 0.08);
   });
 
-  // Cursor path
   const cursorOpacity = useTransform(p, (v) => {
     if (!played) return 0;
     const l = lp(v);
-    if (l < 0.05) return 0;
-    if (l > 0.26) return 0;
+    if (l < 0.16 || l > 0.70) return 0;
     return 1;
   });
   const cursorX = useTransform(p, (v) => {
     if (!played) return 0;
     const l = lp(v);
     const stageW = m.stage.w;
-    if (l < 0.05) return stageW + 80;
-    if (l < 0.10) {
-      const t = clamp((l - 0.05) / 0.05);
-      return lerp(stageW + 80, stageW - 200, t); // approach chanel pickup pos
+    if (l < 0.16) return stageW + 80;
+    if (l < 0.28) {
+      const t = clamp((l - 0.16) / 0.12);
+      return lerp(stageW + 80, m.productSlot.x + m.productSlot.w / 2, t);
     }
-    if (l < 0.12) {
-      const t = clamp((l - 0.10) / 0.02);
-      return lerp(stageW - 200, m.productSlot.x + m.productSlot.w / 2, t);
-    }
-    if (l < 0.20) {
-      const t = clamp((l - 0.12) / 0.08);
+    if (l < 0.42) {
+      const t = clamp((l - 0.30) / 0.12);
       return lerp(m.productSlot.x + m.productSlot.w / 2, m.textarea.x + 24, t);
     }
-    if (l < 0.24) {
-      const t = clamp((l - 0.20) / 0.04);
+    if (l < 0.66) {
+      const t = clamp((l - 0.58) / 0.08);
       return lerp(m.textarea.x + 24, m.generate.x + m.generate.w / 2, t);
     }
     return m.generate.x + m.generate.w / 2;
@@ -292,43 +285,42 @@ export function LpEditScene() {
   const cursorY = useTransform(p, (v) => {
     if (!played) return 0;
     const l = lp(v);
-    const pickupY = m.stage.h * 0.55;
-    if (l < 0.10) return pickupY;
-    if (l < 0.12) {
-      const t = clamp((l - 0.10) / 0.02);
-      return lerp(pickupY, m.productSlot.y + m.productSlot.h / 2, t);
+    if (l < 0.16) return m.stage.h * 0.55;
+    if (l < 0.28) {
+      const t = clamp((l - 0.16) / 0.12);
+      return lerp(m.stage.h * 0.55, m.productSlot.y + m.productSlot.h / 2, t);
     }
-    if (l < 0.20) {
-      const t = clamp((l - 0.12) / 0.08);
+    if (l < 0.42) {
+      const t = clamp((l - 0.30) / 0.12);
       return lerp(m.productSlot.y + m.productSlot.h / 2, m.textarea.y + 18, t);
     }
-    if (l < 0.24) {
-      const t = clamp((l - 0.20) / 0.04);
+    if (l < 0.66) {
+      const t = clamp((l - 0.58) / 0.08);
       return lerp(m.textarea.y + 18, m.generate.y + m.generate.h / 2, t);
     }
     return m.generate.y + m.generate.h / 2;
   });
 
-  // Chanel image rides cursor in, then drops into the product slot
+  // Chanel image rides with the cursor from off-right → product slot, then drops
   const chanelOpacity = useTransform(p, (v) => {
     if (!played) return 0;
     const l = lp(v);
-    if (l < 0.07 || l > 0.125) return 0;
+    if (l < 0.16 || l > 0.285) return 0;
     return 1;
   });
-  const chanelX = useTransform(p, (v) => cursorX.get() - 32);
-  const chanelY = useTransform(p, (v) => cursorY.get() - 32);
+  const chanelX = useTransform(p, () => cursorX.get() - 32);
+  const chanelY = useTransform(p, () => cursorY.get() - 32);
 
   // Product slot icon reveal once dropped
   const productOpacity = useTransform(p, (v) => {
     if (!played) return 0;
-    return clamp((lp(v) - 0.115) / 0.01);
+    return clamp((lp(v) - 0.275) / 0.02);
   });
 
   // Typewriter progress
   const typingProgress = useTransform(p, (v) => {
     if (!played) return 0;
-    return clamp((lp(v) - 0.13) / 0.07);
+    return clamp((lp(v) - 0.42) / 0.16);
   });
 
   // Generate press flash
@@ -336,7 +328,7 @@ export function LpEditScene() {
   useMotionValueEvent(p, "change", (v) => {
     if (!played) return setPressed(false);
     const l = lp(v);
-    setPressed(l >= 0.235 && l < 0.255);
+    setPressed(l >= 0.66 && l < 0.69);
   });
 
   // Generating queue + complete
@@ -349,14 +341,14 @@ export function LpEditScene() {
       return;
     }
     const l = lp(v);
-    setGenerating(l >= 0.24 && l < 0.34);
-    setComplete(l >= 0.34);
+    setGenerating(l >= 0.66 && l < 0.84);
+    setComplete(l >= 0.84);
   });
 
   // Video3 reveal
   const v3Opacity = useTransform(p, (v) => {
     if (!played) return 0;
-    return clamp((lp(v) - 0.34) / 0.04);
+    return clamp((lp(v) - 0.84) / 0.06);
   });
 
 
@@ -420,7 +412,7 @@ export function LpEditScene() {
         ref={sectionRef}
         data-edit-scene
         className="relative hidden md:block"
-        style={{ height: "650vh" }}
+        style={{ height: "1100vh" }}
       >
         <motion.div
           ref={stageRef}
