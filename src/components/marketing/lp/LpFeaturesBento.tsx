@@ -23,7 +23,7 @@ export function LpFeaturesBento() {
 
         <div className="mt-12 grid md:grid-cols-3 grid-rows-2 gap-4 md:auto-rows-fr">
           {/* Card 1 — tall light */}
-          <div className="md:row-span-2 rounded-3xl border border-line p-7 flex flex-col overflow-hidden border-[#e3e3e3] bg-[#e3e3e3]">
+          <div className="md:row-span-2 md:h-[1040px] rounded-3xl border border-line p-7 flex flex-col overflow-hidden border-[#e3e3e3] bg-[#e3e3e3]">
             <h3 className="font-display font-extrabold text-ink text-2xl">Every tool, ready to go</h3>
             <p className="mt-3 text-ink-soft text-[14px] leading-relaxed">
               Image, video, audio, 3D — thirty tools, no setup. Open what you need,
@@ -41,7 +41,7 @@ export function LpFeaturesBento() {
           </div>
 
           {/* Card 2 — wide dark */}
-          <div className="md:col-span-2 rounded-3xl bg-ink text-white relative overflow-hidden min-h-[320px] md:min-h-[380px]">
+          <div className="md:col-span-2 rounded-3xl bg-ink text-white relative overflow-hidden min-h-[320px] md:h-[512px]">
             {/* Image pinned right */}
             <div className="absolute inset-y-0 right-0 w-full md:w-[62%]">
               <img
@@ -66,7 +66,7 @@ export function LpFeaturesBento() {
           </div>
 
           {/* Card 3 — video bg */}
-          <div className="rounded-3xl p-7 text-white relative overflow-hidden border-[#e3e3e3] min-h-[320px]" style={{ background: "var(--mk-oxblood)" }}>
+          <div className="rounded-3xl p-7 text-white relative overflow-hidden border-[#e3e3e3] min-h-[320px] md:h-[512px] md:max-w-[391px] md:w-full" style={{ background: "var(--mk-oxblood)" }}>
             <video
               src="/videos/creative-suite-spaces.webm"
               autoPlay
@@ -85,7 +85,7 @@ export function LpFeaturesBento() {
           </div>
 
           {/* Card 4 — teal */}
-          <div className="rounded-3xl p-7 text-white relative overflow-hidden border-[#e3e3e3] min-h-[320px]" style={{ background: "var(--mk-teal)" }}>
+          <div className="rounded-3xl p-7 text-white relative overflow-hidden border-[#e3e3e3] min-h-[320px] md:h-[512px] md:max-w-[391px] md:w-full" style={{ background: "var(--mk-teal)" }}>
             <img
               src={workflowBubbles}
               alt="Korsola workflow connecting Meta, TikTok, ChatGPT, Google, Slack, Shopify, Claude, Seedance, and Kling"
