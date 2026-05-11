@@ -20,10 +20,7 @@ const users = [
 
 export function LpTeamPlans() {
   return (
-    <section className="bg-ink text-white py-20 md:py-28 relative overflow-hidden">
-      {/* Subtle Korsola purple glow */}
-      <div className="pointer-events-none absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-[#4f3bd6]/20 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-40 -right-40 w-[500px] h-[500px] rounded-full bg-[#8b7bff]/15 blur-3xl" />
+    <section className="text-white py-20 md:py-28 relative overflow-hidden">
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
         <h2 className="font-display font-extrabold text-white text-4xl md:text-6xl tracking-tight leading-[1.02] max-w-2xl">
