@@ -369,6 +369,7 @@ export function LpEditScene() {
           </motion.div>
         )}
       </div>
-    </section>
+      </section>
+    </>
   );
 }
