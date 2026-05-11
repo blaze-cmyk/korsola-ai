@@ -239,18 +239,24 @@ export function LpEditScene() {
     return inT * (1 - outT);
   });
 
-  // ============ ACT II/III timeline (lp = v - playedAtP) ============
+  // ============ ACT II/III timeline ============
+  // lp is normalized to remaining scroll AFTER played latches, so it always
+  // spans 0 → 1 regardless of where playedAtP landed.
   // 0.00 → 0.12  video1 shrinks into slot + bg darken + bar fade in
-  // 0.16 → 0.24  cursor enters off-right (carrying Chanel) toward product slot
-  // 0.24 → 0.28  cursor + Chanel land on product slot, Chanel docks
-  // 0.30 → 0.42  cursor moves to textarea
-  // 0.42 → 0.58  prompt types out
-  // 0.58 → 0.66  cursor moves to GENERATE
-  // 0.66 → 0.69  press flash
-  // 0.66 → 0.84  queue card visible (generating)
-  // 0.84 → 0.92  video3 reveals at center
+  // 0.18 → 0.30  cursor enters off-right (carrying Chanel) toward product slot
+  // 0.30 → 0.34  cursor + Chanel land on product slot, Chanel docks
+  // 0.36 → 0.50  cursor moves to textarea
+  // 0.50 → 0.66  prompt types out
+  // 0.66 → 0.74  cursor moves to GENERATE
+  // 0.74 → 0.77  press flash
+  // 0.74 → 0.88  queue card visible (generating)
+  // 0.88 → 0.94  video3 reveals at center
   const PA = playedAtP ?? 0;
-  const lp = (v: number) => v - PA;
+  const lp = (v: number) => {
+    const remain = 1 - PA;
+    if (remain <= 0.0001) return 1;
+    return clamp((v - PA) / remain);
+  };
 
   const barOpacity = useTransform(p, (v) => {
     if (!played) return 0;
@@ -260,24 +266,24 @@ export function LpEditScene() {
   const cursorOpacity = useTransform(p, (v) => {
     if (!played) return 0;
     const l = lp(v);
-    if (l < 0.16 || l > 0.70) return 0;
+    if (l < 0.18 || l > 0.78) return 0;
     return 1;
   });
   const cursorX = useTransform(p, (v) => {
     if (!played) return 0;
     const l = lp(v);
     const stageW = m.stage.w;
-    if (l < 0.16) return stageW + 80;
-    if (l < 0.28) {
-      const t = clamp((l - 0.16) / 0.12);
+    if (l < 0.18) return stageW + 80;
+    if (l < 0.34) {
+      const t = clamp((l - 0.18) / 0.16);
       return lerp(stageW + 80, m.productSlot.x + m.productSlot.w / 2, t);
     }
-    if (l < 0.42) {
-      const t = clamp((l - 0.30) / 0.12);
+    if (l < 0.50) {
+      const t = clamp((l - 0.36) / 0.14);
       return lerp(m.productSlot.x + m.productSlot.w / 2, m.textarea.x + 24, t);
     }
-    if (l < 0.66) {
-      const t = clamp((l - 0.58) / 0.08);
+    if (l < 0.74) {
+      const t = clamp((l - 0.66) / 0.08);
       return lerp(m.textarea.x + 24, m.generate.x + m.generate.w / 2, t);
     }
     return m.generate.x + m.generate.w / 2;
@@ -285,17 +291,17 @@ export function LpEditScene() {
   const cursorY = useTransform(p, (v) => {
     if (!played) return 0;
     const l = lp(v);
-    if (l < 0.16) return m.stage.h * 0.55;
-    if (l < 0.28) {
-      const t = clamp((l - 0.16) / 0.12);
+    if (l < 0.18) return m.stage.h * 0.55;
+    if (l < 0.34) {
+      const t = clamp((l - 0.18) / 0.16);
       return lerp(m.stage.h * 0.55, m.productSlot.y + m.productSlot.h / 2, t);
     }
-    if (l < 0.42) {
-      const t = clamp((l - 0.30) / 0.12);
+    if (l < 0.50) {
+      const t = clamp((l - 0.36) / 0.14);
       return lerp(m.productSlot.y + m.productSlot.h / 2, m.textarea.y + 18, t);
     }
-    if (l < 0.66) {
-      const t = clamp((l - 0.58) / 0.08);
+    if (l < 0.74) {
+      const t = clamp((l - 0.66) / 0.08);
       return lerp(m.textarea.y + 18, m.generate.y + m.generate.h / 2, t);
     }
     return m.generate.y + m.generate.h / 2;
@@ -305,7 +311,7 @@ export function LpEditScene() {
   const chanelOpacity = useTransform(p, (v) => {
     if (!played) return 0;
     const l = lp(v);
-    if (l < 0.16 || l > 0.285) return 0;
+    if (l < 0.18 || l > 0.345) return 0;
     return 1;
   });
   const chanelX = useTransform(p, () => cursorX.get() - 32);
@@ -314,13 +320,13 @@ export function LpEditScene() {
   // Product slot icon reveal once dropped
   const productOpacity = useTransform(p, (v) => {
     if (!played) return 0;
-    return clamp((lp(v) - 0.275) / 0.02);
+    return clamp((lp(v) - 0.335) / 0.02);
   });
 
   // Typewriter progress
   const typingProgress = useTransform(p, (v) => {
     if (!played) return 0;
-    return clamp((lp(v) - 0.42) / 0.16);
+    return clamp((lp(v) - 0.50) / 0.16);
   });
 
   // Generate press flash
@@ -328,7 +334,7 @@ export function LpEditScene() {
   useMotionValueEvent(p, "change", (v) => {
     if (!played) return setPressed(false);
     const l = lp(v);
-    setPressed(l >= 0.66 && l < 0.69);
+    setPressed(l >= 0.74 && l < 0.77);
   });
 
   // Generating queue + complete
@@ -341,14 +347,14 @@ export function LpEditScene() {
       return;
     }
     const l = lp(v);
-    setGenerating(l >= 0.66 && l < 0.84);
-    setComplete(l >= 0.84);
+    setGenerating(l >= 0.74 && l < 0.88);
+    setComplete(l >= 0.88);
   });
 
   // Video3 reveal
   const v3Opacity = useTransform(p, (v) => {
     if (!played) return 0;
-    return clamp((lp(v) - 0.84) / 0.06);
+    return clamp((lp(v) - 0.88) / 0.06);
   });
 
 
