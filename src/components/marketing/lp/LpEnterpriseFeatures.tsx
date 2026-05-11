@@ -17,24 +17,27 @@ const quotes = [
 
 export function LpEnterpriseFeatures() {
   return (
-    <section className="bg-ink text-white pb-24 md:pb-32">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+    <section className="bg-ink text-white pb-24 md:pb-32 relative overflow-hidden">
+      <div className="pointer-events-none absolute -top-32 right-0 w-[500px] h-[500px] rounded-full bg-[#4f3bd6]/15 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-0 -left-40 w-[500px] h-[500px] rounded-full bg-[#8b7bff]/10 blur-3xl" />
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
         <div className="rounded-3xl bg-[#0e0e10] border border-white/10 p-8 md:p-12">
           <h3 className="font-display font-extrabold text-white text-3xl md:text-4xl tracking-tight">
-            Enterprise features built for scale
+            Enterprise features <span className="font-serif italic font-normal">built for scale</span>
           </h3>
-          <p className="mt-3 text-white/60 text-[15px] max-w-xl">
+          <p className="mt-3 text-white/60 text-[15px] max-w-xl font-body">
             Security, compliance, and admin control for teams of any size.
           </p>
           <div className="mt-10 grid md:grid-cols-3 gap-x-10 gap-y-8">
             {features.map((f) => (
               <div key={f.title} className="flex gap-4">
-                <span className="grid place-items-center w-8 h-8 rounded-lg bg-white/5 border border-white/10 shrink-0">
-                  <f.icon className="w-4 h-4 text-white" />
+                <span className="grid place-items-center w-8 h-8 rounded-lg bg-gradient-to-br from-[#8b7bff]/25 to-[#4f3bd6]/15 border border-[#8b7bff]/30 shrink-0">
+                  <f.icon className="w-4 h-4 text-[#cfc4ff]" />
                 </span>
                 <div>
                   <h4 className="font-display font-bold text-white text-[15px]">{f.title}</h4>
-                  <p className="mt-1 text-white/55 text-[13px] leading-relaxed">{f.body}</p>
+                  <p className="mt-1 text-white/55 text-[13px] leading-relaxed font-body">{f.body}</p>
                 </div>
               </div>
             ))}
@@ -45,7 +48,7 @@ export function LpEnterpriseFeatures() {
           {quotes.map((q) => (
             <div key={q.brand}>
               <div className="font-display font-extrabold text-white/90 tracking-tight text-lg">{q.brand}</div>
-              <p className="mt-4 text-white/80 text-[15px] leading-relaxed">"{q.quote}"</p>
+              <p className="mt-4 text-white/80 text-[15px] leading-relaxed font-body">"{q.quote}"</p>
               <div className="mt-4 text-white text-[13px] font-semibold">{q.who}</div>
               <div className="text-white/50 text-[12px]">{q.role}</div>
             </div>
