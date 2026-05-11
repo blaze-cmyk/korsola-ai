@@ -51,21 +51,25 @@ export const PromptBarMock = forwardRef<HTMLDivElement, Props>(function PromptBa
             <div className="flex items-center gap-2">
               <div
                 ref={slots.videoSlot}
-                className="relative w-[64px] h-[64px] rounded-xl bg-white/[0.04] border border-white/10 overflow-hidden"
+                className="relative w-[88px] h-[88px] rounded-xl bg-white/[0.04] border border-white/10 overflow-hidden"
               >
-                {/* video1 lands here via the parent scene */}
+                {/* video1 docks here. Label sits above it after dock. */}
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-7 bg-gradient-to-t from-black/85 to-transparent z-10" />
+                <span className="pointer-events-none absolute bottom-1 left-1.5 right-1.5 text-[11px] font-medium text-white/95 truncate z-10">
+                  @Video1
+                </span>
               </div>
               <motion.div
                 ref={slots.productSlot}
                 style={{ opacity: productOpacity }}
-                className="relative w-[64px] h-[64px] rounded-xl bg-white/[0.04] border border-white/10 overflow-hidden"
+                className="relative w-[88px] h-[88px] rounded-xl bg-white/[0.04] border border-white/10 overflow-hidden"
               >
                 <img src={PRODUCT_IMG_SRC} alt="" className="absolute inset-0 w-full h-full object-cover" />
-                <span className="absolute bottom-1 left-1 right-1 text-[9px] text-white/85 truncate" style={{ fontFamily: "Playfair Display, serif", fontStyle: "italic" }}>
-                  Chanel
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-7 bg-gradient-to-t from-black/85 to-transparent" />
+                <span className="absolute bottom-1 left-1.5 right-1.5 text-[11px] font-medium text-white/95 truncate">
+                  @image_2
                 </span>
               </motion.div>
-              <span className="text-[11px] text-muted-foreground/70">drop · paste · @</span>
             </div>
 
             {/* Textarea-equivalent (we render typed text manually) */}
