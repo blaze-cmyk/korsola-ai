@@ -50,29 +50,56 @@ export function LpEditScene() {
     generate: useRef<HTMLDivElement>(null),
   };
 
-  // --- measured rects ---------------------------------------------------
-  const stageSize = useRef<{ w: number; h: number }>({ w: 0, h: 0 });
-  const centerR = useRef<Rect>(ZERO);
-  const videoSlotR = useRef<Rect>(ZERO);
-  const productSlotR = useRef<Rect>(ZERO);
-  const textareaR = useRef<Rect>(ZERO);
-  const generateR = useRef<Rect>(ZERO);
+  // --- measured rects (state so useTransform recomputes when measurements arrive) ---
+  type Measured = {
+    stage: { w: number; h: number };
+    center: Rect;
+    videoSlot: Rect;
+    productSlot: Rect;
+    textarea: Rect;
+    generate: Rect;
+  };
+  const [m, setM] = useState<Measured>({
+    stage: { w: 0, h: 0 },
+    center: ZERO,
+    videoSlot: ZERO,
+    productSlot: ZERO,
+    textarea: ZERO,
+    generate: ZERO,
+  });
 
-  const [, force] = useState(0);
   useEffect(() => {
     const measure = () => {
       const stage = stageRef.current;
       if (!stage) return;
       const sr = stage.getBoundingClientRect();
-      stageSize.current = { w: sr.width, h: sr.height };
-      centerR.current = centerRect(sr.width, sr.height);
-      videoSlotR.current = rectFor(stage, slots.videoSlot.current);
-      productSlotR.current = rectFor(stage, slots.productSlot.current);
-      textareaR.current = rectFor(stage, slots.textarea.current);
-      generateR.current = rectFor(stage, slots.generate.current);
-      force((n) => n + 1);
+      const next: Measured = {
+        stage: { w: sr.width, h: sr.height },
+        center: centerRect(sr.width, sr.height),
+        videoSlot: rectFor(stage, slots.videoSlot.current),
+        productSlot: rectFor(stage, slots.productSlot.current),
+        textarea: rectFor(stage, slots.textarea.current),
+        generate: rectFor(stage, slots.generate.current),
+      };
+      setM((prev) => {
+        // shallow check to avoid extra renders
+        if (
+          prev.stage.w === next.stage.w &&
+          prev.stage.h === next.stage.h &&
+          prev.videoSlot.x === next.videoSlot.x &&
+          prev.videoSlot.y === next.videoSlot.y &&
+          prev.productSlot.x === next.productSlot.x &&
+          prev.generate.x === next.generate.x
+        ) {
+          return prev;
+        }
+        return next;
+      });
     };
     measure();
+    // re-measure a couple times after fonts/layout settle
+    const t1 = window.setTimeout(measure, 60);
+    const t2 = window.setTimeout(measure, 240);
     const ro = new ResizeObserver(measure);
     if (stageRef.current) ro.observe(stageRef.current);
     if (barWrapRef.current) ro.observe(barWrapRef.current);
@@ -80,6 +107,8 @@ export function LpEditScene() {
     return () => {
       ro.disconnect();
       window.removeEventListener("resize", measure);
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
     };
   }, []);
 
