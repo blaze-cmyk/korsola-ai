@@ -322,7 +322,7 @@ export function LpEditScene() {
         <motion.div
           ref={barWrapRef}
           className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-20 px-6"
-          style={{ opacity: barOpacity, y: barY }}
+          style={{ opacity: barOpacity }}
         >
           <PromptBarMock
             slots={slots}
