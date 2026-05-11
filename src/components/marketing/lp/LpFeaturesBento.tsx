@@ -24,10 +24,10 @@ export function LpFeaturesBento() {
         <div className="mt-12 grid md:grid-cols-3 gap-4">
           {/* Card 1 — tall light */}
           <div className="md:row-span-2 md:h-[928px] rounded-3xl border border-line p-7 flex flex-col overflow-hidden border-[#e3e3e3] bg-[#e3e3e3]">
-            <h3 className="font-display font-extrabold text-ink text-2xl">Every tool, ready to go</h3>
+            <h3 className="font-display font-extrabold text-ink text-2xl">Every tool, ready to generate.</h3>
             <p className="mt-3 text-ink-soft text-[14px] leading-relaxed">
-              Image, video, audio, 3D — thirty tools, no setup. Open what you need,
-              make what you want.
+              Image, video, motion control, editing. Every model, zero setup. Open
+              what you need, run what converts.
             </p>
             <div className="mt-6 flex-1 flex items-end justify-end -mr-12 -mb-7 min-h-[280px] overflow-hidden px-px pr-0 pl-[77px]">
               <img
