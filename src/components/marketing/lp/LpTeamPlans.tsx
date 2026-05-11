@@ -1,11 +1,5 @@
 import { MoreVertical } from "lucide-react";
-
-const tools = [
-  { name: "Nano Banana Pro", type: "Image generation", on: true, color: "bg-violet/30 text-violet" },
-  { name: "Seedance 2", type: "Video generation", on: false, color: "bg-emerald-400/20 text-emerald-400" },
-  { name: "ElevenLabs", type: "Audio/Speech", on: true, color: "bg-amber-400/20 text-amber-300" },
-  { name: "Flux 2", type: "Image generation", on: false, color: "bg-violet/30 text-violet" },
-];
+import teamToolsPanel from "@/assets/team-tools-panel.png";
 
 const users = [
   { name: "Zoya Kendall", email: "zoya.kendall@korsola.com", spent: "1.2M", avail: "1.7M", pct: 0.4, color: "bg-blue-500" },
