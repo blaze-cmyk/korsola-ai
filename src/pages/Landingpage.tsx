@@ -6,7 +6,7 @@ import { LpHowItWorks } from "@/components/marketing/lp/LpHowItWorks";
 import { LpModels } from "@/components/marketing/lp/LpModels";
 import { LpPromptBox } from "@/components/marketing/lp/LpPromptBox";
 import { LpFeaturesBento } from "@/components/marketing/lp/LpFeaturesBento";
-import { LpFromShotToViral } from "@/components/marketing/lp/LpFromShotToViral";
+
 import { LpActorsBlock } from "@/components/marketing/lp/LpActorsBlock";
 import { LpEmotionLocalize } from "@/components/marketing/lp/LpEmotionLocalize";
 import { LpResults } from "@/components/marketing/lp/LpResults";
@@ -30,7 +30,7 @@ export default function Landingpage() {
         <LpModels />
         <LpPromptBox />
         <LpFeaturesBento />
-        <LpFromShotToViral />
+        
         <LpActorsBlock />
         <LpEmotionLocalize />
         <LpResults />
