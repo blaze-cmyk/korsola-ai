@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { GlobalHeader } from "@/components/GlobalHeader";
+import { SmoothScroll } from "@/components/SmoothScroll";
 import Home from "./pages/Home.tsx";
 import Index from "./pages/Index.tsx";
 import Generator from "./pages/Generator.tsx";
@@ -27,6 +28,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+        <SmoothScroll />
         <GlobalHeader />
         <Routes>
           <Route path="/" element={<Navigate to="/home" replace />} />
