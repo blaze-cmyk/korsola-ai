@@ -350,7 +350,7 @@ export function LpEditScene() {
             className="absolute top-0 left-0 pointer-events-none z-[15] rounded-xl overflow-hidden"
             style={{
               x: v1X, y: v1Y, width: v1W, height: v1H,
-              opacity: useTransform(p, [0.30, 0.34], [0, 1]),
+              opacity: dockedLabelOpacity,
             }}
           >
             <div className="absolute inset-x-0 bottom-0 h-7 bg-gradient-to-t from-black/85 to-transparent" />
