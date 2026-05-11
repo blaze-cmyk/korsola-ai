@@ -53,11 +53,7 @@ export const PromptBarMock = forwardRef<HTMLDivElement, Props>(function PromptBa
                 ref={slots.videoSlot}
                 className="relative w-[88px] h-[88px] rounded-xl bg-white/[0.04] border border-white/10 overflow-hidden"
               >
-                {/* video1 docks here. Label sits above it after dock. */}
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-7 bg-gradient-to-t from-black/85 to-transparent z-10" />
-                <span className="pointer-events-none absolute bottom-1 left-1.5 right-1.5 text-[11px] font-medium text-white/95 truncate z-10">
-                  @Video1
-                </span>
+                {/* video1 docks here. Label is rendered by the parent scene at z-30 so it sits over the docked video. */}
               </div>
               <motion.div
                 ref={slots.productSlot}
