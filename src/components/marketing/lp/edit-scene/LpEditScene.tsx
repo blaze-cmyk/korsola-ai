@@ -533,14 +533,14 @@ export function LpEditScene() {
           {/* FAKE CURSOR */}
           <FakeCursor x={cursorX} y={cursorY} opacity={cursorOpacity} pressed={pressed ? 1 : 0} />
 
-          {/* QUEUE CARD */}
+          {/* QUEUE CARD — sits BEHIND prompt bar at the centered video1 position */}
           {generating && (
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.35 }}
-              className="absolute top-0 left-0 overflow-hidden z-[35] bg-[#0f0f10] border border-white/10 grid place-items-center shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]"
+              className="absolute top-0 left-0 overflow-hidden z-[8] bg-[#0f0f10] border border-white/10 grid place-items-center shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]"
               style={{
                 x: m.center.x,
                 y: m.center.y,
@@ -559,13 +559,14 @@ export function LpEditScene() {
             </motion.div>
           )}
 
-          {/* VIDEO 3 — final result at centered rect */}
+          {/* VIDEO 3 — final result, behind bar at first, then rises as bar exits */}
           {complete && (
             <motion.div
-              className="absolute top-0 left-0 overflow-hidden bg-black z-[40] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.55)]"
+              className="absolute top-0 left-0 overflow-hidden bg-black z-[8] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.55)]"
               style={{
                 x: m.center.x,
-                y: m.center.y,
+                y: v3RiseY,
+                top: m.center.y,
                 width: m.center.w,
                 height: m.center.h,
                 borderRadius: 18,
