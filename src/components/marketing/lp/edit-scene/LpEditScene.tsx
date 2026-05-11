@@ -291,7 +291,7 @@ export function LpEditScene() {
         ref={sectionRef}
         data-edit-scene
         className="relative hidden md:block"
-        style={{ height: "900vh" }}
+        style={{ height: "650vh" }}
       >
         <motion.div
           ref={stageRef}
