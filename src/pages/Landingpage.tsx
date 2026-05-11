@@ -31,12 +31,19 @@ export default function Landingpage() {
         <LpPromptBox />
         <LpFeaturesBento />
         
-        <LpActorsBlock />
-        <LpEmotionLocalize />
-        
-        <LpTeamPlans />
-        <LpEnterpriseFeatures />
-        <LpFaq />
+        <section className="bg-ink text-white relative overflow-hidden">
+          <div className="pointer-events-none absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-[#4f3bd6]/20 blur-3xl" />
+          <div className="pointer-events-none absolute top-1/3 -right-40 w-[600px] h-[600px] rounded-full bg-[#8b7bff]/15 blur-3xl" />
+          <div className="pointer-events-none absolute top-2/3 -left-40 w-[600px] h-[600px] rounded-full bg-[#4f3bd6]/15 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-40 -right-40 w-[500px] h-[500px] rounded-full bg-[#8b7bff]/15 blur-3xl" />
+          <div className="relative">
+            <LpActorsBlock />
+            <LpEmotionLocalize />
+            <LpTeamPlans />
+            <LpEnterpriseFeatures />
+            <LpFaq />
+          </div>
+        </section>
         <LpClosingCTA />
       </main>
       <LpFooter />
