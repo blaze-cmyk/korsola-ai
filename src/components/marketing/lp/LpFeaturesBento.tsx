@@ -85,19 +85,19 @@ export function LpFeaturesBento() {
           </div>
 
           {/* Card 4 — teal */}
-          <div className="rounded-3xl p-7 text-white relative overflow-hidden border-[#e3e3e3]" style={{ background: "var(--mk-teal)" }}>
-            <h3 className="font-display font-extrabold text-xl">Your winning workflow. One click.</h3>
-            <p className="mt-2 text-white/75 text-[14px] leading-relaxed">
-              Build your UGC generation flow once. Save it as a template. Every new product runs through it in one click — no rebriefing, no starting over.
-            </p>
-            <div className="mt-6 relative">
-              <img
-                src={workflowBubbles}
-                alt="Korsola workflow connecting Meta, TikTok, ChatGPT, Google, Slack, Shopify, Claude, Seedance, and Kling"
-                loading="lazy"
-                className="w-full h-auto rounded-lg object-contain select-none pointer-events-none"
-                draggable={false}
-              />
+          <div className="rounded-3xl p-7 text-white relative overflow-hidden border-[#e3e3e3] min-h-[320px]" style={{ background: "var(--mk-teal)" }}>
+            <img
+              src={workflowBubbles}
+              alt="Korsola workflow connecting Meta, TikTok, ChatGPT, Google, Slack, Shopify, Claude, Seedance, and Kling"
+              loading="lazy"
+              className="absolute inset-x-0 bottom-0 w-full h-auto select-none pointer-events-none object-cover object-bottom"
+              draggable={false}
+            />
+            <div className="relative z-10">
+              <h3 className="font-display font-extrabold text-xl">Your winning workflow. One click.</h3>
+              <p className="mt-2 text-white/75 text-[14px] leading-relaxed">
+                Build your UGC generation flow once. Save it as a template. Every new product runs through it in one click — no rebriefing, no starting over.
+              </p>
             </div>
           </div>
         </div>
