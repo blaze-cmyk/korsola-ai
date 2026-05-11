@@ -185,19 +185,14 @@ export function LpEditScene() {
   });
 
   // --- VIDEO 1 transforms ---
-  // Phase A: slide up + fade in (offscreen below → centered).
-  // Phase B (after played): centered → docked into bar slot.
+  // No slide. Centered from the start, just fades in. After `played`, docks into the bar slot.
   const v1X = useTransform(p, (v) => {
     if (!played || playedAtP == null) return m.center.x;
     const t = clamp((v - playedAtP) / 0.18);
     return lerp(m.center.x, m.videoSlot.x, t);
   });
   const v1Y = useTransform(p, (v) => {
-    // slide up: starts 80px below center, ends at center
-    if (!played || playedAtP == null) {
-      const tIn = clamp((v - VIDEO_IN[0]) / (VIDEO_IN[1] - VIDEO_IN[0]));
-      return lerp(m.center.y + 80, m.center.y, tIn);
-    }
+    if (!played || playedAtP == null) return m.center.y;
     const t = clamp((v - playedAtP) / 0.18);
     return lerp(m.center.y, m.videoSlot.y, t);
   });
@@ -218,8 +213,8 @@ export function LpEditScene() {
   });
   const v1Opacity = useTransform(p, VIDEO_IN, [0, 1]);
 
-  // "Existing video" label — sits ABOVE the centered clip in Playfair italic,
-  // fades in with the clip, fades out as the clip starts shrinking.
+  // "existing video" label below the heading — fades in with the clip,
+  // fades out as the clip starts shrinking.
   const labelOpacity = useTransform(p, (v) => {
     const inT = clamp((v - VIDEO_IN[0]) / (VIDEO_IN[1] - VIDEO_IN[0]));
     if (!played || playedAtP == null) return inT;
@@ -227,8 +222,7 @@ export function LpEditScene() {
     return inT * (1 - outT);
   });
 
-  // Heading: visible at start, fades out as video takes over
-  const headingOpacity = useTransform(p, [HEAD_OUT[0], HEAD_OUT[1]], [1, 0]);
+  // Heading: stays visible the entire scene (congruent with other sections).
 
   // --- Prompt Bar reveal — STRICTLY after played ---
   const barOpacity = useTransform(p, (v) => {
