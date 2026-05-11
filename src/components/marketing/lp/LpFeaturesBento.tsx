@@ -41,7 +41,7 @@ export function LpFeaturesBento() {
           </div>
 
           {/* Card 2 — wide dark */}
-          <div className="md:col-span-2 rounded-3xl bg-ink text-white relative overflow-hidden min-h-[320px] md:h-[512px]">
+          <div className="md:col-span-2 rounded-3xl bg-ink text-white relative overflow-hidden min-h-[320px] md:h-[400px] md:self-start">
             {/* Image pinned right */}
             <div className="absolute inset-y-0 right-0 w-full md:w-[62%]">
               <img
