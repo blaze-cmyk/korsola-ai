@@ -160,7 +160,7 @@ export function LpEditScene() {
       }
       // wall-clock fallback in case timeupdate never fires reliably
       if (playTimerRef.current) window.clearTimeout(playTimerRef.current);
-      playTimerRef.current = window.setTimeout(latchPlayed, 6000);
+      playTimerRef.current = window.setTimeout(latchPlayed, 11000);
     }
     // Hard scroll fallback — if user blew past, latch immediately
     if (v >= 0.32 && !played) {
