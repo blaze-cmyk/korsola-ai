@@ -353,8 +353,7 @@ export function LpEditScene() {
             }}
           >
             <div className="absolute inset-x-0 bottom-0 h-7 bg-gradient-to-t from-black/85 to-transparent" />
-            <span className="absolute bottom-1 left-1.5 right-1.5 text-[11px] font-medium text-white/95 truncate"
-              style={{ y: 0 }}>
+            <span className="absolute bottom-1 left-1.5 right-1.5 text-[11px] font-medium text-white/95 truncate">
               @Video1
             </span>
           </motion.div>
