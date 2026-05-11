@@ -184,7 +184,7 @@ export function LpEditScene() {
     const el = v1Ref.current;
     if (!el) return;
     const onTime = () => {
-      if (!played && el.currentTime >= 6) latchPlayed();
+      if (!played && el.currentTime >= 11) latchPlayed();
     };
     el.addEventListener("timeupdate", onTime);
     return () => el.removeEventListener("timeupdate", onTime);
