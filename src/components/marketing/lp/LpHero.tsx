@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Sparkles } from "lucide-react";
 import heroBg from "@/assets/lp-hero-bg.png";
+import { LpGradientCTA } from "./LpGradientCTA";
 
 const HERO_LOGOS = [
   { type: "image" as const, src: "/logos/comfrt.png", alt: "Comfrt" },
@@ -54,14 +54,7 @@ export function LpHero() {
             </p>
 
             <div className="mt-7 flex flex-wrap items-center gap-3">
-              <a
-                href="/shopify"
-                className="group relative inline-flex items-center justify-center gap-2 h-12 w-[220px] rounded-full text-[15px] font-semibold text-white whitespace-nowrap overflow-hidden border border-white/40 bg-gradient-to-b from-[#cfc4ff] via-[#8b7bff] to-[#4f3bd6] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-2px_4px_rgba(40,20,120,0.5),0_10px_30px_rgba(99,58,232,0.55)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,1),inset_0_-2px_4px_rgba(40,20,120,0.6),0_14px_38px_rgba(99,58,232,0.7)] transition-all duration-300"
-              >
-                <span className="absolute top-0 left-3 right-3 h-1/2 rounded-t-full bg-gradient-to-b from-white/60 to-transparent pointer-events-none" />
-                <span className="relative drop-shadow-[0_1px_1px_rgba(40,20,120,0.4)]">Create Your AI Ad</span>
-                <Sparkles className="relative w-4 h-4 text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]" />
-              </a>
+              <LpGradientCTA href="/shopify">Create Your AI Ad</LpGradientCTA>
               <a
                 href="#how"
                 className="inline-flex items-center justify-center gap-2 h-12 w-[220px] rounded-full text-[15px] font-semibold bg-white text-[#0f0f10] border border-black/5 shadow-[0_8px_24px_rgba(0,0,0,0.18)] hover:bg-white/90 transition-colors whitespace-nowrap"
