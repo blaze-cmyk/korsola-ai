@@ -5,9 +5,7 @@ import workflowBubbles from "@/assets/workflow-bubbles.png";
 
 export function LpFeaturesBento() {
   return (
-    <section className="bg-paper py-20 md:py-28 bg-white relative">
-      {/* Smooth dark fade into the next (ink) section */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-ink" aria-hidden />
+    <section className="bg-paper py-20 md:py-28 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-end justify-between gap-6 flex-wrap">
           <h2 className="font-display font-extrabold text-ink tracking-tight text-4xl md:text-6xl leading-[1.02] max-w-2xl">
