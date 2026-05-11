@@ -15,6 +15,7 @@ import { LpEnterpriseFeatures } from "@/components/marketing/lp/LpEnterpriseFeat
 import { LpFaq } from "@/components/marketing/lp/LpFaq";
 import { LpClosingCTA } from "@/components/marketing/lp/LpClosingCTA";
 import { LpFooter } from "@/components/marketing/lp/LpFooter";
+import { Reveal } from "@/components/marketing/Reveal";
 
 export default function Landingpage() {
   useEffect(() => {
@@ -25,26 +26,26 @@ export default function Landingpage() {
       <MarketingHeader overlay />
       <main>
         <LpHero />
-        <LpReelCarousel />
-        <LpHowItWorks />
-        <LpModels />
-        <LpPromptBox />
-        <LpFeaturesBento />
-        
+        <Reveal><LpReelCarousel /></Reveal>
+        <Reveal><LpHowItWorks /></Reveal>
+        <Reveal><LpModels /></Reveal>
+        <Reveal><LpPromptBox /></Reveal>
+        <Reveal><LpFeaturesBento /></Reveal>
+
         <section className="bg-ink text-white relative overflow-hidden">
           <div className="pointer-events-none absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-[#4f3bd6]/20 blur-3xl" />
           <div className="pointer-events-none absolute top-1/3 -right-40 w-[600px] h-[600px] rounded-full bg-[#8b7bff]/15 blur-3xl" />
           <div className="pointer-events-none absolute top-2/3 -left-40 w-[600px] h-[600px] rounded-full bg-[#4f3bd6]/15 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-40 -right-40 w-[500px] h-[500px] rounded-full bg-[#8b7bff]/15 blur-3xl" />
           <div className="relative">
-            <LpActorsBlock />
-            <LpEmotionLocalize />
-            <LpTeamPlans />
-            <LpEnterpriseFeatures />
-            <LpFaq />
+            <Reveal><LpActorsBlock /></Reveal>
+            <Reveal><LpEmotionLocalize /></Reveal>
+            <Reveal><LpTeamPlans /></Reveal>
+            <Reveal><LpEnterpriseFeatures /></Reveal>
+            <Reveal><LpFaq /></Reveal>
           </div>
         </section>
-        <LpClosingCTA />
+        <Reveal><LpClosingCTA /></Reveal>
       </main>
       <LpFooter />
     </div>
