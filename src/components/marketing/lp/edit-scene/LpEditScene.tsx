@@ -314,9 +314,25 @@ export function LpEditScene() {
             </motion.p>
           </motion.div>
 
-          {/* VIDEO 1 — centered 9:16 → chip */}
+          {/* PROMPT BAR (BEHIND video1 — z-5) */}
           <motion.div
-            className="absolute top-0 left-0 overflow-hidden bg-black z-10 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.35)]"
+            ref={barWrapRef}
+            className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-[5] px-6"
+            style={{ opacity: barOpacity, y: barShiftY }}
+          >
+            <PromptBarMock
+              slots={slots}
+              promptText={PROMPT_TEXT}
+              typingProgress={typingProgress}
+              productOpacity={productOpacity}
+              generating={generating}
+              generatePressed={pressed}
+            />
+          </motion.div>
+
+          {/* VIDEO 1 — centered 9:16 → docks INTO the videoSlot (sits ON TOP of bar, z-10) */}
+          <motion.div
+            className="absolute top-0 left-0 overflow-hidden bg-black z-[10] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.35)]"
             style={{
               x: v1X, y: v1Y, width: v1W, height: v1H, borderRadius: v1Radius,
             }}
@@ -328,20 +344,19 @@ export function LpEditScene() {
             />
           </motion.div>
 
-          {/* PROMPT BAR */}
+          {/* @Video1 label overlay — appears once docked, sits on top of the docked chip */}
           <motion.div
-            ref={barWrapRef}
-            className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-20 px-6"
-            style={{ opacity: barOpacity }}
+            className="absolute top-0 left-0 pointer-events-none z-[15] rounded-xl overflow-hidden"
+            style={{
+              x: v1X, y: v1Y, width: v1W, height: v1H,
+              opacity: useTransform(p, [0.30, 0.34], [0, 1]),
+            }}
           >
-            <PromptBarMock
-              slots={slots}
-              promptText={PROMPT_TEXT}
-              typingProgress={typingProgress}
-              productOpacity={productOpacity}
-              generating={generating}
-              generatePressed={pressed}
-            />
+            <div className="absolute inset-x-0 bottom-0 h-7 bg-gradient-to-t from-black/85 to-transparent" />
+            <span className="absolute bottom-1 left-1.5 right-1.5 text-[11px] font-medium text-white/95 truncate"
+              style={{ y: 0 }}>
+              @Video1
+            </span>
           </motion.div>
 
           {/* CHANEL image being dragged in by cursor */}
@@ -355,14 +370,43 @@ export function LpEditScene() {
           {/* FAKE CURSOR */}
           <FakeCursor x={cursorX} y={cursorY} opacity={cursorOpacity} pressed={pressed ? 1 : 0} />
 
-          {/* VIDEO 3 — chip → centered 9:16 (same dims as video1) */}
+          {/* QUEUE CARD — appears below the (shifted-up) prompt bar at video1 dimensions while generating */}
+          {generating && (
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.35 }}
+              className="absolute top-0 left-0 overflow-hidden z-[35] bg-[#0f0f10] border border-white/10 grid place-items-center shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]"
+              style={{
+                x: centerR.current.x,
+                y: centerR.current.y,
+                width: centerR.current.w,
+                height: centerR.current.h,
+                borderRadius: 18,
+              }}
+            >
+              <div className="flex flex-col items-center gap-3 text-white/85">
+                <span className="relative grid place-items-center w-9 h-9">
+                  <span className="absolute inset-0 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+                </span>
+                <span className="text-[12px] font-semibold tracking-[0.18em] uppercase">In queue · Generating</span>
+                <span className="text-[11px] text-white/55">UGC · 9:16 · 720p · 8s</span>
+              </div>
+            </motion.div>
+          )}
+
+          {/* VIDEO 3 — fades in at centered 9:16 (same dims as video1) once complete */}
           {mountV3 && (
             <motion.div
-              className="absolute top-0 left-0 overflow-hidden bg-black z-40 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.55)]"
+              className="absolute top-0 left-0 overflow-hidden bg-black z-[40] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.55)]"
               style={{
-                x: v3X, y: v3Y, width: v3W, height: v3H,
-                borderRadius: v3Radius,
-                opacity: complete ? v3Opacity : 0,
+                x: centerR.current.x,
+                y: centerR.current.y,
+                width: centerR.current.w,
+                height: centerR.current.h,
+                borderRadius: 18,
+                opacity: complete ? 1 : 0,
                 pointerEvents: complete ? "auto" : "none",
               }}
             >
