@@ -241,6 +241,7 @@ export function LpEditScene() {
   });
   const v3Radius = useTransform(p, [0.66, 0.78], [12, 18]);
   const v3Opacity = useTransform(p, [0.66, 0.70], [0, 1]);
+  const dockedLabelOpacity = useTransform(p, [0.30, 0.34], [0, 1]);
 
   const [mountV3, setMountV3] = useState(false);
   useMotionValueEvent(p, "change", (v) => {
