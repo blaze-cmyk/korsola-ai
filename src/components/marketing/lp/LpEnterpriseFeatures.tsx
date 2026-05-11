@@ -17,9 +17,7 @@ const quotes = [
 
 export function LpEnterpriseFeatures() {
   return (
-    <section className="bg-ink text-white pb-24 md:pb-32 relative overflow-hidden">
-      <div className="pointer-events-none absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-[#4f3bd6]/20 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-40 -right-40 w-[500px] h-[500px] rounded-full bg-[#8b7bff]/15 blur-3xl" />
+    <section className="text-white pb-24 md:pb-32 relative overflow-hidden">
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
         <div className="rounded-3xl bg-[#0e0e10] border border-white/10 p-8 md:p-12">
