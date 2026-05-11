@@ -453,7 +453,7 @@ export function LpEditScene() {
             </span>
           </motion.div>
 
-          {/* PROMPT BAR (hidden until played) */}
+          {/* PROMPT BAR */}
           <motion.div
             ref={barWrapRef}
             className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-[5] px-6"
@@ -462,13 +462,96 @@ export function LpEditScene() {
             <PromptBarMock
               slots={slots}
               promptText={PROMPT_TEXT}
-              typingProgress={useTransform(p, () => 0)}
-              productOpacity={useTransform(p, () => 0)}
-              generating={false}
-              generatePressed={false}
+              typingProgress={typingProgress}
+              productOpacity={productOpacity}
+              generating={generating}
+              generatePressed={pressed}
             />
           </motion.div>
 
+          {/* VIDEO 1 */}
+          <motion.div
+            className="absolute top-0 left-0 overflow-hidden bg-black z-[10] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.25)]"
+            style={{
+              x: v1X,
+              y: v1Y,
+              width: v1W,
+              height: v1H,
+              borderRadius: v1Radius,
+              opacity: v1Opacity,
+            }}
+          >
+            <video
+              ref={v1Ref}
+              src={VIDEO_1_SRC}
+              muted
+              playsInline
+              preload="auto"
+              className="w-full h-full object-cover"
+            />
+          </motion.div>
+
+          {/* CHANEL image being dragged in */}
+          <motion.div
+            className="absolute top-0 left-0 w-16 h-16 rounded-xl overflow-hidden border border-white/30 shadow-2xl z-[55] pointer-events-none"
+            style={{ x: chanelX, y: chanelY, opacity: chanelOpacity }}
+          >
+            <img src="/videos/edit-scene/chanel.jpg" alt="" className="w-full h-full object-cover" />
+          </motion.div>
+
+          {/* FAKE CURSOR */}
+          <FakeCursor x={cursorX} y={cursorY} opacity={cursorOpacity} pressed={pressed ? 1 : 0} />
+
+          {/* QUEUE CARD */}
+          {generating && (
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.35 }}
+              className="absolute top-0 left-0 overflow-hidden z-[35] bg-[#0f0f10] border border-white/10 grid place-items-center shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]"
+              style={{
+                x: m.center.x,
+                y: m.center.y,
+                width: m.center.w,
+                height: m.center.h,
+                borderRadius: 18,
+              }}
+            >
+              <div className="flex flex-col items-center gap-3 text-white/85">
+                <span className="relative grid place-items-center w-9 h-9">
+                  <span className="absolute inset-0 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+                </span>
+                <span className="text-[12px] font-semibold tracking-[0.18em] uppercase">In queue · Generating</span>
+                <span className="text-[11px] text-white/55">UGC · 9:16 · 720p · 8s</span>
+              </div>
+            </motion.div>
+          )}
+
+          {/* VIDEO 3 — final result at centered rect */}
+          {complete && (
+            <motion.div
+              className="absolute top-0 left-0 overflow-hidden bg-black z-[40] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.55)]"
+              style={{
+                x: m.center.x,
+                y: m.center.y,
+                width: m.center.w,
+                height: m.center.h,
+                borderRadius: 18,
+                opacity: v3Opacity,
+              }}
+            >
+              <video
+                src={VIDEO_3_SRC}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                className="w-full h-full object-cover"
+              />
+            </motion.div>
+          )}
           {/* VIDEO 1 */}
           <motion.div
             className="absolute top-0 left-0 overflow-hidden bg-black z-[10] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.25)]"
