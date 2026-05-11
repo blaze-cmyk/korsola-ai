@@ -111,7 +111,6 @@ export const PromptBarMock = forwardRef<HTMLDivElement, Props>(function PromptBa
           <Chip><Volume2 className="w-3.5 h-3.5" /> Sound on</Chip>
         </div>
 
-        <GeneratingOverlay visible={generating} />
       </div>
     </div>
   );
