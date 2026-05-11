@@ -1,4 +1,11 @@
-import teamToolsPanel from "@/assets/team-tools-panel.png";
+import { MoreVertical } from "lucide-react";
+
+const tools = [
+  { name: "Nano Banana Pro", type: "Image generation", on: true, color: "bg-violet/30 text-violet" },
+  { name: "Seedance 2", type: "Video generation", on: false, color: "bg-emerald-400/20 text-emerald-400" },
+  { name: "ElevenLabs", type: "Audio/Speech", on: true, color: "bg-amber-400/20 text-amber-300" },
+  { name: "Flux 2", type: "Image generation", on: false, color: "bg-violet/30 text-violet" },
+];
 
 const users = [
   { name: "Zoya Kendall", email: "zoya.kendall@korsola.com", spent: "1.2M", avail: "1.7M", pct: 0.4, color: "bg-blue-500" },
@@ -48,14 +55,20 @@ export function LpTeamPlans() {
               Access multiple top-performing generative models from a single platform.
               Choose models via the admin panel.
             </p>
-            <div className="mt-6 rounded-xl overflow-hidden">
-              <img
-                src={teamToolsPanel}
-                alt="AI tools admin panel showing Nano Banana Pro, Seedance 2, ElevenLabs, and Flux 2 with availability toggles"
-                loading="lazy"
-                className="w-full h-auto select-none pointer-events-none"
-                draggable={false}
-              />
+            <div className="mt-6 rounded-xl bg-black/40 border border-white/5 p-4">
+              <div className="grid grid-cols-[1fr_auto_auto_auto] gap-3 text-[11px] uppercase tracking-wider text-white/40 font-semibold pb-3 border-b border-white/5">
+                <span>Name (12)</span><span>Type</span><span>Available</span><span>Actions</span>
+              </div>
+              {tools.map((t) => (
+                <div key={t.name} className="grid grid-cols-[1fr_auto_auto_auto] gap-3 items-center py-3 border-b border-white/5 last:border-0 text-sm">
+                  <span className="text-white">{t.name}</span>
+                  <span className={`px-2 py-0.5 rounded text-[11px] font-semibold ${t.color}`}>{t.type}</span>
+                  <span className={`relative w-9 h-5 rounded-full ${t.on ? "bg-blue-500" : "bg-white/10"}`}>
+                    <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${t.on ? "left-4" : "left-0.5"}`} />
+                  </span>
+                  <MoreVertical className="w-4 h-4 text-white/40" />
+                </div>
+              ))}
             </div>
           </div>
 
