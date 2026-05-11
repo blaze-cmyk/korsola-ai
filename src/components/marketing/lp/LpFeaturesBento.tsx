@@ -9,7 +9,7 @@ export function LpFeaturesBento() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-end justify-between gap-6 flex-wrap">
           <h2 className="font-display font-extrabold text-oxblood tracking-tight text-4xl md:text-6xl leading-[1.02] max-w-2xl">
-            Start simple.<br />Scale when you're ready.
+            Start simple.<br /><span className="font-serif italic font-normal">Scale</span> when you're ready.
           </h2>
           <div className="flex flex-col items-start md:items-end gap-3">
             <p className="text-oxblood/70 text-[15px] max-w-md">
@@ -24,7 +24,7 @@ export function LpFeaturesBento() {
         <div className="mt-12 grid md:grid-cols-3 gap-4">
           {/* Card 1 — tall light */}
           <div className="md:row-span-2 md:h-[928px] rounded-3xl border border-line p-7 flex flex-col overflow-hidden border-[#e3e3e3] bg-[#e3e3e3]">
-            <h3 className="font-display font-extrabold text-ink text-2xl">Every tool, ready to generate.</h3>
+            <h3 className="font-display font-extrabold text-ink text-2xl">Every tool, ready to <span className="font-serif italic font-normal">generate.</span></h3>
             <p className="mt-3 text-ink-soft text-[14px] leading-relaxed">
               Image, video, motion control, editing. Every model, zero setup. Open
               what you need, run what converts.
@@ -56,7 +56,7 @@ export function LpFeaturesBento() {
             {/* Text overlay */}
             <div className="relative z-10 p-7 md:p-10 max-w-md">
               <h3 className="font-display font-extrabold text-2xl md:text-3xl">
-                Your entire creative process on one node-based canvas
+                Your entire creative process on one <span className="font-serif italic font-normal">node-based canvas</span>
               </h3>
               <p className="mt-3 text-white/75 text-[14px] leading-relaxed">
                 All your tools. All your workflows. One infinite, node-based canvas.
@@ -77,7 +77,7 @@ export function LpFeaturesBento() {
             />
             <div className="absolute inset-0 bg-black/40" />
             <div className="relative z-10">
-              <h3 className="font-display font-extrabold text-xl">One place, whole team</h3>
+              <h3 className="font-display font-extrabold text-xl">One place, <span className="font-serif italic font-normal">whole team</span></h3>
               <p className="mt-2 text-white/85 text-[14px] leading-relaxed">
                 Shared credits, shared avatars, shared brand assets. Your media buyer and creative director work from the same platform. Your brand stays consistent across every ad.
               </p>
@@ -94,7 +94,7 @@ export function LpFeaturesBento() {
               draggable={false}
             />
             <div className="relative z-10">
-              <h3 className="font-display font-extrabold text-xl">Your winning workflow. One click.</h3>
+              <h3 className="font-display font-extrabold text-xl">Your winning workflow. <span className="font-serif italic font-normal">One click.</span></h3>
               <p className="mt-2 text-white/75 text-[14px] leading-relaxed">
                 Build your UGC generation flow once. Save it as a template. Every new product runs through it in one click — no rebriefing, no starting over.
               </p>
