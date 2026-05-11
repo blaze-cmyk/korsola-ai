@@ -241,12 +241,124 @@ export function LpEditScene() {
 
   // Heading: stays visible the entire scene (congruent with other sections).
 
-  // --- Prompt Bar reveal — STRICTLY after played ---
+  // ============ ACT II/III timeline (anchored at playedAtP) ============
+  // Local progress lp = v - playedAtP. All gates below are gated on `played`.
+  // 0.00 → 0.05  bg darken + bar fade in + video1 shrinks into slot
+  // 0.05 → 0.10  cursor enters from off-right, picks up chanel
+  // 0.10 → 0.12  chanel docks into product slot (productOpacity 1)
+  // 0.12 → 0.20  cursor → textarea, prompt types out
+  // 0.20 → 0.24  cursor → generate, press
+  // 0.24 → 0.34  queue card visible (generating)
+  // 0.34 → 0.40  video3 reveals at centered rect
+  const PA = playedAtP ?? 0;
+  const lp = (v: number) => v - PA;
+
   const barOpacity = useTransform(p, (v) => {
-    if (!played || playedAtP == null) return 0;
-    const t = clamp((v - (playedAtP + 0.04)) / 0.10);
-    return t;
+    if (!played) return 0;
+    return clamp(lp(v) / 0.05);
   });
+
+  // Cursor path
+  const cursorOpacity = useTransform(p, (v) => {
+    if (!played) return 0;
+    const l = lp(v);
+    if (l < 0.05) return 0;
+    if (l > 0.26) return 0;
+    return 1;
+  });
+  const cursorX = useTransform(p, (v) => {
+    if (!played) return 0;
+    const l = lp(v);
+    const stageW = m.stage.w;
+    if (l < 0.05) return stageW + 80;
+    if (l < 0.10) {
+      const t = clamp((l - 0.05) / 0.05);
+      return lerp(stageW + 80, stageW - 200, t); // approach chanel pickup pos
+    }
+    if (l < 0.12) {
+      const t = clamp((l - 0.10) / 0.02);
+      return lerp(stageW - 200, m.productSlot.x + m.productSlot.w / 2, t);
+    }
+    if (l < 0.20) {
+      const t = clamp((l - 0.12) / 0.08);
+      return lerp(m.productSlot.x + m.productSlot.w / 2, m.textarea.x + 24, t);
+    }
+    if (l < 0.24) {
+      const t = clamp((l - 0.20) / 0.04);
+      return lerp(m.textarea.x + 24, m.generate.x + m.generate.w / 2, t);
+    }
+    return m.generate.x + m.generate.w / 2;
+  });
+  const cursorY = useTransform(p, (v) => {
+    if (!played) return 0;
+    const l = lp(v);
+    const pickupY = m.stage.h * 0.55;
+    if (l < 0.10) return pickupY;
+    if (l < 0.12) {
+      const t = clamp((l - 0.10) / 0.02);
+      return lerp(pickupY, m.productSlot.y + m.productSlot.h / 2, t);
+    }
+    if (l < 0.20) {
+      const t = clamp((l - 0.12) / 0.08);
+      return lerp(m.productSlot.y + m.productSlot.h / 2, m.textarea.y + 18, t);
+    }
+    if (l < 0.24) {
+      const t = clamp((l - 0.20) / 0.04);
+      return lerp(m.textarea.y + 18, m.generate.y + m.generate.h / 2, t);
+    }
+    return m.generate.y + m.generate.h / 2;
+  });
+
+  // Chanel image rides cursor in, then drops into the product slot
+  const chanelOpacity = useTransform(p, (v) => {
+    if (!played) return 0;
+    const l = lp(v);
+    if (l < 0.07 || l > 0.125) return 0;
+    return 1;
+  });
+  const chanelX = useTransform(p, (v) => cursorX.get() - 32);
+  const chanelY = useTransform(p, (v) => cursorY.get() - 32);
+
+  // Product slot icon reveal once dropped
+  const productOpacity = useTransform(p, (v) => {
+    if (!played) return 0;
+    return clamp((lp(v) - 0.115) / 0.01);
+  });
+
+  // Typewriter progress
+  const typingProgress = useTransform(p, (v) => {
+    if (!played) return 0;
+    return clamp((lp(v) - 0.13) / 0.07);
+  });
+
+  // Generate press flash
+  const [pressed, setPressed] = useState(false);
+  useMotionValueEvent(p, "change", (v) => {
+    if (!played) return setPressed(false);
+    const l = lp(v);
+    setPressed(l >= 0.235 && l < 0.255);
+  });
+
+  // Generating queue + complete
+  const [generating, setGenerating] = useState(false);
+  const [complete, setComplete] = useState(false);
+  useMotionValueEvent(p, "change", (v) => {
+    if (!played) {
+      setGenerating(false);
+      setComplete(false);
+      return;
+    }
+    const l = lp(v);
+    setGenerating(l >= 0.24 && l < 0.34);
+    setComplete(l >= 0.34);
+  });
+
+  // Video3 reveal
+  const v3Opacity = useTransform(p, (v) => {
+    if (!played) return 0;
+    return clamp((lp(v) - 0.34) / 0.04);
+  });
+
 
   // ---------------------- REDUCED MOTION FALLBACK ----------------------
   if (reduce) {
@@ -341,7 +453,7 @@ export function LpEditScene() {
             </span>
           </motion.div>
 
-          {/* PROMPT BAR (hidden until played) */}
+          {/* PROMPT BAR */}
           <motion.div
             ref={barWrapRef}
             className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-[5] px-6"
@@ -350,10 +462,10 @@ export function LpEditScene() {
             <PromptBarMock
               slots={slots}
               promptText={PROMPT_TEXT}
-              typingProgress={useTransform(p, () => 0)}
-              productOpacity={useTransform(p, () => 0)}
-              generating={false}
-              generatePressed={false}
+              typingProgress={typingProgress}
+              productOpacity={productOpacity}
+              generating={generating}
+              generatePressed={pressed}
             />
           </motion.div>
 
@@ -378,6 +490,68 @@ export function LpEditScene() {
               className="w-full h-full object-cover"
             />
           </motion.div>
+
+          {/* CHANEL image being dragged in */}
+          <motion.div
+            className="absolute top-0 left-0 w-16 h-16 rounded-xl overflow-hidden border border-white/30 shadow-2xl z-[55] pointer-events-none"
+            style={{ x: chanelX, y: chanelY, opacity: chanelOpacity }}
+          >
+            <img src="/videos/edit-scene/chanel.jpg" alt="" className="w-full h-full object-cover" />
+          </motion.div>
+
+          {/* FAKE CURSOR */}
+          <FakeCursor x={cursorX} y={cursorY} opacity={cursorOpacity} pressed={pressed ? 1 : 0} />
+
+          {/* QUEUE CARD */}
+          {generating && (
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.35 }}
+              className="absolute top-0 left-0 overflow-hidden z-[35] bg-[#0f0f10] border border-white/10 grid place-items-center shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]"
+              style={{
+                x: m.center.x,
+                y: m.center.y,
+                width: m.center.w,
+                height: m.center.h,
+                borderRadius: 18,
+              }}
+            >
+              <div className="flex flex-col items-center gap-3 text-white/85">
+                <span className="relative grid place-items-center w-9 h-9">
+                  <span className="absolute inset-0 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+                </span>
+                <span className="text-[12px] font-semibold tracking-[0.18em] uppercase">In queue · Generating</span>
+                <span className="text-[11px] text-white/55">UGC · 9:16 · 720p · 8s</span>
+              </div>
+            </motion.div>
+          )}
+
+          {/* VIDEO 3 — final result at centered rect */}
+          {complete && (
+            <motion.div
+              className="absolute top-0 left-0 overflow-hidden bg-black z-[40] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.55)]"
+              style={{
+                x: m.center.x,
+                y: m.center.y,
+                width: m.center.w,
+                height: m.center.h,
+                borderRadius: 18,
+                opacity: v3Opacity,
+              }}
+            >
+              <video
+                src={VIDEO_3_SRC}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                className="w-full h-full object-cover"
+              />
+            </motion.div>
+          )}
         </motion.div>
       </section>
     </>
