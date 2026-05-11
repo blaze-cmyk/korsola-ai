@@ -351,10 +351,37 @@ export function LpEditScene() {
     setComplete(l >= 0.88);
   });
 
-  // Video3 reveal
+  // Video3 reveal (behind the bar at first)
   const v3Opacity = useTransform(p, (v) => {
     if (!played) return 0;
     return clamp((lp(v) - 0.88) / 0.06);
+  });
+
+  // ============ ACT IV — bar exits, video3 rises to hero ============
+  // 0.94 → 1.00  prompt bar slides up + scales down + fades; video3 slides up
+  const ACT4_IN = 0.94;
+  const ACT4_OUT = 1.0;
+  const barExitOpacity = useTransform(p, (v) => {
+    if (!played) return 0;
+    const l = lp(v);
+    const fadeIn = clamp((l - 0.02) / 0.08);
+    const fadeOut = clamp((l - ACT4_IN) / (ACT4_OUT - ACT4_IN));
+    return fadeIn * (1 - fadeOut);
+  });
+  const barScale = useTransform(p, (v) => {
+    if (!played) return 1;
+    const t = clamp((lp(v) - ACT4_IN) / (ACT4_OUT - ACT4_IN));
+    return lerp(1, 0.82, t);
+  });
+  const barY = useTransform(p, (v) => {
+    if (!played) return 0;
+    const t = clamp((lp(v) - ACT4_IN) / (ACT4_OUT - ACT4_IN));
+    return lerp(0, -160, t);
+  });
+  const v3RiseY = useTransform(p, (v) => {
+    if (!played) return 0;
+    const t = clamp((lp(v) - ACT4_IN) / (ACT4_OUT - ACT4_IN));
+    return lerp(0, -80, t);
   });
 
 
@@ -418,7 +445,7 @@ export function LpEditScene() {
         ref={sectionRef}
         data-edit-scene
         className="relative hidden md:block"
-        style={{ height: "1100vh" }}
+        style={{ height: "1400vh" }}
       >
         <motion.div
           ref={stageRef}
@@ -454,8 +481,14 @@ export function LpEditScene() {
           {/* PROMPT BAR */}
           <motion.div
             ref={barWrapRef}
-            className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-[5] px-6"
-            style={{ opacity: barOpacity }}
+            className="absolute inset-x-0 top-1/2 z-[20] px-6"
+            style={{
+              opacity: barExitOpacity,
+              y: barY,
+              scale: barScale,
+              translateY: "-50%",
+              transformOrigin: "center center",
+            }}
           >
             <PromptBarMock
               slots={slots}
@@ -500,14 +533,14 @@ export function LpEditScene() {
           {/* FAKE CURSOR */}
           <FakeCursor x={cursorX} y={cursorY} opacity={cursorOpacity} pressed={pressed ? 1 : 0} />
 
-          {/* QUEUE CARD */}
+          {/* QUEUE CARD — sits BEHIND prompt bar at the centered video1 position */}
           {generating && (
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.35 }}
-              className="absolute top-0 left-0 overflow-hidden z-[35] bg-[#0f0f10] border border-white/10 grid place-items-center shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]"
+              className="absolute top-0 left-0 overflow-hidden z-[8] bg-[#0f0f10] border border-white/10 grid place-items-center shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]"
               style={{
                 x: m.center.x,
                 y: m.center.y,
@@ -526,13 +559,14 @@ export function LpEditScene() {
             </motion.div>
           )}
 
-          {/* VIDEO 3 — final result at centered rect */}
+          {/* VIDEO 3 — final result, behind bar at first, then rises as bar exits */}
           {complete && (
             <motion.div
-              className="absolute top-0 left-0 overflow-hidden bg-black z-[40] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.55)]"
+              className="absolute top-0 left-0 overflow-hidden bg-black z-[8] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.55)]"
               style={{
                 x: m.center.x,
-                y: m.center.y,
+                y: v3RiseY,
+                top: m.center.y,
                 width: m.center.w,
                 height: m.center.h,
                 borderRadius: 18,
