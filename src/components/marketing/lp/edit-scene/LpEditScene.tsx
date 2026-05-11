@@ -136,6 +136,20 @@ export function LpEditScene() {
   const [played, setPlayed] = useState(false);
   const [playedAtP, setPlayedAtP] = useState<number | null>(null);
 
+  // Latch played via timeupdate ≥6s OR a 6s wall-clock timer (in case timeupdate
+  // is throttled / scroll moves the user past quickly), and as a hard fallback
+  // when scroll itself crosses 0.32 — so the bar/dark bg ALWAYS reveals.
+  const playTimerRef = useRef<number | null>(null);
+  const latchPlayed = () => {
+    setPlayed((wasPlayed) => {
+      if (wasPlayed) return wasPlayed;
+      setPlayedAtP(p.get());
+      const el = v1Ref.current;
+      if (el) el.pause();
+      return true;
+    });
+  };
+
   useMotionValueEvent(p, "change", (v) => {
     if (v >= VIDEO_IN[1] && !v1Started) {
       setV1Started(true);
@@ -144,9 +158,17 @@ export function LpEditScene() {
         el.currentTime = 0;
         el.play().catch(() => {});
       }
+      // wall-clock fallback in case timeupdate never fires reliably
+      if (playTimerRef.current) window.clearTimeout(playTimerRef.current);
+      playTimerRef.current = window.setTimeout(latchPlayed, 6000);
     }
-    // Reverse: if user scrolls fully back, reset (so re-entry replays)
+    // Hard scroll fallback — if user blew past, latch immediately
+    if (v >= 0.32 && !played) {
+      latchPlayed();
+    }
+    // Reverse: scrolled fully back → reset
     if (v < 0.04 && (v1Started || played)) {
+      if (playTimerRef.current) window.clearTimeout(playTimerRef.current);
       setV1Started(false);
       setPlayed(false);
       setPlayedAtP(null);
@@ -162,16 +184,11 @@ export function LpEditScene() {
     const el = v1Ref.current;
     if (!el) return;
     const onTime = () => {
-      if (!played && el.currentTime >= 6) {
-        setPlayed(true);
-        setPlayedAtP(p.get());
-        // freeze on last visible frame
-        el.pause();
-      }
+      if (!played && el.currentTime >= 6) latchPlayed();
     };
     el.addEventListener("timeupdate", onTime);
     return () => el.removeEventListener("timeupdate", onTime);
-  }, [played, p]);
+  }, [played]);
 
   // --- BACKGROUND: white → dark — only after played ---
   const bgColor = useTransform(p, (v) => {
