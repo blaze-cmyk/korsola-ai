@@ -1,4 +1,3 @@
-import { MoreVertical } from "lucide-react";
 import teamToolsPanel from "@/assets/team-tools-panel.png";
 
 const users = [
