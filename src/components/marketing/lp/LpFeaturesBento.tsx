@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { ReelCard } from "./ReelCard";
 import { REEL_GRADIENTS } from "./reels";
 import workflowBubbles from "@/assets/workflow-bubbles.png";
@@ -8,15 +8,20 @@ export function LpFeaturesBento() {
     <section className="bg-paper py-20 md:py-28 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-end justify-between gap-6 flex-wrap">
-          <h2 className="font-display font-extrabold text-oxblood tracking-tight text-4xl md:text-6xl leading-[1.02] max-w-2xl">
+          <h2 className="font-display font-extrabold text-ink tracking-tight text-4xl md:text-6xl leading-[1.02] max-w-2xl">
             Start simple.<br /><span className="font-serif italic font-normal">Scale</span> when you're ready.
           </h2>
           <div className="flex flex-col items-start md:items-end gap-3">
-            <p className="text-oxblood/70 text-[15px] max-w-md">
+            <p className="text-ink/70 text-[15px] max-w-md font-body">
               From a single tool to a complete workflow, at your own pace.
             </p>
-            <a href="/shopify" className="inline-flex items-center gap-2 h-10 px-5 rounded-full bg-ink text-white text-[14px] font-semibold">
-              Start creating <ArrowRight className="w-4 h-4" />
+            <a
+              href="/shopify"
+              className="group relative inline-flex items-center justify-center gap-2 h-12 w-[220px] rounded-full text-[15px] font-semibold text-white whitespace-nowrap overflow-hidden border border-white/40 bg-gradient-to-b from-[#cfc4ff] via-[#8b7bff] to-[#4f3bd6] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-2px_4px_rgba(40,20,120,0.5),0_10px_30px_rgba(99,58,232,0.55)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,1),inset_0_-2px_4px_rgba(40,20,120,0.6),0_14px_38px_rgba(99,58,232,0.7)] transition-all duration-300"
+            >
+              <span className="absolute top-0 left-3 right-3 h-1/2 rounded-t-full bg-gradient-to-b from-white/60 to-transparent pointer-events-none" />
+              <span className="relative drop-shadow-[0_1px_1px_rgba(40,20,120,0.4)]">Create Your AI Ad</span>
+              <Sparkles className="relative w-4 h-4 text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]" />
             </a>
           </div>
         </div>
