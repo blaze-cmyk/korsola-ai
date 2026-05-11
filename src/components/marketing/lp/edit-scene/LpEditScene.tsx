@@ -138,7 +138,11 @@ export function LpEditScene() {
   const v1Radius = useTransform(p, [0.18, 0.32], [18, 12]);
 
   // --- PromptBar opacity ------------------------------------------------
-  const barOpacity = useTransform(p, [0.22, 0.30, 0.78, 0.86], [0, 1, 1, 0]);
+  // Bar is BEHIND video1 from the very start (so video1 visually shrinks INTO it),
+  // then fades out once we hand off to video3.
+  const barOpacity = useTransform(p, [0, 0.06, 0.78, 0.86], [0, 1, 1, 0]);
+  // Bar slides slightly upward once generation kicks in to make room for the queue/result
+  const barShiftY = useTransform(p, [0.55, 0.66], [0, -120]);
   const productOpacity = useTransform(p, [0.40, 0.46], [0, 1]);
 
   // --- Heading: white text on dark, dark text on white ------------------
