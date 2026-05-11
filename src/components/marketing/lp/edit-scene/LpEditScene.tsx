@@ -298,31 +298,28 @@ export function LpEditScene() {
           className="sticky top-0 h-screen w-full overflow-hidden"
           style={{ backgroundColor: bgColor }}
         >
-          {/* HEADING */}
-          <motion.div
-            className="absolute inset-x-0 top-[12%] z-30 px-6 text-center pointer-events-none"
-            style={{ opacity: headingOpacity }}
-          >
-            <h2 className="font-display font-extrabold tracking-tight text-4xl md:text-6xl lg:text-7xl leading-[1.02] text-ink">
+          {/* HEADING — always visible, congruent with other sections */}
+          <div className="absolute inset-x-0 top-[5%] z-30 px-6 text-center pointer-events-none">
+            <h2 className="font-display font-extrabold tracking-tight text-3xl md:text-5xl lg:text-6xl leading-[1.02] text-ink">
               Edit any video with{" "}
               <span className="font-serif italic font-normal">a sentence</span>.
             </h2>
-            <p className="mt-3 text-[15px] md:text-[17px] max-w-xl mx-auto text-ink/70">
+            <p className="mt-2 text-[14px] md:text-[15px] max-w-xl mx-auto text-ink/60">
               Drop a clip. Add a product. Type the change. Korsola handles the rest.
             </p>
-          </motion.div>
+          </div>
 
-          {/* "Existing video" label — sits ABOVE the centered clip in Playfair italic */}
+          {/* "existing video" label — sits just above the clip, below the heading */}
           <motion.div
-            className="absolute z-30 pointer-events-none text-center"
+            className="absolute z-20 pointer-events-none text-center"
             style={{
               left: m.center.x,
-              top: Math.max(60, m.center.y - 56),
+              top: Math.max(180, m.center.y - 38),
               width: m.center.w,
               opacity: labelOpacity,
             }}
           >
-            <span className="font-serif italic text-ink/80 text-[20px] md:text-[24px] tracking-tight">
+            <span className="font-serif italic text-ink/70 text-[18px] md:text-[20px] tracking-tight">
               existing video
             </span>
           </motion.div>
