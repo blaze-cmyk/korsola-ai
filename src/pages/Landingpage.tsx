@@ -4,7 +4,7 @@ import { LpHero } from "@/components/marketing/lp/LpHero";
 import { LpReelCarousel } from "@/components/marketing/lp/LpReelCarousel";
 import { LpHowItWorks } from "@/components/marketing/lp/LpHowItWorks";
 import { LpModels } from "@/components/marketing/lp/LpModels";
-import { LpPromptBox } from "@/components/marketing/lp/LpPromptBox";
+import { LpEditScene } from "@/components/marketing/lp/edit-scene/LpEditScene";
 import { LpFeaturesBento } from "@/components/marketing/lp/LpFeaturesBento";
 
 import { LpActorsBlock } from "@/components/marketing/lp/LpActorsBlock";
@@ -29,7 +29,7 @@ export default function Landingpage() {
         <Reveal><LpReelCarousel /></Reveal>
         <Reveal><LpHowItWorks /></Reveal>
         <Reveal><LpModels /></Reveal>
-        <Reveal><LpPromptBox /></Reveal>
+        <LpEditScene />
         <Reveal><LpFeaturesBento /></Reveal>
 
         <section className="bg-ink text-white relative overflow-hidden">
