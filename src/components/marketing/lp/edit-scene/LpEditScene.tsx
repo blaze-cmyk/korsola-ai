@@ -351,10 +351,37 @@ export function LpEditScene() {
     setComplete(l >= 0.88);
   });
 
-  // Video3 reveal
+  // Video3 reveal (behind the bar at first)
   const v3Opacity = useTransform(p, (v) => {
     if (!played) return 0;
     return clamp((lp(v) - 0.88) / 0.06);
+  });
+
+  // ============ ACT IV — bar exits, video3 rises to hero ============
+  // 0.94 → 1.00  prompt bar slides up + scales down + fades; video3 slides up
+  const ACT4_IN = 0.94;
+  const ACT4_OUT = 1.0;
+  const barExitOpacity = useTransform(p, (v) => {
+    if (!played) return 0;
+    const l = lp(v);
+    const fadeIn = clamp((l - 0.02) / 0.08);
+    const fadeOut = clamp((l - ACT4_IN) / (ACT4_OUT - ACT4_IN));
+    return fadeIn * (1 - fadeOut);
+  });
+  const barScale = useTransform(p, (v) => {
+    if (!played) return 1;
+    const t = clamp((lp(v) - ACT4_IN) / (ACT4_OUT - ACT4_IN));
+    return lerp(1, 0.82, t);
+  });
+  const barY = useTransform(p, (v) => {
+    if (!played) return 0;
+    const t = clamp((lp(v) - ACT4_IN) / (ACT4_OUT - ACT4_IN));
+    return lerp(0, -160, t);
+  });
+  const v3RiseY = useTransform(p, (v) => {
+    if (!played) return 0;
+    const t = clamp((lp(v) - ACT4_IN) / (ACT4_OUT - ACT4_IN));
+    return lerp(0, -80, t);
   });
 
 
