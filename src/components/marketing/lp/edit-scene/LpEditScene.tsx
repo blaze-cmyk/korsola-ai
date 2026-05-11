@@ -26,21 +26,31 @@ function rectFor(stageEl: HTMLElement, el: HTMLElement | null): Rect {
   return { x: r.left - sr.left, y: r.top - sr.top, w: r.width, h: r.height };
 }
 
-/** Centered 9:16 portrait — "twice 205×364" ≈ 410×728, capped to viewport. */
+/** Centered 9:16 portrait — generous size so heading sits above with breathing room. */
 function centerRect(stageW: number, stageH: number): Rect {
-  const w = Math.min(410, stageW * 0.5, (stageH - 200) * 9 / 16);
-  const h = w * 16 / 9;
-  // Slight downward bias so heading sits above with breathing room
-  const y = Math.max(96, (stageH - h) / 2 + 24);
+  const w = Math.min(420, stageW * 0.5, ((stageH - 220) * 9) / 16);
+  const h = (w * 16) / 9;
+  const y = Math.max(120, (stageH - h) / 2 + 32);
   const x = (stageW - w) / 2;
   return { x, y, w, h };
 }
+
+// ---- Scroll choreography (Act I only — rest will be wired next) ----
+// 0.00 → 0.06   heading only, white bg, no video
+// 0.06 → 0.18   video1 slides up into centered rect, "Existing video" label fades in
+// 0.18 → ???    HOLD (latched). Video1 plays through to 6s. Bar STILL HIDDEN.
+//               During hold the heading fades out so attention is on the clip.
+// playedAt → +0.18  Shrink + bg darken + prompt-bar reveal
+// (subsequent acts kept from previous version, gated behind `played`)
+const HEAD_OUT = [0.10, 0.18];
+const VIDEO_IN = [0.06, 0.18];
 
 export function LpEditScene() {
   const reduce = useReducedMotion();
   const sectionRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const barWrapRef = useRef<HTMLDivElement>(null);
+  const v1Ref = useRef<HTMLVideoElement>(null);
 
   const slots: SlotRefs = {
     bar: useRef<HTMLDivElement>(null),
@@ -50,7 +60,6 @@ export function LpEditScene() {
     generate: useRef<HTMLDivElement>(null),
   };
 
-  // --- measured rects (state so useTransform recomputes when measurements arrive) ---
   type Measured = {
     stage: { w: number; h: number };
     center: Rect;
@@ -82,7 +91,6 @@ export function LpEditScene() {
         generate: rectFor(stage, slots.generate.current),
       };
       setM((prev) => {
-        // shallow check to avoid extra renders
         if (
           prev.stage.w === next.stage.w &&
           prev.stage.h === next.stage.h &&
@@ -90,14 +98,12 @@ export function LpEditScene() {
           prev.videoSlot.y === next.videoSlot.y &&
           prev.productSlot.x === next.productSlot.x &&
           prev.generate.x === next.generate.x
-        ) {
+        )
           return prev;
-        }
         return next;
       });
     };
     measure();
-    // re-measure a couple times after fonts/layout settle
     const t1 = window.setTimeout(measure, 60);
     const t2 = window.setTimeout(measure, 240);
     const ro = new ResizeObserver(measure);
@@ -112,169 +118,120 @@ export function LpEditScene() {
     };
   }, []);
 
-  // --- scroll progress --------------------------------------------------
+  // --- scroll progress ---
+  // Section height is large so each phase has room to breathe slowly.
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end end"],
   });
   const p = scrollYProgress;
 
-  // --- generation latch -------------------------------------------------
-  const [generating, setGenerating] = useState(false);
-  const [complete, setComplete] = useState(false);
-  const timerRef = useRef<number | null>(null);
+  // --- Video1 playback control ---
+  // Starts when scroll first passes the "centered" threshold; latches `played`
+  // when timeupdate reaches 6s. While !played, all later phases are frozen.
+  const [v1Started, setV1Started] = useState(false);
+  const [played, setPlayed] = useState(false);
+  const [playedAtP, setPlayedAtP] = useState<number | null>(null);
 
   useMotionValueEvent(p, "change", (v) => {
-    if (v >= 0.6 && !generating && !complete) {
-      setGenerating(true);
-      timerRef.current = window.setTimeout(() => {
-        setGenerating(false);
-        setComplete(true);
-      }, 1800);
+    if (v >= VIDEO_IN[1] && !v1Started) {
+      setV1Started(true);
+      const el = v1Ref.current;
+      if (el) {
+        el.currentTime = 0;
+        el.play().catch(() => {});
+      }
     }
-    if (v < 0.55 && (generating || complete)) {
-      if (timerRef.current) window.clearTimeout(timerRef.current);
-      setGenerating(false);
-      setComplete(false);
+    // Reverse: if user scrolls fully back, reset (so re-entry replays)
+    if (v < 0.04 && (v1Started || played)) {
+      setV1Started(false);
+      setPlayed(false);
+      setPlayedAtP(null);
+      const el = v1Ref.current;
+      if (el) {
+        el.pause();
+        el.currentTime = 0;
+      }
     }
   });
 
-  // --- BACKGROUND: white → dark (ink) ---------------------------------
-  // Crossfade as video starts shrinking (Act II).
-  const bgColor = useTransform(
-    p,
-    [0.16, 0.30],
-    ["rgb(255,255,255)", "rgb(11,11,12)"], // ink ~ #0b0b0c
-  );
+  useEffect(() => {
+    const el = v1Ref.current;
+    if (!el) return;
+    const onTime = () => {
+      if (!played && el.currentTime >= 6) {
+        setPlayed(true);
+        setPlayedAtP(p.get());
+        // freeze on last visible frame
+        el.pause();
+      }
+    };
+    el.addEventListener("timeupdate", onTime);
+    return () => el.removeEventListener("timeupdate", onTime);
+  }, [played, p]);
 
-  // --- VIDEO 1 transforms (centered 9:16 → small chip) -----------------
+  // --- BACKGROUND: white → dark — only after played ---
+  const bgColor = useTransform(p, (v) => {
+    if (!played || playedAtP == null) return "rgb(255,255,255)";
+    const t = clamp((v - playedAtP) / 0.08);
+    // simple lerp between white and ink
+    const r = Math.round(lerp(255, 11, t));
+    const g = Math.round(lerp(255, 11, t));
+    const b = Math.round(lerp(255, 12, t));
+    return `rgb(${r},${g},${b})`;
+  });
+
+  // --- VIDEO 1 transforms ---
+  // Phase A: slide up + fade in (offscreen below → centered).
+  // Phase B (after played): centered → docked into bar slot.
   const v1X = useTransform(p, (v) => {
-    const t = clamp((v - 0.18) / (0.32 - 0.18));
+    if (!played || playedAtP == null) return m.center.x;
+    const t = clamp((v - playedAtP) / 0.18);
     return lerp(m.center.x, m.videoSlot.x, t);
   });
   const v1Y = useTransform(p, (v) => {
-    const t = clamp((v - 0.18) / (0.32 - 0.18));
+    // slide up: starts 80px below center, ends at center
+    if (!played || playedAtP == null) {
+      const tIn = clamp((v - VIDEO_IN[0]) / (VIDEO_IN[1] - VIDEO_IN[0]));
+      return lerp(m.center.y + 80, m.center.y, tIn);
+    }
+    const t = clamp((v - playedAtP) / 0.18);
     return lerp(m.center.y, m.videoSlot.y, t);
   });
   const v1W = useTransform(p, (v) => {
-    const t = clamp((v - 0.18) / (0.32 - 0.18));
-    return lerp(m.center.w, m.videoSlot.w || 64, t);
+    if (!played || playedAtP == null) return m.center.w;
+    const t = clamp((v - playedAtP) / 0.18);
+    return lerp(m.center.w, m.videoSlot.w || 88, t);
   });
   const v1H = useTransform(p, (v) => {
-    const t = clamp((v - 0.18) / (0.32 - 0.18));
-    return lerp(m.center.h, m.videoSlot.h || 64, t);
+    if (!played || playedAtP == null) return m.center.h;
+    const t = clamp((v - playedAtP) / 0.18);
+    return lerp(m.center.h, m.videoSlot.h || 88, t);
   });
-  const v1Radius = useTransform(p, [0.18, 0.32], [18, 12]);
+  const v1Radius = useTransform(p, (v) => {
+    if (!played || playedAtP == null) return 22;
+    const t = clamp((v - playedAtP) / 0.18);
+    return lerp(22, 12, t);
+  });
+  const v1Opacity = useTransform(p, VIDEO_IN, [0, 1]);
 
-  // --- PromptBar opacity ------------------------------------------------
-  // Bar is BEHIND video1 from the very start (so video1 visually shrinks INTO it),
-  // then fades out once we hand off to video3.
-  const barOpacity = useTransform(p, [0, 0.06, 0.78, 0.86], [0, 1, 1, 0]);
-  // Bar slides slightly upward once generation kicks in to make room for the queue/result
-  const barShiftY = useTransform(p, [0.55, 0.66], [0, -120]);
-  const productOpacity = useTransform(p, [0.40, 0.46], [0, 1]);
+  // "Existing video" label — sits ABOVE the centered clip in Playfair italic,
+  // fades in with the clip, fades out as the clip starts shrinking.
+  const labelOpacity = useTransform(p, (v) => {
+    const inT = clamp((v - VIDEO_IN[0]) / (VIDEO_IN[1] - VIDEO_IN[0]));
+    if (!played || playedAtP == null) return inT;
+    const outT = clamp((v - playedAtP) / 0.06);
+    return inT * (1 - outT);
+  });
 
-  // --- Heading: white text on dark, dark text on white ------------------
-  // Heading sits ABOVE the video on white bg; fades during transition.
-  const headingOpacity = useTransform(p, [0, 0.14, 0.20, 1], [1, 1, 0, 0]);
-  const headingColor = useTransform(
-    p,
-    [0, 0.18],
-    ["rgb(11,11,12)", "rgb(255,255,255)"],
-  );
+  // Heading: visible at start, fades out as video takes over
+  const headingOpacity = useTransform(p, [HEAD_OUT[0], HEAD_OUT[1]], [1, 0]);
 
-  // --- FakeCursor path: off-right → product slot → textarea → generate -
-  const cursorX = useTransform(p, (v) => {
-    const stageW = m.stage.w;
-    if (v < 0.34) return stageW + 80;
-    if (v < 0.46) {
-      const t = clamp((v - 0.34) / 0.12);
-      return lerp(stageW + 80, m.productSlot.x + m.productSlot.w / 2, t);
-    }
-    if (v < 0.50) {
-      const t = clamp((v - 0.46) / 0.04);
-      return lerp(
-        m.productSlot.x + m.productSlot.w / 2,
-        m.textarea.x + 24,
-        t,
-      );
-    }
-    if (v < 0.6) {
-      const t = clamp((v - 0.50) / 0.10);
-      return lerp(
-        m.textarea.x + 24,
-        m.generate.x + m.generate.w / 2,
-        t,
-      );
-    }
-    return m.generate.x + m.generate.w / 2;
-  });
-  const cursorY = useTransform(p, (v) => {
-    if (v < 0.34) return m.productSlot.y + m.productSlot.h / 2;
-    if (v < 0.46) {
-      return m.productSlot.y + m.productSlot.h / 2;
-    }
-    if (v < 0.50) {
-      const t = clamp((v - 0.46) / 0.04);
-      return lerp(
-        m.productSlot.y + m.productSlot.h / 2,
-        m.textarea.y + 16,
-        t,
-      );
-    }
-    if (v < 0.6) {
-      const t = clamp((v - 0.50) / 0.10);
-      return lerp(
-        m.textarea.y + 16,
-        m.generate.y + m.generate.h / 2,
-        t,
-      );
-    }
-    return m.generate.y + m.generate.h / 2;
-  });
-  const cursorOpacity = useTransform(p, [0.32, 0.36, 0.62, 0.66], [0, 1, 1, 0]);
-
-  // Chanel image rides with cursor from off-right → product slot, then drops
-  const chanelDocked = useTransform(p, [0.44, 0.46], [0, 1]);
-  const chanelX = useTransform(p, (v) => {
-    if (v >= 0.46) return m.productSlot.x;
-    return cursorX.get() - 32;
-  });
-  const chanelY = useTransform(p, (v) => {
-    if (v >= 0.46) return m.productSlot.y;
-    return cursorY.get() - 32;
-  });
-  const chanelOpacity = useTransform(p, [0.32, 0.36, 0.46, 0.47], [0, 1, 1, 0]);
-
-  const typingProgress = useTransform(p, [0.50, 0.60], [0, 1]);
-
-  const [pressed, setPressed] = useState(false);
-  useMotionValueEvent(p, "change", (v) => setPressed(v >= 0.595 && v < 0.615));
-
-  // --- VIDEO 3 — emerges at SAME centered 9:16 rect, holds, plays -----
-  const v3X = useTransform(p, (v) => {
-    const t = clamp((v - 0.66) / (0.78 - 0.66));
-    return lerp(m.videoSlot.x, m.center.x, t);
-  });
-  const v3Y = useTransform(p, (v) => {
-    const t = clamp((v - 0.66) / (0.78 - 0.66));
-    return lerp(m.videoSlot.y, m.center.y, t);
-  });
-  const v3W = useTransform(p, (v) => {
-    const t = clamp((v - 0.66) / (0.78 - 0.66));
-    return lerp(m.videoSlot.w || 64, m.center.w, t);
-  });
-  const v3H = useTransform(p, (v) => {
-    const t = clamp((v - 0.66) / (0.78 - 0.66));
-    return lerp(m.videoSlot.h || 64, m.center.h, t);
-  });
-  const v3Radius = useTransform(p, [0.66, 0.78], [12, 18]);
-  const v3Opacity = useTransform(p, [0.66, 0.70], [0, 1]);
-  const dockedLabelOpacity = useTransform(p, [0.30, 0.34], [0, 1]);
-
-  const [mountV3, setMountV3] = useState(false);
-  useMotionValueEvent(p, "change", (v) => {
-    if (v > 0.45 && !mountV3) setMountV3(true);
+  // --- Prompt Bar reveal — STRICTLY after played ---
+  const barOpacity = useTransform(p, (v) => {
+    if (!played || playedAtP == null) return 0;
+    const t = clamp((v - (playedAtP + 0.04)) / 0.10);
+    return t;
   });
 
   // ---------------------- REDUCED MOTION FALLBACK ----------------------
@@ -288,7 +245,10 @@ export function LpEditScene() {
           </h2>
           <video
             src={VIDEO_3_SRC}
-            autoPlay muted loop playsInline
+            autoPlay
+            muted
+            loop
+            playsInline
             className="mt-10 w-full max-w-md mx-auto aspect-[9/16] object-cover rounded-2xl"
           />
         </div>
@@ -309,143 +269,104 @@ export function LpEditScene() {
             Drop a clip. Add a product. Type the change. Korsola handles the rest.
           </p>
           <div className="mt-8 grid grid-cols-2 gap-3">
-            <video src={VIDEO_1_SRC} autoPlay muted loop playsInline className="aspect-[9/16] w-full object-cover rounded-2xl" />
-            <video src={VIDEO_3_SRC} autoPlay muted loop playsInline className="aspect-[9/16] w-full object-cover rounded-2xl" />
+            <video
+              src={VIDEO_1_SRC}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="aspect-[9/16] w-full object-cover rounded-2xl"
+            />
+            <video
+              src={VIDEO_3_SRC}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="aspect-[9/16] w-full object-cover rounded-2xl"
+            />
           </div>
         </div>
       </section>
 
-      {/* Desktop scroll-pinned scene */}
+      {/* Desktop scroll-pinned scene — generous height keeps the pace slow */}
       <section
         ref={sectionRef}
         data-edit-scene
         className="relative hidden md:block"
-        style={{ height: "650vh" }}
+        style={{ height: "900vh" }}
       >
         <motion.div
           ref={stageRef}
           className="sticky top-0 h-screen w-full overflow-hidden"
           style={{ backgroundColor: bgColor }}
         >
-          {/* HEADING — above the centered video on white bg */}
+          {/* HEADING */}
           <motion.div
-            className="absolute inset-x-0 top-[6%] z-30 px-6 text-center pointer-events-none"
-            style={{ opacity: headingOpacity, color: headingColor }}
+            className="absolute inset-x-0 top-[12%] z-30 px-6 text-center pointer-events-none"
+            style={{ opacity: headingOpacity }}
           >
-            <h2 className="font-display font-extrabold tracking-tight text-4xl md:text-6xl lg:text-7xl leading-[1.02]">
+            <h2 className="font-display font-extrabold tracking-tight text-4xl md:text-6xl lg:text-7xl leading-[1.02] text-ink">
               Edit any video with{" "}
               <span className="font-serif italic font-normal">a sentence</span>.
             </h2>
-            <motion.p
-              className="mt-3 text-[15px] md:text-[17px] max-w-xl mx-auto"
-              style={{ color: headingColor, opacity: 0.7 }}
-            >
+            <p className="mt-3 text-[15px] md:text-[17px] max-w-xl mx-auto text-ink/70">
               Drop a clip. Add a product. Type the change. Korsola handles the rest.
-            </motion.p>
+            </p>
           </motion.div>
 
-          {/* PROMPT BAR (BEHIND video1 — z-5) */}
+          {/* "Existing video" label — sits ABOVE the centered clip in Playfair italic */}
+          <motion.div
+            className="absolute z-30 pointer-events-none text-center"
+            style={{
+              left: m.center.x,
+              top: Math.max(60, m.center.y - 56),
+              width: m.center.w,
+              opacity: labelOpacity,
+            }}
+          >
+            <span className="font-serif italic text-ink/80 text-[20px] md:text-[24px] tracking-tight">
+              existing video
+            </span>
+          </motion.div>
+
+          {/* PROMPT BAR (hidden until played) */}
           <motion.div
             ref={barWrapRef}
             className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-[5] px-6"
-            style={{ opacity: barOpacity, y: barShiftY }}
+            style={{ opacity: barOpacity }}
           >
             <PromptBarMock
               slots={slots}
               promptText={PROMPT_TEXT}
-              typingProgress={typingProgress}
-              productOpacity={productOpacity}
-              generating={generating}
-              generatePressed={pressed}
+              typingProgress={useTransform(p, () => 0)}
+              productOpacity={useTransform(p, () => 0)}
+              generating={false}
+              generatePressed={false}
             />
           </motion.div>
 
-          {/* VIDEO 1 — centered 9:16 → docks INTO the videoSlot (sits ON TOP of bar, z-10) */}
+          {/* VIDEO 1 */}
           <motion.div
-            className="absolute top-0 left-0 overflow-hidden bg-black z-[10] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.35)]"
+            className="absolute top-0 left-0 overflow-hidden bg-black z-[10] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.25)]"
             style={{
-              x: v1X, y: v1Y, width: v1W, height: v1H, borderRadius: v1Radius,
+              x: v1X,
+              y: v1Y,
+              width: v1W,
+              height: v1H,
+              borderRadius: v1Radius,
+              opacity: v1Opacity,
             }}
           >
             <video
+              ref={v1Ref}
               src={VIDEO_1_SRC}
-              autoPlay muted loop playsInline preload="metadata"
+              muted
+              playsInline
+              preload="auto"
               className="w-full h-full object-cover"
             />
           </motion.div>
-
-          {/* @Video1 label overlay — appears once docked, sits on top of the docked chip */}
-          <motion.div
-            className="absolute top-0 left-0 pointer-events-none z-[15] rounded-xl overflow-hidden"
-            style={{
-              x: v1X, y: v1Y, width: v1W, height: v1H,
-              opacity: dockedLabelOpacity,
-            }}
-          >
-            <div className="absolute inset-x-0 bottom-0 h-7 bg-gradient-to-t from-black/85 to-transparent" />
-            <span className="absolute bottom-1 left-1.5 right-1.5 text-[11px] font-medium text-white/95 truncate">
-              @Video1
-            </span>
-          </motion.div>
-
-          {/* CHANEL image being dragged in by cursor */}
-          <motion.div
-            className="absolute top-0 left-0 w-16 h-16 rounded-xl overflow-hidden border border-white/30 shadow-2xl z-[55] pointer-events-none"
-            style={{ x: chanelX, y: chanelY, opacity: chanelOpacity }}
-          >
-            <img src="/videos/edit-scene/chanel.jpg" alt="" className="w-full h-full object-cover" />
-          </motion.div>
-
-          {/* FAKE CURSOR */}
-          <FakeCursor x={cursorX} y={cursorY} opacity={cursorOpacity} pressed={pressed ? 1 : 0} />
-
-          {/* QUEUE CARD — appears below the (shifted-up) prompt bar at video1 dimensions while generating */}
-          {generating && (
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.35 }}
-              className="absolute top-0 left-0 overflow-hidden z-[35] bg-[#0f0f10] border border-white/10 grid place-items-center shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]"
-              style={{
-                x: m.center.x,
-                y: m.center.y,
-                width: m.center.w,
-                height: m.center.h,
-                borderRadius: 18,
-              }}
-            >
-              <div className="flex flex-col items-center gap-3 text-white/85">
-                <span className="relative grid place-items-center w-9 h-9">
-                  <span className="absolute inset-0 rounded-full border-2 border-white/20 border-t-white animate-spin" />
-                </span>
-                <span className="text-[12px] font-semibold tracking-[0.18em] uppercase">In queue · Generating</span>
-                <span className="text-[11px] text-white/55">UGC · 9:16 · 720p · 8s</span>
-              </div>
-            </motion.div>
-          )}
-
-          {/* VIDEO 3 — fades in at centered 9:16 (same dims as video1) once complete */}
-          {mountV3 && (
-            <motion.div
-              className="absolute top-0 left-0 overflow-hidden bg-black z-[40] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.55)]"
-              style={{
-                x: m.center.x,
-                y: m.center.y,
-                width: m.center.w,
-                height: m.center.h,
-                borderRadius: 18,
-                opacity: complete ? 1 : 0,
-                pointerEvents: complete ? "auto" : "none",
-              }}
-            >
-              <video
-                src={VIDEO_3_SRC}
-                autoPlay muted loop playsInline preload="auto"
-                className="w-full h-full object-cover"
-              />
-            </motion.div>
-          )}
         </motion.div>
       </section>
     </>
