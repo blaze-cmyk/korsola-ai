@@ -21,8 +21,6 @@ const users = [
 export function LpTeamPlans() {
   return (
     <section className="bg-ink text-white py-20 md:py-28 relative overflow-hidden">
-      {/* Smooth fade from previous (white) section into ink */}
-      <div className="pointer-events-none absolute inset-x-0 -top-px h-32 bg-gradient-to-b from-white to-transparent" aria-hidden />
       {/* Subtle Korsola purple glow */}
       <div className="pointer-events-none absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-[#4f3bd6]/20 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-40 -right-40 w-[500px] h-[500px] rounded-full bg-[#8b7bff]/15 blur-3xl" />
