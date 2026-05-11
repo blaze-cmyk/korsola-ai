@@ -10,12 +10,15 @@ export function LpClosingCTA() {
         className="absolute inset-0 w-full h-full object-cover"
         aria-hidden
       />
-      <div className="relative h-full grid place-items-center px-4 text-center">
-        <div>
-          <h2 className="font-display font-extrabold text-white md:text-7xl tracking-tight drop-shadow-[0_4px_24px_rgba(0,0,0,0.35)] text-6xl">
-            Your next winning ad is one click away.
+      <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 flex items-center">
+        <div className="max-w-3xl text-left">
+          <h2 className="font-display font-extrabold text-white text-6xl md:text-7xl tracking-tight leading-[1.02] drop-shadow-[0_4px_24px_rgba(0,0,0,0.35)]">
+            Your next <span className="font-serif italic font-normal">winning ad</span> is one click away.
           </h2>
-          <div className="mt-8 flex justify-center">
+          <p className="mt-5 max-w-xl text-white/75 text-[16px] leading-relaxed font-body drop-shadow-[0_2px_12px_rgba(0,0,0,0.4)]">
+            Plug in your Shopify store, pick a creator, and ship dozens of on-brand UGC ads before your coffee gets cold.
+          </p>
+          <div className="mt-8">
             <a
               href="/shopify"
               className="group relative inline-flex items-center justify-center gap-2 h-12 w-[220px] rounded-full text-[15px] font-semibold text-white whitespace-nowrap overflow-hidden border border-white/40 bg-gradient-to-b from-[#cfc4ff] via-[#8b7bff] to-[#4f3bd6] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-2px_4px_rgba(40,20,120,0.5),0_10px_30px_rgba(99,58,232,0.55)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,1),inset_0_-2px_4px_rgba(40,20,120,0.6),0_14px_38px_rgba(99,58,232,0.7)] transition-all duration-300"
