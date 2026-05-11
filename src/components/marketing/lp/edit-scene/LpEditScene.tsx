@@ -27,10 +27,13 @@ function rectFor(stageEl: HTMLElement, el: HTMLElement | null): Rect {
 }
 
 /** Centered 9:16 portrait — generous size so heading sits above with breathing room. */
+// Reserve top space for the persistent heading + "existing video" label.
+const TOP_RESERVED = 260;
 function centerRect(stageW: number, stageH: number): Rect {
-  const w = Math.min(420, stageW * 0.5, ((stageH - 220) * 9) / 16);
-  const h = (w * 16) / 9;
-  const y = Math.max(120, (stageH - h) / 2 + 32);
+  const available = stageH - TOP_RESERVED - 48;
+  const h = Math.min(available, 620);
+  const w = (h * 9) / 16;
+  const y = TOP_RESERVED;
   const x = (stageW - w) / 2;
   return { x, y, w, h };
 }
