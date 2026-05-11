@@ -552,27 +552,6 @@ export function LpEditScene() {
               />
             </motion.div>
           )}
-          {/* VIDEO 1 */}
-          <motion.div
-            className="absolute top-0 left-0 overflow-hidden bg-black z-[10] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.25)]"
-            style={{
-              x: v1X,
-              y: v1Y,
-              width: v1W,
-              height: v1H,
-              borderRadius: v1Radius,
-              opacity: v1Opacity,
-            }}
-          >
-            <video
-              ref={v1Ref}
-              src={VIDEO_1_SRC}
-              muted
-              playsInline
-              preload="auto"
-              className="w-full h-full object-cover"
-            />
-          </motion.div>
         </motion.div>
       </section>
     </>
