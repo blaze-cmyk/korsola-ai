@@ -45,7 +45,7 @@ function centerRect(stageW: number, stageH: number): Rect {
 //               During hold the heading fades out so attention is on the clip.
 // playedAt → +0.18  Shrink + bg darken + prompt-bar reveal
 // (subsequent acts kept from previous version, gated behind `played`)
-const HEAD_OUT = [0.10, 0.18];
+// (no heading-fade — heading stays put through the scene)
 const VIDEO_IN = [0.06, 0.18];
 
 export function LpEditScene() {
