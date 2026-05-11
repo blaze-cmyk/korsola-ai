@@ -1,4 +1,8 @@
 import { MoreVertical } from "lucide-react";
+import avatar1 from "@/assets/team-avatar-1.png";
+import avatar2 from "@/assets/team-avatar-2.png";
+import avatar3 from "@/assets/team-avatar-3.png";
+import avatar4 from "@/assets/team-avatar-4.png";
 
 const tools = [
   { name: "Nano Banana Pro", type: "Image generation", on: true, color: "bg-violet/30 text-violet" },
@@ -8,10 +12,10 @@ const tools = [
 ];
 
 const users = [
-  { name: "Zoya Kendall", email: "zoya.kendall@korsola.com", spent: "1.2M", avail: "1.7M", pct: 0.4, color: "bg-blue-500" },
-  { name: "Arlo Finch", email: "afinch@korsola.com", spent: "310.6K", avail: "877.1K", pct: 0.25, color: "bg-blue-500" },
-  { name: "Demi Ochoa", email: "demiochoa@korsola.com", spent: "10.7M", avail: "19.2M", pct: 0.55, color: "bg-blue-500" },
-  { name: "Nala Jones", email: "njones@korsola.com", spent: "69.9K", avail: "30K", pct: 0.7, color: "bg-amber-400" },
+  { name: "Zoya Kendall", email: "zoya.kendall@korsola.com", spent: "1.2M", avail: "1.7M", pct: 0.4, color: "bg-blue-500", img: avatar1 },
+  { name: "Arlo Finch", email: "afinch@korsola.com", spent: "310.6K", avail: "877.1K", pct: 0.25, color: "bg-blue-500", img: avatar4 },
+  { name: "Demi Ochoa", email: "demiochoa@korsola.com", spent: "10.7M", avail: "19.2M", pct: 0.55, color: "bg-blue-500", img: avatar2 },
+  { name: "Nala Jones", email: "njones@korsola.com", spent: "69.9K", avail: "30K", pct: 0.7, color: "bg-amber-400", img: avatar3 },
 ];
 
 export function LpTeamPlans() {
@@ -82,7 +86,7 @@ export function LpTeamPlans() {
             <div className="mt-6 rounded-xl bg-black/40 border border-white/5 p-4 space-y-4">
               {users.map((u) => (
                 <div key={u.email} className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-violet to-pink-500 shrink-0" />
+                  <img src={u.img} alt={u.name} className="w-9 h-9 rounded-full object-cover shrink-0" />
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between text-[12px]">
                       <span className="text-white font-semibold">{u.name}</span>
