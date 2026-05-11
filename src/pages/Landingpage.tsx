@@ -9,7 +9,7 @@ import { LpFeaturesBento } from "@/components/marketing/lp/LpFeaturesBento";
 
 import { LpActorsBlock } from "@/components/marketing/lp/LpActorsBlock";
 import { LpEmotionLocalize } from "@/components/marketing/lp/LpEmotionLocalize";
-import { LpResults } from "@/components/marketing/lp/LpResults";
+
 import { LpTeamPlans } from "@/components/marketing/lp/LpTeamPlans";
 import { LpEnterpriseFeatures } from "@/components/marketing/lp/LpEnterpriseFeatures";
 import { LpFaq } from "@/components/marketing/lp/LpFaq";
@@ -33,7 +33,7 @@ export default function Landingpage() {
         
         <LpActorsBlock />
         <LpEmotionLocalize />
-        <LpResults />
+        
         <LpTeamPlans />
         <LpEnterpriseFeatures />
         <LpFaq />
