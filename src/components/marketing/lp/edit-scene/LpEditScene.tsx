@@ -253,12 +253,31 @@ export function LpEditScene() {
   }
 
   return (
-    <section
-      ref={sectionRef}
-      data-edit-scene
-      className="relative bg-ink text-white hidden md:block"
-      style={{ height: "600vh" }}
-    >
+    <>
+      {/* Mobile fallback — static stacked card */}
+      <section className="bg-ink text-white py-16 md:hidden">
+        <div className="max-w-md mx-auto px-5 text-center">
+          <h2 className="font-display font-extrabold text-white tracking-tight text-3xl leading-[1.05]">
+            Edit any video with{" "}
+            <span className="font-serif italic font-normal">a sentence</span>.
+          </h2>
+          <p className="mt-3 text-white/75 text-[14px]">
+            Drop a clip. Add a product. Type the change. Korsola handles the rest.
+          </p>
+          <div className="mt-8 grid grid-cols-2 gap-3">
+            <video src={VIDEO_1_SRC} autoPlay muted loop playsInline className="aspect-[9/16] w-full object-cover rounded-2xl" />
+            <video src={VIDEO_3_SRC} autoPlay muted loop playsInline className="aspect-[9/16] w-full object-cover rounded-2xl" />
+          </div>
+        </div>
+      </section>
+
+      {/* Desktop scroll-pinned scene */}
+      <section
+        ref={sectionRef}
+        data-edit-scene
+        className="relative bg-ink text-white hidden md:block"
+        style={{ height: "600vh" }}
+      >
       <div
         ref={stageRef}
         className="sticky top-0 h-screen w-full overflow-hidden"
