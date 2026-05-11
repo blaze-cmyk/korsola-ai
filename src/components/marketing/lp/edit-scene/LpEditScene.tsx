@@ -27,10 +27,13 @@ function rectFor(stageEl: HTMLElement, el: HTMLElement | null): Rect {
 }
 
 /** Centered 9:16 portrait — generous size so heading sits above with breathing room. */
+// Reserve top space for the persistent heading + "existing video" label.
+const TOP_RESERVED = 260;
 function centerRect(stageW: number, stageH: number): Rect {
-  const w = Math.min(420, stageW * 0.5, ((stageH - 220) * 9) / 16);
-  const h = (w * 16) / 9;
-  const y = Math.max(120, (stageH - h) / 2 + 32);
+  const available = stageH - TOP_RESERVED - 48;
+  const h = Math.min(available, 620);
+  const w = (h * 9) / 16;
+  const y = TOP_RESERVED;
   const x = (stageW - w) / 2;
   return { x, y, w, h };
 }
@@ -42,7 +45,7 @@ function centerRect(stageW: number, stageH: number): Rect {
 //               During hold the heading fades out so attention is on the clip.
 // playedAt → +0.18  Shrink + bg darken + prompt-bar reveal
 // (subsequent acts kept from previous version, gated behind `played`)
-const HEAD_OUT = [0.10, 0.18];
+// (no heading-fade — heading stays put through the scene)
 const VIDEO_IN = [0.06, 0.18];
 
 export function LpEditScene() {
@@ -182,19 +185,14 @@ export function LpEditScene() {
   });
 
   // --- VIDEO 1 transforms ---
-  // Phase A: slide up + fade in (offscreen below → centered).
-  // Phase B (after played): centered → docked into bar slot.
+  // No slide. Centered from the start, just fades in. After `played`, docks into the bar slot.
   const v1X = useTransform(p, (v) => {
     if (!played || playedAtP == null) return m.center.x;
     const t = clamp((v - playedAtP) / 0.18);
     return lerp(m.center.x, m.videoSlot.x, t);
   });
   const v1Y = useTransform(p, (v) => {
-    // slide up: starts 80px below center, ends at center
-    if (!played || playedAtP == null) {
-      const tIn = clamp((v - VIDEO_IN[0]) / (VIDEO_IN[1] - VIDEO_IN[0]));
-      return lerp(m.center.y + 80, m.center.y, tIn);
-    }
+    if (!played || playedAtP == null) return m.center.y;
     const t = clamp((v - playedAtP) / 0.18);
     return lerp(m.center.y, m.videoSlot.y, t);
   });
@@ -215,8 +213,8 @@ export function LpEditScene() {
   });
   const v1Opacity = useTransform(p, VIDEO_IN, [0, 1]);
 
-  // "Existing video" label — sits ABOVE the centered clip in Playfair italic,
-  // fades in with the clip, fades out as the clip starts shrinking.
+  // "existing video" label below the heading — fades in with the clip,
+  // fades out as the clip starts shrinking.
   const labelOpacity = useTransform(p, (v) => {
     const inT = clamp((v - VIDEO_IN[0]) / (VIDEO_IN[1] - VIDEO_IN[0]));
     if (!played || playedAtP == null) return inT;
@@ -224,8 +222,7 @@ export function LpEditScene() {
     return inT * (1 - outT);
   });
 
-  // Heading: visible at start, fades out as video takes over
-  const headingOpacity = useTransform(p, [HEAD_OUT[0], HEAD_OUT[1]], [1, 0]);
+  // Heading: stays visible the entire scene (congruent with other sections).
 
   // --- Prompt Bar reveal — STRICTLY after played ---
   const barOpacity = useTransform(p, (v) => {
@@ -294,38 +291,35 @@ export function LpEditScene() {
         ref={sectionRef}
         data-edit-scene
         className="relative hidden md:block"
-        style={{ height: "900vh" }}
+        style={{ height: "650vh" }}
       >
         <motion.div
           ref={stageRef}
           className="sticky top-0 h-screen w-full overflow-hidden"
           style={{ backgroundColor: bgColor }}
         >
-          {/* HEADING */}
-          <motion.div
-            className="absolute inset-x-0 top-[12%] z-30 px-6 text-center pointer-events-none"
-            style={{ opacity: headingOpacity }}
-          >
-            <h2 className="font-display font-extrabold tracking-tight text-4xl md:text-6xl lg:text-7xl leading-[1.02] text-ink">
+          {/* HEADING — always visible, congruent with other sections */}
+          <div className="absolute inset-x-0 top-[5%] z-30 px-6 text-center pointer-events-none">
+            <h2 className="font-display font-extrabold tracking-tight text-3xl md:text-5xl lg:text-6xl leading-[1.02] text-ink">
               Edit any video with{" "}
               <span className="font-serif italic font-normal">a sentence</span>.
             </h2>
-            <p className="mt-3 text-[15px] md:text-[17px] max-w-xl mx-auto text-ink/70">
+            <p className="mt-2 text-[14px] md:text-[15px] max-w-xl mx-auto text-ink/60">
               Drop a clip. Add a product. Type the change. Korsola handles the rest.
             </p>
-          </motion.div>
+          </div>
 
-          {/* "Existing video" label — sits ABOVE the centered clip in Playfair italic */}
+          {/* "existing video" label — sits just above the clip, below the heading */}
           <motion.div
-            className="absolute z-30 pointer-events-none text-center"
+            className="absolute z-20 pointer-events-none text-center"
             style={{
               left: m.center.x,
-              top: Math.max(60, m.center.y - 56),
+              top: Math.max(180, m.center.y - 38),
               width: m.center.w,
               opacity: labelOpacity,
             }}
           >
-            <span className="font-serif italic text-ink/80 text-[20px] md:text-[24px] tracking-tight">
+            <span className="font-serif italic text-ink/70 text-[18px] md:text-[20px] tracking-tight">
               existing video
             </span>
           </motion.div>
