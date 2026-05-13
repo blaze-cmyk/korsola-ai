@@ -360,9 +360,12 @@ async function atlasSubmit(opts: { prompt: string; bundle: ReferenceBundle; dura
   const humanRefError = assertNoRawHumanReferences(opts.bundle);
   if (humanRefError) return { ok: false, error: humanRefError };
   const endpoint = opts.bundle.mode === 'reference-to-video' ? SEEDANCE_REF : SEEDANCE_TEXT;
+  // Seedance/Atlas caps prompt at 2500 chars — truncate safely
+  const PROMPT_MAX = 2400;
+  const safePrompt = opts.prompt.length > PROMPT_MAX ? opts.prompt.slice(0, PROMPT_MAX) : opts.prompt;
   const body: Record<string, unknown> = {
     model: endpoint,
-    prompt: opts.prompt,
+    prompt: safePrompt,
     duration: opts.duration,
     resolution: normalizeAtlasResolution(opts.resolution),
     ratio: normalizeAtlasRatio(opts.ratio),
