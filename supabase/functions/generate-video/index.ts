@@ -309,7 +309,10 @@ async function handlePoll(body: Record<string, unknown>) {
 // ============================================================
 
 async function handleSubmit(body: Record<string, unknown>) {
-  const prompt = typeof body?.prompt === "string" ? body.prompt : "";
+  const rawPrompt = typeof body?.prompt === "string" ? body.prompt : "";
+  // Most video providers cap prompts at 2500 chars (APIYI/Sora/Veo). Truncate safely.
+  const PROMPT_MAX = 2400;
+  const prompt = rawPrompt.length > PROMPT_MAX ? rawPrompt.slice(0, PROMPT_MAX) : rawPrompt;
   const referenceImages = Array.isArray(body?.referenceImages)
     ? body.referenceImages.filter((img: unknown): img is string => typeof img === "string" && img.length > 0)
     : [];
