@@ -1,4 +1,4 @@
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Heart, Share2, Download, MoreHorizontal, Pencil, RefreshCw, Send } from 'lucide-react';
 import { MSGeneration, useMarketingStudioStore } from '@/store/marketingStudioStore';
 import { toast } from 'sonner';
@@ -36,6 +36,8 @@ export function VideoDetailModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[min(1200px,96vw)] w-[96vw] h-[92vh] md:h-[88vh] bg-ms-surface/80 backdrop-blur-2xl border-ms-border p-0 overflow-hidden flex flex-col">
+        <DialogTitle className="sr-only">Marketing video details</DialogTitle>
+        <DialogDescription className="sr-only">Preview, download, and review the marketing video.</DialogDescription>
         <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(300px,360px)]">
           {/* Media */}
           <div className="relative flex items-center justify-center min-h-0 overflow-hidden">
