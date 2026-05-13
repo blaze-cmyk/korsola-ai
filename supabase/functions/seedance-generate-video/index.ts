@@ -9,6 +9,7 @@
 //
 // Reference: https://www.atlascloud.ai/models/bytedance/seedance-2.0/reference-to-video
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
+import { shapeVideoPromptForProvider } from '../_shared/video_prompt.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -127,6 +128,10 @@ function resolvePromptTags(prompt: string, counts: { images: number; videos: num
     (_m, _det, ord, kind) => `the ${ord} reference ${kind}`);
   out = out.replace(/\bto\s+this\s+the\s+reference\s+(video|audio)\b/gi, 'to the reference $1');
   return out.trim();
+}
+
+function resolveProviderPrompt(prompt: string, counts: { images: number; videos: number; audios: number }): string {
+  return shapeVideoPromptForProvider(resolvePromptTags(prompt, counts));
 }
 
 function normRes(r: unknown): string {
@@ -449,7 +454,7 @@ function capReferenceVideosByKnownDuration(videoUrls: string[]) {
 async function atlasSubmit(p: SubmitParams) {
   const body: Record<string, unknown> = {
     model: p.variant,
-    prompt: p.prompt,
+    prompt: shapeVideoPromptForProvider(p.prompt),
     duration: p.duration,
     resolution: normRes(p.resolution),
     ratio: normRatio(p.ratio),
@@ -504,7 +509,8 @@ async function byteplusSubmit(p: SubmitParams): Promise<{ ok: true; predictionId
   if (!BYTEPLUS_KEY) return { ok: false, error: 'BytePlus fallback not configured (BYTEPLUS_ARK_API_KEY missing).' };
 
   const content: Array<Record<string, unknown>> = [];
-  if (p.prompt) content.push({ type: 'text', text: p.prompt });
+  const providerPrompt = shapeVideoPromptForProvider(p.prompt);
+  if (providerPrompt) content.push({ type: 'text', text: providerPrompt });
   for (const url of p.imageUrls) {
     content.push({ type: 'image_url', image_url: { url }, role: 'reference_image' });
   }
@@ -586,7 +592,7 @@ async function apiyiSubmit(p: SubmitParams): Promise<{ ok: true; predictionId: s
 
   const body: Record<string, unknown> = {
     model,
-    prompt: p.prompt,
+    prompt: shapeVideoPromptForProvider(p.prompt),
     ratio: normRatio(p.ratio),
     duration: p.duration,
     watermark: false,
@@ -594,7 +600,7 @@ async function apiyiSubmit(p: SubmitParams): Promise<{ ok: true; predictionId: s
   };
 
   if (hasRefs) {
-    const content: Array<Record<string, unknown>> = [{ type: 'text', text: p.prompt }];
+    const content: Array<Record<string, unknown>> = [{ type: 'text', text: shapeVideoPromptForProvider(p.prompt) }];
     for (const url of p.imageUrls) content.push({ type: 'image_url', image_url: { url }, role: 'reference_image' });
     for (const url of p.videoUrls) content.push({ type: 'video_url', video_url: { url }, role: 'reference_video' });
     for (const url of p.audioUrls) content.push({ type: 'audio_url', audio_url: { url }, role: 'reference_audio' });
@@ -922,7 +928,7 @@ Deno.serve(async (req) => {
       if (!BYTEPLUS_KEY) return { ok: false, error: 'BytePlus not configured' };
 
       const variantUsed = variantOverride ?? chosenVariant;
-      const resolvedPrompt = resolvePromptTags(effectivePromptText, {
+      const resolvedPrompt = resolveProviderPrompt(effectivePromptText, {
         images: images.length, videos: videos.length, audios: audios.length,
       });
       log('INFO', 'byteplus resolved prompt', { resolved: resolvedPrompt.slice(0, 240), variant: variantUsed });
@@ -975,7 +981,7 @@ Deno.serve(async (req) => {
         audioAssets.push(r.assetUrl);
       }
 
-      const resolvedPrompt = resolvePromptTags(effectivePromptText, {
+      const resolvedPrompt = resolveProviderPrompt(effectivePromptText, {
         images: images.length, videos: videos.length, audios: submittedAudios.length,
       });
       log('INFO', 'atlas resolved prompt', { resolved: resolvedPrompt.slice(0, 240), variant: chosenVariant });
@@ -1021,7 +1027,7 @@ Deno.serve(async (req) => {
     // no asset registration. Currently the main test path.
     const tryApiyi = async (): Promise<{ ok: true; predictionId: string; endpoint: string; provider: 'apiyi'; audioFallbackUsed: boolean } | { ok: false; error: string }> => {
       if (!APIYI_KEY) return { ok: false, error: 'Apiyi not configured' };
-      const resolvedPrompt = resolvePromptTags(effectivePromptText, {
+      const resolvedPrompt = resolveProviderPrompt(effectivePromptText, {
         images: images.length, videos: videos.length, audios: audios.length,
       });
       log('INFO', 'apiyi resolved prompt', { resolved: resolvedPrompt.slice(0, 240) });

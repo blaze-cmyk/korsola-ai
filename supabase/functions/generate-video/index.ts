@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { shapeVideoPromptForProvider } from "../_shared/video_prompt.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -310,9 +311,7 @@ async function handlePoll(body: Record<string, unknown>) {
 
 async function handleSubmit(body: Record<string, unknown>) {
   const rawPrompt = typeof body?.prompt === "string" ? body.prompt : "";
-  // Most video providers cap prompts at 2500 chars (APIYI/Sora/Veo). Truncate safely.
-  const PROMPT_MAX = 2400;
-  const prompt = rawPrompt.length > PROMPT_MAX ? rawPrompt.slice(0, PROMPT_MAX) : rawPrompt;
+  const prompt = shapeVideoPromptForProvider(rawPrompt);
   const referenceImages = Array.isArray(body?.referenceImages)
     ? body.referenceImages.filter((img: unknown): img is string => typeof img === "string" && img.length > 0)
     : [];

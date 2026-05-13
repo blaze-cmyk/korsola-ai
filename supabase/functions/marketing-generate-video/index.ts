@@ -4,6 +4,7 @@
 // (partner_validation_failed). AtlasCloud accepts avatars when we
 // pre-register them via /sd/assets and pass `asset://` IDs.
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
+import { shapeVideoPromptForProvider } from '../_shared/video_prompt.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -344,6 +345,10 @@ function withReferenceMap(prompt: string, bundle: ReferenceBundle) {
   return `${lines.join('\n')}\n\n${prompt}`;
 }
 
+function shapeMarketingPromptForAtlas(prompt: string, bundle: ReferenceBundle) {
+  return shapeVideoPromptForProvider(withReferenceMap(prompt, bundle));
+}
+
 function assertNoRawHumanReferences(bundle: ReferenceBundle): string | null {
   if (!bundle.hasAvatar) return null;
   if (bundle.assetRegistrationError) return bundle.assetRegistrationError;
@@ -360,12 +365,9 @@ async function atlasSubmit(opts: { prompt: string; bundle: ReferenceBundle; dura
   const humanRefError = assertNoRawHumanReferences(opts.bundle);
   if (humanRefError) return { ok: false, error: humanRefError };
   const endpoint = opts.bundle.mode === 'reference-to-video' ? SEEDANCE_REF : SEEDANCE_TEXT;
-  // Seedance/Atlas caps prompt at 2500 chars — truncate safely
-  const PROMPT_MAX = 2400;
-  const safePrompt = opts.prompt.length > PROMPT_MAX ? opts.prompt.slice(0, PROMPT_MAX) : opts.prompt;
   const body: Record<string, unknown> = {
     model: endpoint,
-    prompt: safePrompt,
+    prompt: opts.prompt,
     duration: opts.duration,
     resolution: normalizeAtlasResolution(opts.resolution),
     ratio: normalizeAtlasRatio(opts.ratio),
@@ -554,7 +556,7 @@ Deno.serve(async (req) => {
       row = inserted;
     }
 
-    const prompted = withReferenceMap(prompt, bundle);
+    const prompted = shapeMarketingPromptForAtlas(prompt, bundle);
     const submission = await atlasSubmit({
       prompt: prompted,
       bundle,

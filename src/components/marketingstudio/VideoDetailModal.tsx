@@ -1,15 +1,8 @@
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Heart, Share2, Download, MoreHorizontal, Pencil, RefreshCw, Send } from 'lucide-react';
 import { MSGeneration, useMarketingStudioStore } from '@/store/marketingStudioStore';
 import { toast } from 'sonner';
-
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
-
-function proxiedVideoUrl(url: string, download?: string) {
-  const qs = new URLSearchParams({ url });
-  if (download) qs.set('download', download);
-  return `${SUPABASE_URL}/functions/v1/marketing-video-proxy?${qs.toString()}`;
-}
+import { downloadVideoFile, videoDownloadFilename } from '@/lib/videoDownload';
 
 export function VideoDetailModal({
   open,
@@ -33,18 +26,7 @@ export function VideoDetailModal({
   const handleDownload = async () => {
     if (!generation.videoUrl) return;
     try {
-      const filename = `${(generation.prompt || 'video').slice(0, 40).replace(/[^a-z0-9]+/gi, '-')}.mp4`;
-      const res = await fetch(proxiedVideoUrl(generation.videoUrl, filename));
-      if (!res.ok) throw new Error('download failed');
-      const blob = await res.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = blobUrl;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(blobUrl);
+      await downloadVideoFile(generation.videoUrl, videoDownloadFilename(generation.prompt, generation.id));
     } catch (e) {
       toast.error('Download failed');
       window.open(generation.videoUrl, '_blank');
@@ -54,6 +36,8 @@ export function VideoDetailModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[min(1200px,96vw)] w-[96vw] h-[92vh] md:h-[88vh] bg-ms-surface/80 backdrop-blur-2xl border-ms-border p-0 overflow-hidden flex flex-col">
+        <DialogTitle className="sr-only">Marketing video details</DialogTitle>
+        <DialogDescription className="sr-only">Preview, download, and review the marketing video.</DialogDescription>
         <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(300px,360px)]">
           {/* Media */}
           <div className="relative flex items-center justify-center min-h-0 overflow-hidden">

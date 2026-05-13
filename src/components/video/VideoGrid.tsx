@@ -1,6 +1,7 @@
 import { useVideoStore, VIDEO_MODELS, GeneratedVideo } from '@/store/videoStore';
 import { AlertCircle, RefreshCw, Trash2, Loader2, Download, Play, Copy, Clock, Diamond, Maximize2 } from 'lucide-react';
 import { useState } from 'react';
+import { downloadVideoFile, videoDownloadFilename } from '@/lib/videoDownload';
 
 export function VideoGrid() {
   const { videos } = useVideoStore();
@@ -40,15 +41,7 @@ function VideoCard({ video }: { video: GeneratedVideo }) {
     e.stopPropagation();
     if (!video.videoUrl) return;
     try {
-      const res = await fetch(video.videoUrl);
-      const blob = await res.blob();
-      const slug = video.prompt.slice(0, 40).replace(/[^a-zA-Z0-9]+/g, '-').replace(/-+$/, '');
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${slug || 'video'}-${video.id.slice(0, 8)}.mp4`;
-      a.click();
-      URL.revokeObjectURL(url);
+      await downloadVideoFile(video.videoUrl, videoDownloadFilename(video.prompt, video.id));
     } catch {
       window.open(video.videoUrl, '_blank');
     }

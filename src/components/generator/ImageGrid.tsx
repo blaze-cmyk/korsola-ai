@@ -16,6 +16,7 @@ import { create } from 'zustand';
 import { VideoDetailModal } from '@/components/marketingstudio/VideoDetailModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useGenerationProgress } from '@/hooks/useGenerationProgress';
+import { downloadVideoFile, videoDownloadFilename } from '@/lib/videoDownload';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -676,15 +677,7 @@ function VideoCard({ video }: { video: GeneratedVideo & { kind: 'video' } }) {
     e.stopPropagation();
     if (!video.videoUrl) return;
     try {
-      const res = await fetch(video.videoUrl);
-      const blob = await res.blob();
-      const slug = video.prompt.slice(0, 40).replace(/[^a-zA-Z0-9]+/g, '-').replace(/-+$/, '') || 'video';
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${slug}-${video.id.slice(0, 8)}.mp4`;
-      a.click();
-      URL.revokeObjectURL(url);
+      await downloadVideoFile(video.videoUrl, videoDownloadFilename(video.prompt, video.id));
     } catch {
       window.open(video.videoUrl, '_blank');
     }
