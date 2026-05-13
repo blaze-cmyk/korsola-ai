@@ -3,6 +3,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Heart, Share2, Download, MoreHorizontal, Pencil, RefreshCw, Send } from 'lucide-react';
 import { useVideoStore, VIDEO_MODELS } from '@/store/videoStore';
 import { toast } from 'sonner';
+import { downloadVideoFile, videoDownloadFilename } from '@/lib/videoDownload';
 
 export function VideoDetailModal() {
   const { videos, selectedVideoId, setSelectedVideoId, retryVideo } = useVideoStore();
@@ -45,19 +46,7 @@ export function VideoDetailModal() {
   const handleDownload = async () => {
     if (!video.videoUrl) return;
     try {
-      const slug = (video.prompt || 'video').slice(0, 40).replace(/[^a-z0-9]+/gi, '-');
-      const filename = `${slug}-${video.id.slice(0, 8)}.mp4`;
-      const res = await fetch(video.videoUrl);
-      if (!res.ok) throw new Error('download failed');
-      const blob = await res.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = blobUrl;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(blobUrl);
+      await downloadVideoFile(video.videoUrl, videoDownloadFilename(video.prompt, video.id));
     } catch {
       toast.error('Download failed');
       window.open(video.videoUrl, '_blank');
