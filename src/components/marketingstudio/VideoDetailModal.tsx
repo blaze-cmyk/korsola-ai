@@ -2,14 +2,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Heart, Share2, Download, MoreHorizontal, Pencil, RefreshCw, Send } from 'lucide-react';
 import { MSGeneration, useMarketingStudioStore } from '@/store/marketingStudioStore';
 import { toast } from 'sonner';
-
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
-
-function proxiedVideoUrl(url: string, download?: string) {
-  const qs = new URLSearchParams({ url });
-  if (download) qs.set('download', download);
-  return `${SUPABASE_URL}/functions/v1/marketing-video-proxy?${qs.toString()}`;
-}
+import { downloadVideoFile, videoDownloadFilename } from '@/lib/videoDownload';
 
 export function VideoDetailModal({
   open,
@@ -33,18 +26,7 @@ export function VideoDetailModal({
   const handleDownload = async () => {
     if (!generation.videoUrl) return;
     try {
-      const filename = `${(generation.prompt || 'video').slice(0, 40).replace(/[^a-z0-9]+/gi, '-')}.mp4`;
-      const res = await fetch(proxiedVideoUrl(generation.videoUrl, filename));
-      if (!res.ok) throw new Error('download failed');
-      const blob = await res.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = blobUrl;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(blobUrl);
+      await downloadVideoFile(generation.videoUrl, videoDownloadFilename(generation.prompt, generation.id));
     } catch (e) {
       toast.error('Download failed');
       window.open(generation.videoUrl, '_blank');
