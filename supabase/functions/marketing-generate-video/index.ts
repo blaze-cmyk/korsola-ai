@@ -523,9 +523,17 @@ Deno.serve(async (req) => {
       const poll = await atlasPoll(row.fal_request_id);
 
       if (poll.status === "done") {
+        let finalUrl = poll.videoUrl!;
+        try {
+          finalUrl = await persistVideoToStorage(admin, poll.videoUrl!, {
+            key: safeVideoKey("marketing", row.id),
+          });
+        } catch (e) {
+          console.warn("persistVideoToStorage failed, falling back to upstream URL", e);
+        }
         const { data: updated } = await admin
           .from("ms_generations")
-          .update({ status: "done", stage: "done", video_url: poll.videoUrl, error: null })
+          .update({ status: "done", stage: "done", video_url: finalUrl, error: null })
           .eq("id", row.id)
           .select()
           .single();
