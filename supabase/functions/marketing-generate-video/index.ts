@@ -5,6 +5,7 @@
 // pre-register them via /sd/assets and pass `asset://` IDs.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { shapeVideoPromptForProvider } from "../_shared/video_prompt.ts";
+import { persistVideoToStorage, safeVideoKey } from "../_shared/persist_video.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
