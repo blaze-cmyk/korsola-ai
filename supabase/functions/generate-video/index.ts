@@ -710,8 +710,9 @@ async function handleSubmit(body: Record<string, unknown>) {
       const vid = payload?.video?.url || payload?.video;
       if (vid) {
         const videoUrl = typeof vid === "string" ? vid : vid.url;
-        await updateVideoRow(videoId, { provider: "fal", task_id: requestId ?? "immediate", status: "complete", stage: "complete", video_url: videoUrl, error: null });
-        return jsonResp({ submitted: true, provider: "fal", taskId: "immediate", status: "complete", videoUrl });
+        const finalUrl = await completeVideoRow(videoId, "fal", videoUrl);
+        await updateVideoRow(videoId, { task_id: requestId ?? "immediate" });
+        return jsonResp({ submitted: true, provider: "fal", taskId: "immediate", status: "complete", videoUrl: finalUrl });
       }
     }
 
@@ -730,6 +731,15 @@ async function handleSubmit(body: Record<string, unknown>) {
       stage: "processing",
       error: null,
     });
+
+    const webhookUrl = videoId && Deno.env.get("SUPABASE_URL")
+      ? `${Deno.env.get("SUPABASE_URL")}/functions/v1/fal-video-webhook?videoId=${encodeURIComponent(videoId)}`
+      : undefined;
+    if (webhookUrl) {
+      await fetch(`${FAL_QUEUE}/${endpoint}/requests/${requestId}/status?fal_webhook=${encodeURIComponent(webhookUrl)}`, {
+        headers: { Authorization: `Key ${FAL_KEY}`, Accept: "application/json" },
+      }).catch((e) => console.warn("fal webhook registration check failed", e));
+    }
 
     console.log(`Fal.ai task submitted: request_id=${requestId}`);
     return jsonResp({
