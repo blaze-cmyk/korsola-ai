@@ -158,6 +158,12 @@ async function handlePoll(body: Record<string, unknown>) {
           const vid = payload?.video?.url || payload?.video;
           const videoUrl = vid ? (typeof vid === "string" ? vid : vid.url) : undefined;
           if (videoUrl) return jsonResp({ status: "complete", videoUrl: await completeVideoRow(videoId, "fal", videoUrl) });
+          if (payload?.error || payload?.detail) {
+            const error = typeof payload.error === "string" ? payload.error : JSON.stringify(payload.error || payload.detail).slice(0, 1000);
+            await failVideoRow(videoId, "fal", error);
+            return jsonResp({ status: "failed", error });
+          }
+          await failVideoRow(videoId, "fal", "Fal completed without a video URL");
           return jsonResp({ error: "No video in fal.ai response" }, 502);
         }
         if (data.status === "FAILED") {
@@ -188,6 +194,11 @@ async function handlePoll(body: Record<string, unknown>) {
     const vid = payload?.video?.url || payload?.video;
     const videoUrl = vid ? (typeof vid === "string" ? vid : vid.url) : undefined;
     if (videoUrl) return jsonResp({ status: "complete", videoUrl: await completeVideoRow(videoId, "fal", videoUrl) });
+    if (payload?.error || payload?.detail) {
+      const error = typeof payload.error === "string" ? payload.error : JSON.stringify(payload.error || payload.detail).slice(0, 1000);
+      await failVideoRow(videoId, "fal", error);
+      return jsonResp({ status: "failed", error });
+    }
     return jsonResp({ status: "processing" });
   }
 
