@@ -10,6 +10,7 @@
 // Reference: https://www.atlascloud.ai/models/bytedance/seedance-2.0/reference-to-video
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
 import { shapeVideoPromptForProvider } from '../_shared/video_prompt.ts';
+import { persistVideoToStorage, safeVideoKey } from '../_shared/persist_video.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -683,6 +684,17 @@ async function updateRow(admin: any, videoId: string, patch: Record<string, unkn
   await admin.from('video_generations').update(patch).eq('id', videoId);
 }
 
+async function persistGeneratedVideo(admin: any, sourceUrl: string, videoId: string): Promise<string> {
+  try {
+    return await persistVideoToStorage(admin, sourceUrl, {
+      key: safeVideoKey('videos', videoId),
+    });
+  } catch (e) {
+    log('WARN', 'persistGeneratedVideo failed; keeping upstream URL', { videoId, error: String(e) });
+    return sourceUrl;
+  }
+}
+
 // Background poller — runs in the edge worker after the HTTP response is sent
 // (via EdgeRuntime.waitUntil) so the DB row is patched the instant AtlasCloud
 // finishes. Realtime then pushes the update to the browser with no client-side
@@ -699,8 +711,9 @@ async function runBackgroundPoll(admin: any, videoId: string, taskId: string) {
     try {
       const out = await atlasPoll(currentTaskId);
       if (out.status === 'done') {
+        const finalUrl = await persistGeneratedVideo(admin, out.videoUrl, videoId);
         await updateRow(admin, videoId, {
-          status: 'complete', stage: 'complete', video_url: out.videoUrl, error: null, provider: 'atlas',
+          status: 'complete', stage: 'complete', video_url: finalUrl, error: null, provider: 'atlas',
         });
         log('INFO', 'background poll complete', { videoId });
         return;
@@ -803,8 +816,9 @@ Deno.serve(async (req) => {
 
       const out = await atlasPoll(predictionId);
       if (out.status === 'done') {
-        if (videoId) await updateRow(admin, videoId, { status: 'complete', stage: 'complete', video_url: out.videoUrl, error: null, provider });
-        return json({ status: 'complete', stage: 'complete', videoUrl: out.videoUrl });
+        const finalUrl = videoId ? await persistGeneratedVideo(admin, out.videoUrl, videoId) : out.videoUrl;
+        if (videoId) await updateRow(admin, videoId, { status: 'complete', stage: 'complete', video_url: finalUrl, error: null, provider });
+        return json({ status: 'complete', stage: 'complete', videoUrl: finalUrl });
       }
       if (out.status === 'failed') {
         // ── Auto-retry: AtlasCloud output-moderation false positive → AtlasCloud ──

@@ -18,6 +18,7 @@ const ALLOWED_HOST_SUFFIXES = [
   '.klingai.com',
   '.kling.ai',
   '.atlascloud.ai',
+  '.aliyuncs.com',
   '.apiyi.com',
   '.evolink.ai',
   '.supabase.co',
