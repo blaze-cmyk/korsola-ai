@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { shapeVideoPromptForProvider } from "../_shared/video_prompt.ts";
+import { persistVideoToStorage, safeVideoKey } from "../_shared/persist_video.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -84,6 +85,30 @@ async function updateVideoRow(videoId: string | undefined, patch: Record<string,
   if (error) console.error("video row update failed", error.message);
 }
 
+async function persistCompletedVideo(videoId: string | undefined, sourceUrl: string) {
+  if (!videoId) return sourceUrl;
+  const url = Deno.env.get("SUPABASE_URL");
+  const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!url || !key) return sourceUrl;
+  try {
+    const admin = createClient(url, key);
+    return await persistVideoToStorage(admin, sourceUrl, { key: safeVideoKey("videos", videoId) });
+  } catch (e) {
+    console.warn("persistCompletedVideo failed; keeping provider URL", e);
+    return sourceUrl;
+  }
+}
+
+async function completeVideoRow(videoId: string | undefined, provider: string, videoUrl: string) {
+  const finalUrl = await persistCompletedVideo(videoId, videoUrl);
+  await updateVideoRow(videoId, { provider, status: "complete", stage: "complete", video_url: finalUrl, error: null });
+  return finalUrl;
+}
+
+async function failVideoRow(videoId: string | undefined, provider: string, error: string) {
+  await updateVideoRow(videoId, { provider, status: "failed", stage: "failed", error });
+}
+
 function normalizeClientFacingError(error: unknown) {
   const rawMessage = error instanceof Error ? error.message : "Internal server error";
   if (rawMessage.includes("file_too_large")) {
@@ -102,6 +127,7 @@ function normalizeClientFacingError(error: unknown) {
 async function handlePoll(body: Record<string, unknown>) {
   const provider = body.provider as string;
   const taskId = body.taskId as string;
+  const videoId = typeof body.videoId === "string" ? body.videoId : undefined;
 
   if (!provider || !taskId) {
     return jsonResp({ error: "poll requires provider and taskId" }, 400);
@@ -131,10 +157,17 @@ async function handlePoll(body: Record<string, unknown>) {
           const payload = result?.data ?? result;
           const vid = payload?.video?.url || payload?.video;
           const videoUrl = vid ? (typeof vid === "string" ? vid : vid.url) : undefined;
-          if (videoUrl) return jsonResp({ status: "complete", videoUrl });
+          if (videoUrl) return jsonResp({ status: "complete", videoUrl: await completeVideoRow(videoId, "fal", videoUrl) });
+          if (payload?.error || payload?.detail) {
+            const error = typeof payload.error === "string" ? payload.error : JSON.stringify(payload.error || payload.detail).slice(0, 1000);
+            await failVideoRow(videoId, "fal", error);
+            return jsonResp({ status: "failed", error });
+          }
+          await failVideoRow(videoId, "fal", "Fal completed without a video URL");
           return jsonResp({ error: "No video in fal.ai response" }, 502);
         }
         if (data.status === "FAILED") {
+          await failVideoRow(videoId, "fal", data.error || "Video generation failed");
           return jsonResp({ status: "failed", error: data.error || "Video generation failed" });
         }
         return jsonResp({ status: "processing", progress: data.progress || 0 });
@@ -160,7 +193,12 @@ async function handlePoll(body: Record<string, unknown>) {
     const payload = result?.data ?? result;
     const vid = payload?.video?.url || payload?.video;
     const videoUrl = vid ? (typeof vid === "string" ? vid : vid.url) : undefined;
-    if (videoUrl) return jsonResp({ status: "complete", videoUrl });
+    if (videoUrl) return jsonResp({ status: "complete", videoUrl: await completeVideoRow(videoId, "fal", videoUrl) });
+    if (payload?.error || payload?.detail) {
+      const error = typeof payload.error === "string" ? payload.error : JSON.stringify(payload.error || payload.detail).slice(0, 1000);
+      await failVideoRow(videoId, "fal", error);
+      return jsonResp({ status: "failed", error });
+    }
     return jsonResp({ status: "processing" });
   }
 
@@ -503,7 +541,13 @@ async function handleSubmit(body: Record<string, unknown>) {
           video_url: motionVideo,
           duration: (parseInt(duration) || 5) >= 10 ? "10" : "5",
         };
-        const falResp = await fetch(`https://queue.fal.run/${falEndpoint}`, {
+        const falWebhookUrl = videoId && Deno.env.get("SUPABASE_URL")
+          ? `${Deno.env.get("SUPABASE_URL")}/functions/v1/fal-video-webhook?videoId=${encodeURIComponent(videoId)}`
+          : undefined;
+        const falSubmitUrl = falWebhookUrl
+          ? `https://queue.fal.run/${falEndpoint}?fal_webhook=${encodeURIComponent(falWebhookUrl)}`
+          : `https://queue.fal.run/${falEndpoint}`;
+        const falResp = await fetch(falSubmitUrl, {
           method: "POST",
           headers: { Authorization: `Key ${FAL_KEY_FB}`, "Content-Type": "application/json" },
           body: JSON.stringify(falBody),
@@ -652,9 +696,16 @@ async function handleSubmit(body: Record<string, unknown>) {
     console.log(`Submitting to fal.ai queue: ${endpoint}, mode=${mode}`);
     await updateVideoRow(videoId, { provider: "fal", stage: "submitting", status: "processing", error: null });
 
+    const webhookUrl = videoId && Deno.env.get("SUPABASE_URL")
+      ? `${Deno.env.get("SUPABASE_URL")}/functions/v1/fal-video-webhook?videoId=${encodeURIComponent(videoId)}`
+      : undefined;
+    const submitUrl = webhookUrl
+      ? `${FAL_QUEUE}/${endpoint}?fal_webhook=${encodeURIComponent(webhookUrl)}`
+      : `${FAL_QUEUE}/${endpoint}`;
+
     let submitResp: Response;
     try {
-      submitResp = await fetch(`${FAL_QUEUE}/${endpoint}`, {
+      submitResp = await fetch(submitUrl, {
         method: "POST",
         headers: { Authorization: `Key ${FAL_KEY}`, "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify(input),
@@ -683,8 +734,9 @@ async function handleSubmit(body: Record<string, unknown>) {
       const vid = payload?.video?.url || payload?.video;
       if (vid) {
         const videoUrl = typeof vid === "string" ? vid : vid.url;
-        await updateVideoRow(videoId, { provider: "fal", task_id: requestId ?? "immediate", status: "complete", stage: "complete", video_url: videoUrl, error: null });
-        return jsonResp({ submitted: true, provider: "fal", taskId: "immediate", status: "complete", videoUrl });
+        const finalUrl = await completeVideoRow(videoId, "fal", videoUrl);
+        await updateVideoRow(videoId, { task_id: requestId ?? "immediate" });
+        return jsonResp({ submitted: true, provider: "fal", taskId: "immediate", status: "complete", videoUrl: finalUrl });
       }
     }
 

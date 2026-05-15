@@ -390,6 +390,7 @@ async function callGenerate(payload: Record<string, unknown>, videoId: string, g
         action: 'poll',
         provider: data.provider,
         taskId: data.taskId,
+        videoId,
       };
       if (data.responseUrl) pollBody.responseUrl = data.responseUrl;
       if (data.statusUrl) pollBody.statusUrl = data.statusUrl;
@@ -680,7 +681,7 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
         if (row.model === 'seedance-2.0' && row.status === 'processing' && row.task_id) {
           pollSeedanceVideo(row.id, row.task_id, get, set, row.provider);
         } else if (row.status === 'processing' && row.provider && row.task_id) {
-          const pollBody: Record<string, unknown> = { provider: row.provider, taskId: row.task_id };
+          const pollBody: Record<string, unknown> = { provider: row.provider, taskId: row.task_id, videoId: row.id };
           if (row.response_url) pollBody.responseUrl = row.response_url;
           if (row.status_url) pollBody.statusUrl = row.status_url;
           pollGenericVideo(row.id, pollBody, get, set);

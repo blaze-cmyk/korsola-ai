@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.marketing-provider-health]
 verify_jwt = false
+
+[functions.fal-video-webhook]
+verify_jwt = false
