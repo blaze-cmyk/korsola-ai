@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { shapeVideoPromptForProvider } from "../_shared/video_prompt.ts";
+import { persistVideoToStorage, safeVideoKey } from "../_shared/persist_video.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -82,6 +83,30 @@ async function updateVideoRow(videoId: string | undefined, patch: Record<string,
   const admin = createClient(url, key);
   const { error } = await admin.from("video_generations").update(patch).eq("id", videoId);
   if (error) console.error("video row update failed", error.message);
+}
+
+async function persistCompletedVideo(videoId: string | undefined, sourceUrl: string) {
+  if (!videoId) return sourceUrl;
+  const url = Deno.env.get("SUPABASE_URL");
+  const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!url || !key) return sourceUrl;
+  try {
+    const admin = createClient(url, key);
+    return await persistVideoToStorage(admin, sourceUrl, { key: safeVideoKey("videos", videoId) });
+  } catch (e) {
+    console.warn("persistCompletedVideo failed; keeping provider URL", e);
+    return sourceUrl;
+  }
+}
+
+async function completeVideoRow(videoId: string | undefined, provider: string, videoUrl: string) {
+  const finalUrl = await persistCompletedVideo(videoId, videoUrl);
+  await updateVideoRow(videoId, { provider, status: "complete", stage: "complete", video_url: finalUrl, error: null });
+  return finalUrl;
+}
+
+async function failVideoRow(videoId: string | undefined, provider: string, error: string) {
+  await updateVideoRow(videoId, { provider, status: "failed", stage: "failed", error });
 }
 
 function normalizeClientFacingError(error: unknown) {
