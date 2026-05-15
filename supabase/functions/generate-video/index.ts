@@ -679,9 +679,16 @@ async function handleSubmit(body: Record<string, unknown>) {
     console.log(`Submitting to fal.ai queue: ${endpoint}, mode=${mode}`);
     await updateVideoRow(videoId, { provider: "fal", stage: "submitting", status: "processing", error: null });
 
+    const webhookUrl = videoId && Deno.env.get("SUPABASE_URL")
+      ? `${Deno.env.get("SUPABASE_URL")}/functions/v1/fal-video-webhook?videoId=${encodeURIComponent(videoId)}`
+      : undefined;
+    const submitUrl = webhookUrl
+      ? `${FAL_QUEUE}/${endpoint}?fal_webhook=${encodeURIComponent(webhookUrl)}`
+      : `${FAL_QUEUE}/${endpoint}`;
+
     let submitResp: Response;
     try {
-      submitResp = await fetch(`${FAL_QUEUE}/${endpoint}`, {
+      submitResp = await fetch(submitUrl, {
         method: "POST",
         headers: { Authorization: `Key ${FAL_KEY}`, "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify(input),
@@ -731,15 +738,6 @@ async function handleSubmit(body: Record<string, unknown>) {
       stage: "processing",
       error: null,
     });
-
-    const webhookUrl = videoId && Deno.env.get("SUPABASE_URL")
-      ? `${Deno.env.get("SUPABASE_URL")}/functions/v1/fal-video-webhook?videoId=${encodeURIComponent(videoId)}`
-      : undefined;
-    if (webhookUrl) {
-      await fetch(`${FAL_QUEUE}/${endpoint}/requests/${requestId}/status?fal_webhook=${encodeURIComponent(webhookUrl)}`, {
-        headers: { Authorization: `Key ${FAL_KEY}`, Accept: "application/json" },
-      }).catch((e) => console.warn("fal webhook registration check failed", e));
-    }
 
     console.log(`Fal.ai task submitted: request_id=${requestId}`);
     return jsonResp({
