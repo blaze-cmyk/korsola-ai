@@ -127,6 +127,7 @@ function normalizeClientFacingError(error: unknown) {
 async function handlePoll(body: Record<string, unknown>) {
   const provider = body.provider as string;
   const taskId = body.taskId as string;
+  const videoId = typeof body.videoId === "string" ? body.videoId : undefined;
 
   if (!provider || !taskId) {
     return jsonResp({ error: "poll requires provider and taskId" }, 400);
@@ -156,10 +157,11 @@ async function handlePoll(body: Record<string, unknown>) {
           const payload = result?.data ?? result;
           const vid = payload?.video?.url || payload?.video;
           const videoUrl = vid ? (typeof vid === "string" ? vid : vid.url) : undefined;
-          if (videoUrl) return jsonResp({ status: "complete", videoUrl });
+          if (videoUrl) return jsonResp({ status: "complete", videoUrl: await completeVideoRow(videoId, "fal", videoUrl) });
           return jsonResp({ error: "No video in fal.ai response" }, 502);
         }
         if (data.status === "FAILED") {
+          await failVideoRow(videoId, "fal", data.error || "Video generation failed");
           return jsonResp({ status: "failed", error: data.error || "Video generation failed" });
         }
         return jsonResp({ status: "processing", progress: data.progress || 0 });
@@ -185,7 +187,7 @@ async function handlePoll(body: Record<string, unknown>) {
     const payload = result?.data ?? result;
     const vid = payload?.video?.url || payload?.video;
     const videoUrl = vid ? (typeof vid === "string" ? vid : vid.url) : undefined;
-    if (videoUrl) return jsonResp({ status: "complete", videoUrl });
+    if (videoUrl) return jsonResp({ status: "complete", videoUrl: await completeVideoRow(videoId, "fal", videoUrl) });
     return jsonResp({ status: "processing" });
   }
 
