@@ -530,7 +530,13 @@ async function handleSubmit(body: Record<string, unknown>) {
           video_url: motionVideo,
           duration: (parseInt(duration) || 5) >= 10 ? "10" : "5",
         };
-        const falResp = await fetch(`https://queue.fal.run/${falEndpoint}`, {
+        const falWebhookUrl = videoId && Deno.env.get("SUPABASE_URL")
+          ? `${Deno.env.get("SUPABASE_URL")}/functions/v1/fal-video-webhook?videoId=${encodeURIComponent(videoId)}`
+          : undefined;
+        const falSubmitUrl = falWebhookUrl
+          ? `https://queue.fal.run/${falEndpoint}?fal_webhook=${encodeURIComponent(falWebhookUrl)}`
+          : `https://queue.fal.run/${falEndpoint}`;
+        const falResp = await fetch(falSubmitUrl, {
           method: "POST",
           headers: { Authorization: `Key ${FAL_KEY_FB}`, "Content-Type": "application/json" },
           body: JSON.stringify(falBody),
