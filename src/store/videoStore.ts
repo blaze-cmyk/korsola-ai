@@ -255,18 +255,35 @@ function updateVideoAndSave(videoId: string, updates: Partial<GeneratedVideo>, g
 const activeSeedancePolls = new Set<string>();
 const activeVideoPolls = new Set<string>();
 
+const ACTIVE_VIDEO_TIMEOUT_MS = 5 * 60 * 1000;
+const STALE_PROCESSING_MS = 10 * 60 * 1000;
+
+function stuckVideoError(model?: string | null) {
+  const label = model?.startsWith('kling') ? 'Kling' : 'The video provider';
+  return `${label} did not finish in a normal interactive window. Please retry; long-running provider retries are no longer left processing indefinitely.`;
+}
+
 async function pollGenericVideo(videoId: string, pollBody: Record<string, unknown>, get: () => VideoState, set: (s: Partial<VideoState>) => void) {
   if (!pollBody.provider || !pollBody.taskId || activeVideoPolls.has(videoId)) return;
   activeVideoPolls.add(videoId);
   try {
-    const maxAttempts = 360; // ~30 min budget for slow models (Kling 3.0 Pro, Veo 3.1)
+    const started = Date.now();
+    let consecutiveErrors = 0;
     let delay = 4000;
-    for (let i = 0; i < maxAttempts; i++) {
+    while (Date.now() - started < ACTIVE_VIDEO_TIMEOUT_MS) {
       await new Promise(r => setTimeout(r, delay));
       delay = Math.min(8000, delay + 250); // gentle backoff, cap at 8s
       try {
         const { data: pollData, error: pollError } = await supabase.functions.invoke('generate-video', { body: { action: 'poll', ...pollBody } });
-        if (pollError) continue;
+        if (pollError || pollData?.error) {
+          consecutiveErrors += 1;
+          if (consecutiveErrors >= 3) {
+            updateVideoAndSave(videoId, { status: 'failed', stage: 'failed', error: pollData?.error || pollError?.message || 'Video provider polling failed' }, get, set);
+            return;
+          }
+          continue;
+        }
+        consecutiveErrors = 0;
         if (pollData?.status === 'complete' && pollData.videoUrl) {
           updateVideoAndSave(videoId, { status: 'complete', stage: 'complete', videoUrl: pollData.videoUrl, progress: 100 }, get, set);
           return;
@@ -282,7 +299,8 @@ async function pollGenericVideo(videoId: string, pollBody: Record<string, unknow
         }
       } catch {}
     }
-    updateVideoAndSave(videoId, { status: 'failed', stage: 'failed', error: 'Video generation timed out' }, get, set);
+    const current = get().videos.find(v => v.id === videoId);
+    updateVideoAndSave(videoId, { status: 'failed', stage: 'failed', error: stuckVideoError(current?.model) }, get, set);
   } finally {
     activeVideoPolls.delete(videoId);
   }
