@@ -647,7 +647,6 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
         .limit(100);
       if (projectId) q = q.or(`create_project_id.eq.${projectId},project_id.eq.${projectId}`);
       const { data } = await q;
-      const orphanError = 'Generation could not resume because provider task metadata was missing. Please retry.';
       const orphanMs = STALE_PROCESSING_MS;
       const rows: GeneratedVideo[] = (data || []).map((row: any) => ({
         id: row.id,
