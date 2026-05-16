@@ -648,7 +648,7 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
       if (projectId) q = q.or(`create_project_id.eq.${projectId},project_id.eq.${projectId}`);
       const { data } = await q;
       const orphanError = 'Generation could not resume because provider task metadata was missing. Please retry.';
-      const orphanMs = 10 * 60 * 1000;
+      const orphanMs = STALE_PROCESSING_MS;
       const rows: GeneratedVideo[] = (data || []).map((row: any) => ({
         id: row.id,
         prompt: row.prompt || '',
@@ -658,17 +658,17 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
         aspectRatio: row.aspect_ratio,
         duration: row.duration,
         resolution: row.resolution || undefined,
-        status: row.status === 'processing' && !row.task_id && Date.now() - new Date(row.created_at).getTime() > orphanMs
+        status: row.status === 'processing' && Date.now() - new Date(row.created_at).getTime() > orphanMs
           ? 'failed'
           : row.status === 'processing' ? 'generating' : row.status as GeneratedVideo['status'],
-        stage: row.status === 'processing' && !row.task_id && Date.now() - new Date(row.created_at).getTime() > orphanMs
+        stage: row.status === 'processing' && Date.now() - new Date(row.created_at).getTime() > orphanMs
           ? 'failed'
           : (row.stage as VideoStage | null) ?? undefined,
         videoUrl: row.video_url || undefined,
         thumbnailUrl: fallbackVideoThumbnail(row),
         createdAt: new Date(row.created_at).getTime(),
-        error: row.status === 'processing' && !row.task_id && Date.now() - new Date(row.created_at).getTime() > orphanMs
-          ? orphanError
+        error: row.status === 'processing' && Date.now() - new Date(row.created_at).getTime() > orphanMs
+          ? stuckVideoError(row.model)
           : row.error || undefined,
         provider: normalizeSeedanceProvider(row.provider, row.task_id),
         taskId: row.task_id || null,
@@ -691,9 +691,9 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
       nextLoaded.add(key);
       set({ videos: mergedVideos, _historyLoaded: true, _loadedProjects: nextLoaded } as any);
       (data || [])
-        .filter((row: any) => row.status === 'processing' && !row.task_id && Date.now() - new Date(row.created_at).getTime() > orphanMs)
+        .filter((row: any) => row.status === 'processing' && Date.now() - new Date(row.created_at).getTime() > orphanMs)
         .forEach((row: any) => {
-          (supabase as any).from('video_generations').update({ status: 'failed', stage: 'failed', error: orphanError }).eq('id', row.id).then(() => {});
+          (supabase as any).from('video_generations').update({ status: 'failed', stage: 'failed', error: stuckVideoError(row.model) }).eq('id', row.id).then(() => {});
         });
       (data || []).forEach((row: any) => {
         if (row.model === 'seedance-2.0' && row.status === 'processing' && row.task_id) {
