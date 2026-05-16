@@ -82,8 +82,15 @@ export function VideoGeneratorNode({ id, data, selected }: { id: string; data: S
       }
 
       if (result?.submitted) {
+        const startedAt = Date.now();
         const pollInterval = setInterval(async () => {
           try {
+            if (Date.now() - startedAt > 5 * 60 * 1000) {
+              clearInterval(pollInterval);
+              updateNodeData(id, { status: 'error' });
+              setGenerating(false);
+              return;
+            }
             const { data: pollResult } = await supabase.functions.invoke('generate-video', {
               body: {
                 action: 'poll',
