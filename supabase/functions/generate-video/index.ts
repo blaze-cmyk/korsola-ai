@@ -109,6 +109,25 @@ async function failVideoRow(videoId: string | undefined, provider: string, error
   await updateVideoRow(videoId, { provider, status: "failed", stage: "failed", error });
 }
 
+function isKlingV3(model: string) {
+  return model === "kling-v3-pro" || model === "kling-v3-motion";
+}
+
+function falSubmitHeaders(FAL_KEY: string, interactive = true) {
+  return {
+    Authorization: `Key ${FAL_KEY}`,
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    ...(interactive
+      ? {
+          // Interactive generation should fail fast instead of being retried/re-queued for 30+ minutes.
+          "X-Fal-No-Retry": "1",
+          "X-Fal-Request-Timeout": "90",
+        }
+      : {}),
+  };
+}
+
 function normalizeClientFacingError(error: unknown) {
   const rawMessage = error instanceof Error ? error.message : "Internal server error";
   if (rawMessage.includes("file_too_large")) {
@@ -549,7 +568,7 @@ async function handleSubmit(body: Record<string, unknown>) {
           : `https://queue.fal.run/${falEndpoint}`;
         const falResp = await fetch(falSubmitUrl, {
           method: "POST",
-          headers: { Authorization: `Key ${FAL_KEY_FB}`, "Content-Type": "application/json" },
+          headers: falSubmitHeaders(FAL_KEY_FB),
           body: JSON.stringify(falBody),
         });
         if (falResp.ok) {
@@ -693,6 +712,12 @@ async function handleSubmit(body: Record<string, unknown>) {
       }
     }
 
+    if (isKlingV3(model) && !isMotionControl && !isVideoEdit) {
+      // Kling 3 Pro defaults to native audio, which is materially slower and more expensive.
+      // Keep the fast Higgsfield-like path as the default; audio can be made explicit later.
+      input.generate_audio = body?.generateAudio === true;
+    }
+
     console.log(`Submitting to fal.ai queue: ${endpoint}, mode=${mode}`);
     await updateVideoRow(videoId, { provider: "fal", stage: "submitting", status: "processing", error: null });
 
@@ -707,7 +732,7 @@ async function handleSubmit(body: Record<string, unknown>) {
     try {
       submitResp = await fetch(submitUrl, {
         method: "POST",
-        headers: { Authorization: `Key ${FAL_KEY}`, "Content-Type": "application/json", Accept: "application/json" },
+        headers: falSubmitHeaders(FAL_KEY),
         body: JSON.stringify(input),
         signal: AbortSignal.timeout(45000),
       });
